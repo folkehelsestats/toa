@@ -155,7 +155,7 @@ codebook::val_labels(dt$totalfrekvens) <- c(
 #------------------------------
 
 # Antall dager drukket øl, hele utvalget
-dt[, øldager := fcase(
+dt[, oldager := fcase(
   Type1a == 1, 28,
   Type1a == 2 & Typ1a_uk == 1, 18,
   Type1a == 2 & Typ1a_uk == 2, 10,
@@ -167,21 +167,21 @@ dt[, øldager := fcase(
   default = 0
 )]
 
-codebook::var_label(dt$øldager) <- "Antall dager drukket øl, hele utvalget"
-
-dt[, øldageraktive := fcase(
-  Drukket3 >= 2, NA_real_,  # If not drunk in last 4 weeks → NA
-  default = øldager         # Else keep the øldager value
+codebook::var_label(dt$oldager) <- "Antall dager drukket øl, hele utvalget"
+  
+dt[, oldageraktive := fcase(
+  drukket3 >= 2, na_real_,  # if not drunk in last 4 weeks → na
+  default = oldager         # else keep the øldager value
 )]
 
-codebook::var_label(dt$øldageraktive) <- "Antall dager drukket øl, kun folk som har drukket alkohol siste 4 uker"
+codebook::var_label(dt$oldageraktive) <- "Antall dager drukket øl, kun folk som har drukket alkohol siste 4 uker"
 
-dt[, øldagersisteår := fcase(
+dt[, oldagersisteår := fcase(
   Drukket1 >= 2, NA_real_,
-  default = øldager
+  default = oldager
 )]
 
-codebook::var_label(dt$øldagersisteår) <- "Antall dager drukket øl, kun folk som har drukket alkohol siste år"
+codebook::var_label(dt$oldagersisteår) <- "Antall dager drukket øl, kun folk som har drukket alkohol siste år"
 
 # - Vin ----
 # Antall dager drukket vin, hele utvalget
@@ -464,3 +464,69 @@ dt[, allevinflasker := (vinflaskeruke + vinglassuke / 5) * 4 + vinglasstot / 5 +
 var_label(dt$allevinflasker) <- "Alle vin flasker siste 4 uker"
 
 ## -- Brennevin --
+dt[, brennevinglassuke := fcase(
+  !is.na(Type3b_1) & Type3b_1 == 99999, NA_real_,
+  !is.na(Type3b_1), Type3b_1,
+  default = 0
+)]
+
+dt[, brennevinflaskeruke := fcase(
+  !is.na(Type3b_2) & (Type3b_2 %in% c(28, 99999)), NA_real_,
+  !is.na(Type3b_2), Type3b_2,
+  default = 0
+)]
+
+dt[, brennevinglasstot := fcase(
+  !is.na(Type3c_1) & Type3c_1 == 99999, NA_real_,
+  !is.na(Type3c_1), Type3c_1,
+  default = 0
+)]
+
+dt[, brennevinflaskertot := fcase(
+  !is.na(Type3c_2) & Type3c_2 %in% c(6, 8), NA_real_,
+  !is.na(Type3c_2), Type3c_2,
+  default = 0
+)]
+
+dt[, brennevinenheter := (brennevinglassuke + 18 * brennevinflaskeruke) * 4 + brennevinglasstot + 18 * brennevinflaskertot]
+
+
+## -- Rusbrus --
+dt[, rusbrussmåflaskeruke := fcase(
+  !is.na(Type4b_1) & Type4b_1 == 99999, NA_real_,
+  !is.na(Type4b_1), Type4b_1,
+  default = 0
+)]
+
+dt[, rusbrushalvliteruke := fcase(
+  !is.na(Type4b_2) & Type4b_2 %in% c(64, 99999), NA_real_,
+  !is.na(Type4b_2), Type4b_2,
+  default = 0
+)]
+
+dt[, rusbrussmåflasketot := fcase(
+  !is.na(Type4c_1) & Type4c_1 %in% c(99998, 99999), NA_real_,
+  !is.na(Type4c_1), Type4c_1,
+  default = 0
+)]
+
+dt[, rusbrushalvlitertot := fcase(
+  !is.na(Type4c_2) & Type4c_2 %in% c(6, 8), NA_real_,
+  !is.na(Type4c_2), Type4c_2,
+  default = 0
+)]
+
+dt[, rusbrusenheter := (rusbrussmåflaskeruke + 1.5 * rusbrushalvliteruke) * 4 +
+     rusbrussmåflasketot + 1.5 * rusbrushalvlitertot]
+
+var_label(dt$rusbrusenheter) <- "Regner 1,5 enheter per halvliter rusbrus"
+
+dt[, rusbrushalvlitere := (rusbrussmåflaskeruke / 1.5 + rusbrushalvliteruke) * 4 +
+     rusbrussmåflasketot / 1.5 + rusbrushalvlitertot]
+
+var_label(dt$rusbrushalvlitere) <- "Havlitere rusbru eller cider"
+
+dt[, totalenheter := olenheter + vinenheter + brennevinenheter + rusbrusenheter]
+
+##-- Beregne mengde ren alkohol --
+
