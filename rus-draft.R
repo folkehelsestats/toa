@@ -170,7 +170,7 @@ dt[, oldager := fcase(
 codebook::var_label(dt$oldager) <- "Antall dager drukket øl, hele utvalget"
   
 dt[, oldageraktive := fcase(
-  drukket3 >= 2, na_real_,  # if not drunk in last 4 weeks → na
+  Drukket3 >= 2, NA_real_,  # if not drunk in last 4 weeks → na
   default = oldager         # else keep the øldager value
 )]
 
