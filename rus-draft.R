@@ -1,4 +1,5 @@
 # Description: This script reads in the data from the Rusundersøkelsen 2024 dataset.
+# The codes here is based on Stata file "til tall om alkohol.do"
 pkgs <- c("data.table", "haven", "skimr", "codebook")
 invisible(lapply(pkgs, function(pkg) {
     if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
@@ -406,17 +407,18 @@ dt[, halvlitertot := fcase(
   default = 0
 )]
 
+# regner 1,5 enheter per halvliter øl
 dt[, olenheter := (flaskeroluke + 1.5 * halvliteroluke) * 4 + flaskeroltot + 1.5 * halvlitertot]
-# Erstater NA med 0
-dt[, olenheter2 := (fcoalesce(flaskeroluke, 0) + 1.5 * fcoalesce(halvliteroluke, 0)) * 4 + 
-     fcoalesce(flaskeroltot, 0) + 1.5 * fcoalesce(halvlitertot, 0)]
 
+## # Erstater NA med 0 med fcoalesce()
+## dt[, olenheter2 := (fcoalesce(flaskeroluke, 0) + 1.5 * fcoalesce(halvliteroluke, 0)) * 4 +
+##      fcoalesce(flaskeroltot, 0) + 1.5 * fcoalesce(halvlitertot, 0)]
 var_label(dt$olenheter) <- "Regnet som 1,5 enheter per halvliter øl"
 
-dt[, olhalvlitere := (flaskeroluke / 1.5 + halvliteroluke) * 4 + flaskeroltot / 1.5 + halvlitertot]
-dt[, olhalvlitere2 := (fcoalesce(flaskeroluke, 0) / 1.5 + fcoalesce(halvliteroluke, 0)) * 4 + 
-     fcoalesce(flaskeroltot, 0) / 1.5 + fcoalesce(halvlitertot, 0)]
 
+dt[, olhalvlitere := (flaskeroluke / 1.5 + halvliteroluke) * 4 + flaskeroltot / 1.5 + halvlitertot]
+## dt[, olhalvlitere2 := (fcoalesce(flaskeroluke, 0) / 1.5 + fcoalesce(halvliteroluke, 0)) * 4 +
+##      fcoalesce(flaskeroltot, 0) / 1.5 + fcoalesce(halvlitertot, 0)]
 var_label(dt$olhalvlitere) <- "Antall halvlitere øl per 4 uker"
 
 ## --- Vin ---
@@ -453,9 +455,8 @@ dt[, vinflaskertot := fcase(
 var_label(dt$vinflaskertot) <- "Antall flasker vin totalt siste 4 uker"
 
 dt[, vinenheter := (1.2 * vinglassuke + 6 * vinflaskeruke) * 4 + 1.2 * vinglasstot + 6 * vinflaskertot]
-dt[, vinenheter2 := fcoalesce(
-  (1.2 * vinglassuke + 6 * vinflaskeruke) * 4, 0
-) + fcoalesce(1.2 * vinglasstot, 0) + fcoalesce(6 * vinflaskertot, 0)]
+## dt[, vinenheter2 := fcoalesce((1.2 * vinglassuke + 6 * vinflaskeruke) * 4, 0) +
+##        fcoalesce(1.2 * vinglasstot, 0) + fcoalesce(6 * vinflaskertot, 0)]
 
 var_label(dt$vinenheter) <- "Regner 6 enheter per flaske vin siste 4 uker"
 
@@ -489,6 +490,7 @@ dt[, brennevinflaskertot := fcase(
 )]
 
 dt[, brennevinenheter := (brennevinglassuke + 18 * brennevinflaskeruke) * 4 + brennevinglasstot + 18 * brennevinflaskertot]
+## dt[, brennevinenheter2 := fcoalesce((brennevinglassuke + 18 * brennevinflaskeruke) * 4, 0) + fcoalesce(brennevinglasstot, 0) + fcoalesce(18 * brennevinflaskertot, 0)]
 
 
 ## -- Rusbrus --
@@ -518,6 +520,8 @@ dt[, rusbrushalvlitertot := fcase(
 
 dt[, rusbrusenheter := (rusbrussmåflaskeruke + 1.5 * rusbrushalvliteruke) * 4 +
      rusbrussmåflasketot + 1.5 * rusbrushalvlitertot]
+## dt[, rusbrusenheter2 := fcoalesce((rusbrussmåflaskeruke + 1.5 * rusbrushalvliteruke) * 4, 0) +
+##      fcoalesce(rusbrussmåflasketot, 0) + fcoalesce(1.5 * rusbrushalvlitertot, 0)]
 
 var_label(dt$rusbrusenheter) <- "Regner 1,5 enheter per halvliter rusbrus"
 
@@ -527,6 +531,7 @@ dt[, rusbrushalvlitere := (rusbrussmåflaskeruke / 1.5 + rusbrushalvliteruke) * 
 var_label(dt$rusbrushalvlitere) <- "Havlitere rusbru eller cider"
 
 dt[, totalenheter := olenheter + vinenheter + brennevinenheter + rusbrusenheter]
+## dt[, totalenheter2 := olenheter2 + vinenheter2 + brennevinenheter2 + rusbrusenheter2]
 
+## -------------------------------
 ##-- Beregne mengde ren alkohol --
-
