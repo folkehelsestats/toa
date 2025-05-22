@@ -535,3 +535,102 @@ dt[, totalenheter := olenheter + vinenheter + brennevinenheter + rusbrusenheter]
 
 ## -------------------------------
 ##-- Beregne mengde ren alkohol --
+
+dt[, alkoclol := olhalvlitere*2.25] #øl
+dt[, alkoclvin := allevinflasker*9] #vin
+dt[, alkoclbrennevin := brennevinenheter*1.6] #brennevin
+dt[, alkoclrusbrus := rusbrushalvlitere*2.25] #rusbrus/cider
+
+## Total mengde alkohol siste fire uker
+dt[, totalcl := alkoclol + alkoclvin + alkoclbrennevin + alkoclrusbrus]
+
+## Drikker ukedag og helg: fjerne missing
+alx <- paste0("AL", 2:5, 2:5)
+dt[, (alx) := lapply(.SD, function(x) fifelse(x %in% c(8,9), NA, x)), .SDcols = paste0("AL", 2:5)]
+
+## ------------------------
+## AUDIT
+##
+## Berengne AUDIT (har ikke endret labels som derfor er forvirrende etter
+## omregning av Audit 2, 4, 5, 6, 7 og 8. Står 0, aldri, sjeldnere enn mnd, mnd,
+## ukentlig, men er egentlig: aldri, sjeldnere enn mnd, mnd, ukentlig, daglig.
+## For Audit 2 : mengdeangivelser som bør regnes om. Sjekk i originalfil)
+
+dt[, Audit1 := fcase(
+  Drukk2a == 1 | Drukket2 == 1, 4,
+  Drukk2a == 2, 3,
+  Drukk2a == 3 | Drukk2b %in% c(1, 2), 2,
+  Drukket2 == 4 | Drukk2b == 3, 1,
+  default = 0
+)]
+
+## Keep Audit2 instead
+dt[, Audit2new := fcase(
+  Audit2 == 1, 0,
+  Audit2 == 2, 1,
+  Audit2 == 3, 2,
+  Audit2 == 4, 3,
+  Audit2 == 5, 4,
+  Audit2 %in% c(8, 9), NA_real_,
+  default = Audit2
+)]
+
+
+## AUDIT3
+## (sjekke skillet mellom 3 og 4 poeng. Bare daglig gir 4, eller 4-5 ggr
+## i uka gir også 4? (dvs Audit3_1==1-->Audit3new=4) - gnerelt sjekke ettersom
+## kategoriene ikke overensstemmer helt med audit)
+dt[, Audit3new := fcase(
+  Audit3 == 1, 4,
+  Audit3_1 %in% c(1, 2), 3,
+  Audit3_2 %in% c(1, 2) | Audit3_1 == 3, 2,
+  Audit3 == 4 | Audit3_2 == 3, 1,
+  default = 0
+)]
+
+# Define the omkoding mapping
+omkoding <- c("1" = 0, "2" = 1, "3" = 2, "4" = 3, "5" = 4)
+
+# List of variables to recode
+vars <- paste0("Audit", 4:8)
+
+# Recode in one line, creating new variables with _rec suffix
+dt[, paste0(vars, "new") := lapply(.SD, function(x) {
+  out <- omkoding[as.character(x)]
+  out[x %in% c(8, 9)] <- NA
+  out
+}), .SDcols = vars]
+
+
+## Audit9 (fant Audit9 i spørreskjemaet(audit9_a_b_c)- men audit9_a er mystisk
+## og stemmer ikke overense med _b og _c?
+dt[, Audit9new := fcase(
+  Audit9a == 1 | Audit9b == 1, 4,
+  audit9_b == 1 | audit9_c == 1, 2,
+  default = 0
+)]
+
+dt[, Audit10new := fcase(
+  Audit10a == 1, 4,
+  Audit10 == 1, 2,
+  default = 0
+)]
+
+## Audit total
+dt[, Auditscore := Audit1 + Audit2new +
+       Audit3new + Audit4new + Audit5new +
+       Audit6new + Audit7new + Audit8new +
+       Audit9new + Audit10new]
+
+
+## ---------------------
+## Risikogrupper
+dt[, risikogruppe := fcase(
+  Auditscore >= 0 & Auditscore <= 7, 0,
+  Auditscore >= 8 & Auditscore <= 15, 1,
+  Auditscore >= 16 & Auditscore <= 19, 2,
+  Auditscore >= 20 & Auditscore <= 40, 3
+)]
+
+## ----------------------------
+## Konstruere aldersgrupper
