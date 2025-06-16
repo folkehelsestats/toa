@@ -206,127 +206,182 @@ label define drikkefrekvens 0 "ikke drukket siste 4 uker" 1 "drukket daglig sist
 label val drikkefrekvens drikkefrekvens
 
 
-*antall enheter siste 4 uker [ Kan muligens legge inn en cut-off på 70 enheter slik at alt over 70 er 70, slik det gjøres i NCD. Uskker på om det er per drikkesort eller totalt - rettelse: må være per drikkesort]
+*antall enheter siste 4 uker -> ETTER MASSE OM OG MEN ER NÅVÆRENDE LØSNING Å IKKE STRYKE NOE: FHI VIL ANTAKELIG GJØRE DET SAMME[ Kan muligens legge inn en cut-off på 70 enheter slik at alt over 70 er 70, slik det gjøres i NCD. Uskker på om det er per drikkesort eller totalt - rettelse: må være per drikkesort - ny rettelse: Elin sier det er totalt. Avventer dette, men retter opp enhetsberegningene så de blir lik FHIs - siste nytt: winsorizing per enhet, dvs endrer alle over 95% percentilen til lik 95% percentilen]
 *øl
 
 gen flaskerøluke=0
 replace flaskerøluke=Type1b_1 if Type1b_1<.
-recode flaskerøluke (99998=.)
+recode flaskerøluke (99998=0)(99999=0)
 
 gen halvliterøluke=0
 replace halvliterøluke=Type1b_2 if Type1b_2<.
-recode halvliterøluke (102=.)
+recode halvliterøluke (99998=0)(99999=0)
 
 gen flaskerøltot=0
 replace flaskerøltot= Type1c_1 if Type1c_1<.
-recode flaskerøltot (100=.) (99999=.)
+recode flaskerøltot (99998=0) (99999=0)
 
 
 gen halvlitertot=0
 replace halvlitertot=Type1c_2 if Type1c_2<.
-recode halvlitertot (100=.)
+recode halvlitertot (99998=0)(99999=0)
 
 *regner 1,5 enheter per halvliter øl
 gen ølenheter= (flaskerøluke + 1.5*halvliterøluke)*4 + flaskerøltot + 1.5*halvlitertot
 
+
+*winsorising: endrer alle over 95%-percentilen til =95% percentilen
+winsor2 ølenheter, suffix(_win) cuts(0 95) 
+
+
 *antall halvlitere øl per 4 uker
 gen ølhalvlitere =(flaskerøluke/1.5 +halvliterøluke)*4 + flaskerøltot/1.5 + halvlitertot
+
+winsor2 ølhalvlitere, suffix(_win) cuts(0 95)
 
 *vin
 gen vinglassuke=0
 replace vinglassuke=Type2b_1 if Type2b_1<.
-recode vinglassuke (99998=.)
+recode vinglassuke (99998=0)(99999=0)
 
 gen vinflaskeruke=0
 replace vinflaskeruke=Type2b_2 if Type2b_2<.
-recode vinflaskeruke (28=.)(99999=.)
+recode vinflaskeruke (99998=0)(99999=0)
 
 gen vinglasstot=0
 replace vinglasstot= Type2c_1 if Type2c_1<.
-recode vinglasstot (99999=.)
+recode vinglasstot (99999=0)(99998=0)
 
 
 gen vinflaskertot=0
 replace vinflaskertot=Type2c_2 if Type2c_2<.
-recode vinflaskertot (10=.)
+recode vinflaskertot (99998=0)(99999=0)
 
 *regner 6 enheter per flaske vin
 gen vinenheter= (1.2*vinglassuke + 6*vinflaskeruke)*4 + 1.2*vinglasstot + 6*vinflaskertot
 
+*winsorising: endrer alle over 95%-percentilen til =95% percentilen
+winsor2 vinenheter, suffix(_win) cuts(0 95) 
+
 gen allevinflasker =(vinflaskeruke + vinglassuke/5)*4 + vinglasstot/5 + vinflaskertot
+
+winsor2 allevinflasker, suffix(_win) cuts(0 95)
 
 *brennevinfrekvens
 gen brennevinglassuke=0
 replace brennevinglassuke=Type3b_1 if Type3b_1<.
-recode brennevinglassuke (99999=.)
+recode brennevinglassuke (99998=0)(99999=0)
 
 gen brennevinflaskeruke=0
 replace brennevinflaskeruke=Type3b_2 if Type3b_2<.
-*recode brennevinflaskeruke (28=.)(99999=.)
+*recode brennevinflaskeruke (99998=0)(99999=0)
 
 gen brennevinglasstot=0
 replace brennevinglasstot= Type3c_1 if Type3c_1<.
-recode brennevinglasstot (99999=.)
+recode brennevinglasstot (99998=0)(99999=0)
 
 
 gen brennevinflaskertot=0
 replace brennevinflaskertot=Type3c_2 if Type3c_2<.
-recode brennevinflaskertot (6=.)(8=.)
+recode brennevinflaskertot (99998=0)(99999=0)
 
-*regner 18 enheter per flaske sprit
-gen brennevinenheter = (brennevinglassuke + 18*brennevinflaskeruke)*4 + brennevinglasstot + 18*brennevinflaskertot
+*regner 17,5 enheter per flaske sprit
+gen brennevinenheter = (brennevinglassuke + 17.5*brennevinflaskeruke)*4 + brennevinglasstot + 17.5*brennevinflaskertot
 
+*winsorising: endrer alle over 95%-percentilen til =95% percentilen
+*ssc install winsor2
+
+winsor2 brennevinenheter, suffix(_win) cuts(0 95) 
 
 *rusbrus
 gen rusbrussmåflaskeruke=0
 replace rusbrussmåflaskeruke=Type4b_1 if Type4b_1<.
-recode rusbrussmåflaskeruke (99999=.)
+recode rusbrussmåflaskeruke (99998=0)(99999=0)
 
 gen rusbrushalvliteruke=0
 replace rusbrushalvliteruke=Type4b_2 if Type4b_2<.
-recode rusbrushalvliteruke (64=.)(99999=.)
+recode rusbrushalvliteruke (99998=0)(99999=0)
 
 gen rusbrussmåflasketot=0
 replace rusbrussmåflasketot=Type4c_1 if Type4c_1<.
-recode rusbrussmåflasketot (99998=.) (99999=.)
+recode rusbrussmåflasketot (99998=0) (99999=0)
 
 
 gen rusbrushalvlitertot=0
 replace rusbrushalvlitertot=Type4c_2 if Type4c_2<.
-recode rusbrushalvlitertot (6=.)(8=.)
+recode rusbrushalvlitertot (99998=0)(99999=0)
 
 *regner 1,5 enheter per halvliter rusbrus
 gen rusbrusenheter = (rusbrussmåflaskeruke + 1.5*rusbrushalvliteruke)*4 + rusbrussmåflasketot + 1.5*rusbrushalvlitertot
+
+*winsorising: endrer alle over 95%-percentilen til =95% percentilen
+winsor2 rusbrusenheter, suffix(_win) cuts(0 95) 
 
 *halvlitere rusbrus/cider
 
 gen rusbrushalvlitere =(rusbrussmåflaskeruke/1.5 + rusbrushalvliteruke)*4 + rusbrussmåflasketot/1.5 + rusbrushalvlitertot
 
+winsor2 rusbrushalvlitere, suffix(_win) cuts(0 95)
+
+
+
 
 gen totalenheter= ølenheter + vinenheter + brennevinenheter + rusbrusenheter
 
 
-*Beregne mengde ren alkohol
+*Beregne enheter kun for de som har drukket siste 4 uker:
+
+gen totalenheternetto =totalenheter
+replace totalenheternetto=. if alkfiruker==2
+
+gen ølenheternetto =ølenheter
+replace ølenheternetto=. if alkfiruker==2
+
+gen vinenheternetto =vinenheter
+replace vinenheternetto=. if alkfiruker==2
+
+gen brennevinenheternetto =brennevinenheter
+replace brennevinenheternetto=. if alkfiruker==2
+
+gen rusbrusenheternetto =rusbrusenheter
+replace rusbrusenheternetto=. if alkfiruker==2
+
+
+gen totalenheter_win = ølenheter_win + vinenheter_win + brennevinenheter_win + rusbrusenheter_win
+
+
+*Beregne mengde ren alkohol (her må det avklares hvordan cl skal samordnes med enheter. Nåværende løsning: alle enheter telles med. Mulig annen løsning: basere seg på winsorized enheter)
 *øl
 
 gen alkocløl= ølhalvlitere*2.25
+
+gen alkocløl_win= ølhalvlitere_win*2.25
 
 *vin
 
 gen alkoclvin=allevinflasker*9
 
+gen alkoclvin_win=allevinflasker_win*9
+
 *brennevinenheter
 
 gen alkoclbrennevin=brennevinenheter*1.6
+gen alkoclbrennevin_win=brennevinenheter_win*1.6
 
 *rusbrus/cider
 
 gen alkoclrusbrus=rusbrushalvlitere*2.25
-
+gen alkoclrusbrus_win=rusbrushalvlitere_win*2.25
 
 *total mengde alkohol siste fire uker
 
 gen totalkcl= alkocløl + alkoclvin + alkoclbrennevin + alkoclrusbrus
+
+*beregne cl kun for de som har drukket siste 4 uker (dvs kun for de som har svart på disse spørsmålene)
+gen totalkclnetto =totalkcl
+replace totalkclnetto=. if alkfiruker==2
+
+gen totalkcl_win= alkocløl_win + alkoclvin_win + alkoclbrennevin_win + alkoclrusbrus_win
 
 
 *Drikker ukedag og helg: fjerne missing
@@ -335,6 +390,24 @@ recode AL2 (8/9=.)
 recode AL3 (8/9=.)
 recode AL4 (8/9=.)
 recode AL5 (8/9=.)
+
+*gruppering av ukedag og helgedag (NB: Ingen svarte "mer enn 16 enheter" på ukedag i 2024. Dermed starter AL3 på 2. Dette kan endre seg til neste år)
+recode AL2 (1/3=1)(4=2)(5=3), gen (ukedager)
+label define ukedager 1 "drukket 2-4 ukedager" 2 "drukket 1 ukedag" 3 "ikke drukket på ukedager", modify
+label val ukedager ukedager
+
+recode AL3 (2/3=1)(4/5=2)(6/7=3), gen (ukedagenheter)
+label define ukedagenheter 1 "drikker 6-15 enheter" 2 "drikker 3-5 enheter" 3 "drikker 1-2 enheter", modify
+label val ukedagenheter ukedagenheter
+
+recode AL4 (1/2=1)(3=2)(4=3), gen (helgedager)
+label define helgedager 1 "drukket 2-3 helgedager" 2 "drukket 1 helgedag" 3 "ikke drukket på helgedager", modify
+label val helgedager helgedager
+
+recode AL5 (1/3=1)(4/5=2)(6/7=3), gen (helgeenheter)
+label define helgeenheter 1 "drikker 6 eller flere enheter" 2 "drikker 3-5 enheter" 3 "drikker 1-2 enheter", modify
+label val helgeenheter helgeenheter
+
 
 
 *Berengne AUDIT (har ikke endret labels som derfor er forvirrende etter omregning av Audit 2, 4, 5, 6, 7 og 8. Står 0, aldri, sjeldnere enn mnd, mnd, ukentlig, men er egentlig: aldri, sjeldnere enn mnd, mnd, ukentlig, daglig. For Audit 2 : mengdeangivelser som bør regnes om. Sjekk i originalfil)
@@ -466,25 +539,56 @@ label val Utdann_3gr Utdann_3gr
 summarize totalkcl 
 by Kjonn, sort: summarize totalkcl 
 by Alder6, sort: summarize totalkcl 
+by Utdann_3gr, sort: summarize totalkcl if Alder>24
 
 summarize alkocløl 
 by Kjonn, sort: summarize alkocløl 
 by Alder6, sort: summarize alkocløl 
+by Utdann_3gr, sort: summarize alkocløl if Alder>24
 
 summarize alkoclvin
 by Kjonn, sort: summarize alkoclvin 
 by Alder6, sort: summarize alkoclvin 
-by Utdann_4gr, sort: summarize alkoclvin
+by Utdann_3gr, sort: summarize alkoclvin if Alder>24
 
 summarize alkoclbrennevin
 by Kjonn, sort: summarize alkoclbrennevin 
 by Alder6, sort: summarize alkoclbrennevin 
-by Utdann_4gr, sort: summarize alkoclbrennevin
+by Utdann_3gr, sort: summarize alkoclbrennevin if Alder>24
 
 summarize alkoclrusbrus
 by Kjonn, sort: summarize alkoclrusbrus
 by Alder6, sort: summarize alkoclrusbrus 
+by Utdann_3gr, sort: summarize alkoclrusbrus if Alder>24
 
+*total cl basert på bare de som har drukket siste 4 uker
+summarize totalkclnetto
+
+* winsorized alkoholforbuk i cl:
+summarize totalkcl_win
+by Kjonn, sort: summarize totalkcl_win
+by Alder6, sort: summarize totalkcl_win
+by Utdann_3gr, sort: summarize totalkcl_win if Alder>24
+
+summarize alkocløl_win
+by Kjonn, sort: summarize alkocløl_win 
+by Alder6, sort: summarize alkocløl_win
+by Utdann_3gr, sort: summarize alkocløl_win if Alder>24
+
+summarize alkoclvin_win
+by Kjonn, sort: summarize alkoclvin_win 
+by Alder6, sort: summarize alkoclvin_win 
+by Utdann_3gr, sort: summarize alkoclvin_win if Alder>24
+
+summarize alkoclbrennevin_win
+by Kjonn, sort: summarize alkoclbrennevin_win 
+by Alder6, sort: summarize alkoclbrennevin_win
+by Utdann_3gr, sort: summarize alkoclbrennevin_win if Alder>24
+
+summarize alkoclrusbrus_win
+by Kjonn, sort: summarize alkoclrusbrus_win
+by Alder6, sort: summarize alkoclrusbrus_win
+by Utdann_3gr, sort: summarize alkoclrusbrus_win if Alder>24
 
 *drikkefrekvens
 tab alkofrekvens
@@ -493,29 +597,77 @@ tab alkfiruker
 tab alkfirukeravalle
 tab totalfrekvens
 
-tab Kjonn totalfrekvens , col chi2
-tab Alder6 totalfrekvens , col chi2
+tab  totalfrekvens Kjonn, col chi2
+tab  totalfrekvens Alder6, col chi2
+tab  totalfrekvens Utdann_3gr if Alder>24, col chi2 
+
+*drikking på hverdag og helg
+tab ukedager Kjonn, col chi2
+tab ukedager Alder6, col chi2
+tab ukedager Utdann_3gr if Alder>24, col chi2 
+
+tab ukedagenheter Kjonn, col chi2
+tab ukedagenheter Alder6, col chi2
+tab ukedagenheter Utdann_3gr if Alder>24, col chi2 
+
+tab helgedager Kjonn, col chi2
+tab helgedager Alder6, col chi2
+tab helgedager Utdann_3gr if Alder>24, col chi2 
+
+tab helgeenheter Kjonn, col chi2
+tab helgeenheter Alder6, col chi2
+tab helgeenheter Utdann_3gr if Alder>24, col chi2 
+
+tab ukedager helgedager, col chi2
+tab ukedagenheter helgeenheter, col chi2
+tab ukedagenheter ukedager , col chi2
+tab helgeenheter helgedager , col chi2
+
+*antall enheter (blant alle, uavhengig om de har svart på dette soørsmålet eller ei)
+tab totalenheter Kjonn, col chi2
+tab totalenheter Alder6, col chi2
+tab totalenheter Utdann_3gr if Alder>24, col chi2 
+
+by Kjonn, sort: summarize ølenheter 
+by Kjonn, sort: summarize vinenheter 
+by Kjonn, sort: summarize brennevinenheter 
+by Kjonn, sort: summarize rusbrusenheter 
+
+
+
+*antall enheter kun de som har fått disse spørsmålene
+
+by Kjonn, sort: summarize ølenheternetto
+by Kjonn, sort: summarize vinenheternetto 
+by Kjonn, sort: summarize brennevinenheternetto
+by Kjonn, sort: summarize rusbrusenheternetto
+
+by Alder6, sort: summarize ølenheternetto
+by Alder6, sort: summarize vinenheternetto 
+by Alder6, sort: summarize brennevinenheternetto
+by Alder6, sort: summarize rusbrusenheternetto
+
 
 *AUDIT risikogrupper
 
 tab risikogruppenew Kjonn, col chi2
 tab risikogruppenew Alder6, col chi2
-tab risikogruppenew Utdann_3gr, col chi2
+tab risikogruppenew Utdann_3gr if Alder>24, col chi2 
 
 *AUDIT ENKELT-ITEMS
 
 tab Audit1 Kjonn, col chi2
 tab Audit1 Alder6 , col chi2
-tab Audit1 Utdann_3gr , col chi2
+tab Audit1 Utdann_3gr if Alder>24, col chi2
 
 tab Audit2new Kjonn, col chi2
 tab Audit2new Alder6 , col chi2
-tab Audit2new Utdann_3gr , col chi2
+tab Audit2new Utdann_3gr if Alder>24, col chi2
 
 
 tab Audit3new1 Kjonn, col chi2
 tab Audit3new1 Alder6 , col chi2
-tab Audit3new1 Utdann_3gr , col chi2
+tab Audit3new1 Utdann_3gr if Alder>24 , col chi2
 
 
 tab Audit4new Kjonn, col chi2
@@ -525,11 +677,11 @@ tab Audit4new Utdann_3gr , col chi2
 
 tab Audit5new Kjonn, col chi2
 tab Audit5new Alder6 , col chi2
-tab Audit5new Utdann_3gr , col chi2
+tab Audit5new Utdann_3gr if Alder>24 , col chi2
 
 tab Audit6new Kjonn, col chi2
 tab Audit6new Alder6 , col chi2
-tab Audit6new Utdann_3gr , col chi2
+tab Audit6new Utdann_3gr if Alder>24 , col chi2
 
 tab Audit7new Kjonn, col chi2
 tab Audit7new Alder6 , col chi2
@@ -537,13 +689,13 @@ tab Audit7new Utdann_3gr , col chi2
 
 tab Audit8new Kjonn, col chi2
 tab Audit8new Alder6 , col chi2
-tab Audit8new Utdann_3gr , col chi2
+tab Audit8new Utdann_3gr if Alder>24 , col chi2
 
 tab Audit9new Kjonn, col chi2
 tab Audit9new Alder6 , col chi2
-tab Audit9new Utdann_3gr , col chi2
+tab Audit9new Utdann_3gr if Alder>24 , col chi2
  
 tab Audit10new Kjonn, col chi2
 tab Audit10new Alder6 , col chi2
-tab Audit10new Utdann_3gr , col chi2 
+tab Audit10new Utdann_3gr if Alder>24, col chi2 
  
