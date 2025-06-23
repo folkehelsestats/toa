@@ -1,0 +1,33 @@
+#+title: Rusundersøkelse 2024
+
+Egen notat fra SSB sine [[https://www.ssb.no/helse/helseforhold-og-levevaner/artikler/rusundersokelsen-2024][dokumentasjonsnotat]].
+
+* Generell
+
+- Gjennomført siden 2012
+- Gjennomført etter påske og før sommerferien dvs. uke 16 til 26
+- Populasjonen 16-79 år som representerer et tverrsnitt av befolkningen
+- Sendt til 8000 utvalgte
+- Første gang ble undersøkelsen gjennomført som en mixed mode undersøkelse
+- Svarprosent 62% (N = 4954)
+- Selvadmininistrert webundersøkelse 59%
+- Intervjuet over telefon 41%
+- Spørsmål om bruk av narkotiske stoffer og prestasjonsfremmende midler kun for 16-64 år
+- De som bor på institusjon, på Svalbard, i militæret og er utenriks er ikke med i utvalget.
+
+* Vekting
+- Kalibreringsprosessen ved bruk R-pakken [[https://diegozardetto.github.io/ReGenesees/index.html][ReGenesees]]
+
+#+begin_src r
+pop_tot <- ReGenesees::pop.template(data = des,
+                                    calmodel = ~(LANDSDEL + KJONN * (ALDERSGRUPPER +
+                                                                     UTDANNING) - 1))
+#+end_src
+
+- Denne modellen kalibrerer vektene slik at de justeres både på enkeltdimensjoner
+og kryssgrupperinger av kjønn, alder og utdanning, for å reflektere
+populasjonens faktiske demografiske struktur.
+
+- Datafilen for kalibreringsvektene heter =rusundersokelsen_vekter_p2024= og inneholder:
+  + LOPENR: Løpenummer for respondentene
+  + VEKT: Kalibreringsvektene for hver respondent
