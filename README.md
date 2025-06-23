@@ -7,7 +7,7 @@ Relevant informasjon angående repporten til **Tall om Alkohol**
 ## KFA
 Denne undersøkelsen sendes til kommunene, i henhold til §7-3  i alkoholforskriften. Undersøkelsen handler om kommunens arbeid med salgs- og skjenkesteder for alkohol, med utgangspunkt i de forpliktelsene alkoholloven og alkoholforskriften pålegger kommunene. 
 
-# Generell info om dataoppsett, databehandling og kvalitetssikring:
+### Generell info om dataoppsett, databehandling og kvalitetssikring:
 - Vær oppmerksom på at det kan ha forekommet endringer i kommuner (ev. fylker)
 - Generelt er det mest aktuelt å kvalitetssikre tall mot tidligere år (siste, og ev. 2-3 år tilbake i tid) og se på "outliers". 
 - I hovedsak benyttes alle tall som er fylt ut, selv om leverandør av undersøkelsen ikke har satt kommunen som "complete" eller "gjennomført". Disse tallene vil uansett kvalitetssikres.
