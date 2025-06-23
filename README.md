@@ -17,4 +17,4 @@ Denne undersøkelsen sendes til kommunene, i henhold til §7-3  i alkoholforskri
 - Ta ut antall salgs og skjenkesteder totalt og etter fra året før og evt lenger tilbake. Se på endringene og om disse virker plausible. Kontakt kommunen hvis endringene virker merkelige for å høre hva som er riktig. Rett og opp og lagre filen under et annet navn (f.eks. behandlet i motsetning til original).
 
 **Salgs- og skjenketider**
-- Kvalitetssikring av salgs og skjenketider, om det er endringer kan man søke opp kommunens alkoholpolitiske handlingsplan evt. se om det har vært mediesaker om endringer i salgs- eller skjenketider. Test
+- Kvalitetssikring av salgs og skjenketider, om det er endringer kan man søke opp kommunens alkoholpolitiske handlingsplan evt. se om det har vært mediesaker om endringer i salgs- eller skjenketider.
