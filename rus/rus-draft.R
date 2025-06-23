@@ -375,8 +375,13 @@ var_label(dt$drikkefrekvens) <- "Total drikkerfrekvens"
 # drikkfreq <- dt[, .N, keyby = drikkefrekvens]
 # drikkfreq[, values := names(val_labels(drikkefrekvens))]
 
-##-- Antall enheter siste 4 uker (kan muligens legge inn en cut-off på 70 enheter slik at alt over 70 er 70,
-## slik det gjøres i NCD. Usikker på om det er per drikkesort eller totalt - rettelse: må være per drikkesort) 
+## -- Antall enheter siste 4 uker -> ETTER MASSE OM OG MEN ER NÅVÆRENDE LØSNING
+## Å IKKE STRYKE NOE: FHI VIL ANTAKELIG GJØRE DET SAMME[ Kan muligens legge inn
+## en cut-off på 70 enheter slik at alt over 70 er 70, slik det gjøres i NCD.
+## Uskker på om det er per drikkesort eller totalt - rettelse: må være per
+## drikkesort - ny rettelse: Elin sier det er totalt. Avventer dette, men retter
+## opp enhetsberegningene så de blir lik FHIs - siste nytt: winsorizing per
+## enhet, dvs endrer alle over 95% percentilen til lik 95% percentilen]
 
 ## -- ØL ---
 # dt[, flaskeroluke := 0]
@@ -384,16 +389,16 @@ var_label(dt$drikkefrekvens) <- "Total drikkerfrekvens"
 # dt[Type1b_1 == 99998, flaskeroluke := NA_real_]
 
 dt[, flaskeroluke := fcase(
-  !is.na(Type1b_1) & Type1b_1 != 99998, Type1b_1,
-  Type1b_1 == 99998, NA_real_,
-  default = 0
-)]
+       !is.na(Type1b_1), Type1b_1,
+       Type1b_1 %in% c(99998, 99999), 0,
+       default = 0
+     )]
 
 dt[, halvliteroluke := fcase(
-  !is.na(Type1b_2) & Type1b_2 != 102, Type1b_2,
-  Type1b_2 == 102, NA_real_,
-  default = 0
-)]
+       !is.na(Type1b_2), Type1b_2,
+       Type1b_2 %in% c(99998, 99999), 0,
+       default = 0
+     )]
 
 dt[, flaskeroltot := fcase(
   !is.na(Type1c_1) & Type1c_1 %in% c(100, 99999), NA_real_,
