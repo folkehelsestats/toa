@@ -5,4 +5,4 @@ Tall om Alkohol
 [kodebok](https://folkehelsestats.github.io/toa/codebook)
 
 ## KFA
-bla.. bla..
+Denne undersøkelsen sendes til kommunene.
