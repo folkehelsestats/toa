@@ -2,7 +2,7 @@
 Relevant informasjon angående rapporten til **Tall om Alkohol**
 
 ## Rusundersøkelsen
-- Info om undersøkelsen finnes hos (SSB)[https://www.ssb.no/helse/undersokelsen-om-tobakk-og-rusmiddelbruk-i-norge]
+- Info om undersøkelsen finnes hos [SSB](https://www.ssb.no/helse/undersokelsen-om-tobakk-og-rusmiddelbruk-i-norge)
 - [kodebok](https://folkehelsestats.github.io/toa/codebook)
 
 ## KFA
