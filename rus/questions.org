@@ -1,11 +1,12 @@
 #+title: Spørsmål om dataene
 
-Trenger avklaring fra datasettet for disse:
+Noen spørsmål angående datasettet for Rusundersøkelsen 2024.
 
 * Verdi som ikke finnes i kodebok
 Er disse feilkodet? De skal uansett omkodet til missing.
 - Variable =Drukket1= har verdi 8
 - Variable =Drukket3= har verdi 9
+- Det gjelder også variabler =Drukk2a, Drukk2b= og =Drukk2c=
 * Drukket daglig
 Det er 59 svarte at de har drukket daglig siste 12 mnd =(Drukket2)=, men på spørsmål =(AL2)= antall ukedager drikker alkohol ble svarene for det 59 som følgende:
 
