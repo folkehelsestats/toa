@@ -76,6 +76,13 @@ codebook::val_labels(dt$alkofrekvens) <- alkofrekvens_labels
 # attributes(dt$alkofrekvens)$labels <- alkofrekvens_labels
 labelled::val_labels(dt$alkofrekvens)
 
+## ----------------
+dt_labels <- data.table(
+  label = names(alkofrekvens_labels),
+  value = as.integer(alkofrekvens_labels)
+)
+
+## -------------------
 # Alkoholfrekvens siste 12 måneder
 dt[, alkofeqaar := fcase(
   alkofrekvens %in% c(0, 1), NA_real_,
