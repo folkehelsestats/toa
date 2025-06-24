@@ -1,0 +1,21 @@
+#+title: Spørsmål om dataene
+
+Trenger avklaring fra datasettet for disse:
+
+* Verdi som ikke finnes i kodebok
+Er disse feilkodet? De skal uansett omkodet til missing.
+- Variable =Drukket1= har verdi 8
+- Variable =Drukket3= har verdi 9
+* Drukket daglig
+Det er 59 svarte at de har drukket daglig siste 12 mnd =(Drukket2)=, men på spørsmål =(AL2)= antall ukedager drikker alkohol ble svarene for det 59 som følgende:
+
+#+begin_example
+> dt[Drukket2 == 1, .N, keyby = AL2]
+Key: <AL2>
+                AL2     N
+   <haven_labelled> <int>
+1:                1    34  Alle 4 ukedager
+2:                2    11  3 av 4 dager
+3:                3    10  2 av 4 dager
+4:                4     4  1 av 4 dager
+#+end_example
