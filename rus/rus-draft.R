@@ -9,8 +9,8 @@ invisible(lapply(pkgs, function(pkg) {
 Sys.setlocale("LC_ALL", "nb-NO.UTF-8")
 
 setwd("O:\\Prosjekt\\Rusdata")
-dt <- haven::read_dta(file.path("Rusundersøkelsen", "Rusus 2024", "nytt forsøk februar 25 rus24.dta"))
-setDT(dt)
+DT <- haven::read_dta(file.path("Rusundersøkelsen", "Rusus 2024", "nytt forsøk februar 25 rus24.dta"))
+dt <- as.data.table(DT)
 
 drukket <- grep("Druk*", names(dt), value = TRUE)
 dt[, (drukket) := lapply(.SD, as.numeric), .SDcols = drukket]
@@ -77,7 +77,7 @@ codebook::val_labels(dt$alkofrekvens) <- alkofrekvens_labels
 labelled::val_labels(dt$alkofrekvens)
 
 ## ----------------
-dt_labels <- data.table(
+freq_labels <- data.table(
   label = names(alkofrekvens_labels),
   value = as.integer(alkofrekvens_labels)
 )
