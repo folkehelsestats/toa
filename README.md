@@ -9,6 +9,7 @@ Relevant informasjon angående rapporten til **Tall om Alkohol**
 Denne undersøkelsen sendes til kommunene, i henhold til §7-3  i alkoholforskriften. Undersøkelsen handler om kommunens arbeid med salgs- og skjenkesteder for alkohol, med utgangspunkt i de forpliktelsene alkoholloven og alkoholforskriften pålegger kommunene. 
 
 ### Generell info om dataoppsett, databehandling og kvalitetssikring:
+- Datafilene har to årstall i seg for å indikere året dataene er samlet inn og året dataene er samlet inn for. For eksempel: KFA_2023_2024_orginal indikerer at dataene er samlet inn i 2024, men tallene i datasettet gjelder for kommunenes forvaltning av alkoholloven i 2023. Tidligere filer fra har hatt ett årstall. Da er det viktig å være oppmerksom på hvilket år som er brukt i navngivelsen av fila. 
 - Vær oppmerksom på at det kan ha forekommet endringer i kommuner (ev. fylker)
 - Generelt er det mest aktuelt å kvalitetssikre tall mot tidligere år (siste, og ev. 2-3 år tilbake i tid) og se på "outliers". 
 - I hovedsak benyttes alle tall som er fylt ut, selv om leverandør av undersøkelsen ikke har satt kommunen som "complete" eller "gjennomført". Disse tallene vil uansett kvalitetssikres.
