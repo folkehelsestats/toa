@@ -1,0 +1,29 @@
+#+title: Missing
+
+Dette er forklaringen gitt av Elin Kristin Bye (mail 30.06.25). Slik gjør man
+når det gjelder missing etc. for Rusundersøkelse.
+
+- Vi setter missing/ubesvart som missing- noen variabel har verdien 8, 9 eller
+  9999 eller 9998 for missing etc.
+- Alle tall presenteres for alle- og må da kodes om ift om man har eller ikke
+  har brukt det det er snakk om- dvs settes til 0 i det videre.
+- I tillegg tar vi ikke ut de som har brukt relevin fra de som har brukt
+  cannabis eller annen nark- de tallene Ingeborg har laget på Nark i Norge fra
+  2024 vil derfor bli korrigert før H-dir rapporten- da det også presenteres
+  tall for aldersgruppen 16-30 separat i Nark i Norge og det da skal fryses.
+- Når det gjelder volum variabelen er det litt mer greier- de som har rapportert
+  til NCD har laget et «cut point» basert Winsorized mean- som da egentlig skal
+  være øvre kvartil for hvert år- men ser de har satt at alle enheter over 70=70
+  på alle år- selv om det ikke er 70 som er øvre kvartil/5% for alle år. Og så
+  regner vi litt andre volum- dvs at en vinflaske er 6 og ikke 5 enheter, og
+  ganger opp vin når det regnes til enheter siden det er målt til 1,5 dl.
+- Vi har ikke bestemt hva vi skal /eller om vi skal kutte noe i volummålet for
+  vårt bruk- det er ikke gjort helt systematisk til nå. Blir uansett ikke
+  Winsorized mean .
+- Ellers er det mange variable med forskjellige navn- og noe feil labels i narko
+  har jeg sett nå (jeg har som kjent ikke hatt ansvar for narko tallene før) +
+  inntekt mangler for 1 år.- husker ikke hvilket i farten.
+- 2012 skiller seg fra 2013 på alkofrekvensene (er med 0,6 liter og 0.4 liter +
+  andre frekvenser (mulig det er i 2013 også)+ ingen av de illegale spm kan
+  brukes pga feil filter fra SSB- dvs cannabis og illegale bør bare presenteres
+  fra 2023 og fremover.
