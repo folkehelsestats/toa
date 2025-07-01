@@ -13,5 +13,3 @@ setwd("O:\\Prosjekt\\Rusdata")
 DT <- haven::read_dta(file.path("Rusundersøkelsen", "Rusus 2024", "nytt forsøk februar 25 rus24.dta"))
 dt <- as.data.table(DT)
 
-drukket <- grep("Druk*", names(dt), value = TRUE)
-dt[, (drukket) := lapply(.SD, as.numeric), .SDcols = drukket]
