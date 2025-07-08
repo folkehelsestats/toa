@@ -18,6 +18,6 @@ ttbl <- function(var, d = dt, sum = TRUE, codebook = NULL, digits = 1){
     tt <- list(total, tot, 100, " ")
   }
 
-  dx <- rbindlist(list(x, tt))
+  dx <- rbindlist(list(x, tt), ignore.attr = TRUE)
   dx[]
 }
