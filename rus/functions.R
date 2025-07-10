@@ -21,3 +21,26 @@ ttbl <- function(var, d = dt, sum = TRUE, codebook = NULL, digits = 1){
   dx <- rbindlist(list(x, tt), ignore.attr = TRUE)
   dx[]
 }
+
+# Replace values to 0
+replace_with_zero <- function(cols, values = c(99999, 99998), d = dt){
+  d[, (cols) := lapply(.SD, function(x) {
+    if (is.numeric(x)) {
+      # sometime it's decimal numbers
+      x[as.integer(x) %in% values & !is.na(x)] <- 0
+    } else if (is.character(x)) {
+      x[x %chin% as.character(values)] <- NA_character_
+    }
+    x
+  }), .SDcols = cols]
+}
+
+## dt[, (cols) := lapply(.SD, replace_with_zero_vec, values = c(99, 98)), .SDcols = cols]
+replace_with_zero_vec <- function(x, value = 99) {
+  if (is.numeric(x)) {
+    x[as.integer(x) %in% value & !is.na(x)] <- 0
+  } else if (is.character(x)) {
+    x[x %in% as.character(value)] <- NA_character_
+  }
+  x
+}
