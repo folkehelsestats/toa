@@ -5,14 +5,18 @@ Relevant informasjon angående rapporten til **Tall om Alkohol**
 - Info om undersøkelsen finnes hos [SSB](https://www.ssb.no/helse/undersokelsen-om-tobakk-og-rusmiddelbruk-i-norge)
 
 ### Kodebok
-
-| [2012](https://folkehelsestats.github.io/toa/rus2012) | [2019](https://folkehelsestats.github.io/toa/rus2019) |
-| [2013](https://folkehelsestats.github.io/toa/rus2013) | [2020](https://folkehelsestats.github.io/toa/rus2020) |
-| [2014](https://folkehelsestats.github.io/toa/rus2014) | [2021](https://folkehelsestats.github.io/toa/rus2021) |
-| [2015](https://folkehelsestats.github.io/toa/rus2015) | [2022](https://folkehelsestats.github.io/toa/rus2022) |
-| [2016](https://folkehelsestats.github.io/toa/rus2016) | [2023](https://folkehelsestats.github.io/toa/rus2023) |
-| [2017](https://folkehelsestats.github.io/toa/rus2017) | [2024](https://folkehelsestats.github.io/toa/rus2024) |
-| [2018](https://folkehelsestats.github.io/toa/rus2018) |                                                       |
+ [2012](https://folkehelsestats.github.io/toa/rus2012) 
+ [2013](https://folkehelsestats.github.io/toa/rus2013)
+ [2014](https://folkehelsestats.github.io/toa/rus2014)
+ [2015](https://folkehelsestats.github.io/toa/rus2015)
+ [2016](https://folkehelsestats.github.io/toa/rus2016)
+ [2017](https://folkehelsestats.github.io/toa/rus2017)
+ [2018](https://folkehelsestats.github.io/toa/rus2018)
+ [2020](https://folkehelsestats.github.io/toa/rus2020)
+ [2021](https://folkehelsestats.github.io/toa/rus2021)
+ [2022](https://folkehelsestats.github.io/toa/rus2022)
+ [2023](https://folkehelsestats.github.io/toa/rus2023)
+ [2024](https://folkehelsestats.github.io/toa/rus2024)
 
 
 ## KFA
