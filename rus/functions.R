@@ -10,16 +10,15 @@ ttbl <- function(var, d = dt, sum = TRUE, codebook = NULL, digits = 1){
 
   data.table::setkeyv(x, var)
 
-  total <- "Total"
+  ss <- dt[, .(mean = mean(var, na.rm = TRUE), median = median(var, na.rm = TRUE)), env = list(var = var)][]
   tot <- x[, sum(N, na.rm = T)]
-  if (ncol(x) == 3){
-    tt <- list(total, tot, 100)
-  } else {
-    tt <- list(total, tot, 100, " ")
-  }
+  totn <- x[!is.na(var), sum(N, na.rm = T), env = list(var = var)]
 
-  dx <- rbindlist(list(x, tt), ignore.attr = TRUE)
-  dx[]
+  cat("Total all   ", tot, "\n")
+  cat("Total !is.na", totn, "\n")
+  print(ss, "\n")
+  x[]
+
 }
 
 # Replace values to 0
