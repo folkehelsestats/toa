@@ -12,6 +12,7 @@ Relevant informasjon angående rapporten til **Tall om Alkohol**
  [2016](https://folkehelsestats.github.io/toa/rus2016)
  [2017](https://folkehelsestats.github.io/toa/rus2017)
  [2018](https://folkehelsestats.github.io/toa/rus2018)
+ [2019](https://folkehelsestats.github.io/toa/rus2019)
  [2020](https://folkehelsestats.github.io/toa/rus2020)
  [2021](https://folkehelsestats.github.io/toa/rus2021)
  [2022](https://folkehelsestats.github.io/toa/rus2022)
