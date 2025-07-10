@@ -3,7 +3,21 @@ Relevant informasjon angående rapporten til **Tall om Alkohol**
 
 ## Rusundersøkelsen
 - Info om undersøkelsen finnes hos [SSB](https://www.ssb.no/helse/undersokelsen-om-tobakk-og-rusmiddelbruk-i-norge)
-- [kodebok](https://folkehelsestats.github.io/toa/codebook)
+
+### Kodebok
+- [2012](https://folkehelsestats.github.io/toa/rus2012)
+- [2013](https://folkehelsestats.github.io/toa/rus2013)
+- [2014](https://folkehelsestats.github.io/toa/rus2014)
+- [2015](https://folkehelsestats.github.io/toa/rus2015)
+- [2016](https://folkehelsestats.github.io/toa/rus2016)
+- [2017](https://folkehelsestats.github.io/toa/rus2017)
+- [2018](https://folkehelsestats.github.io/toa/rus2018)
+- [2019](https://folkehelsestats.github.io/toa/rus2019)
+- [2020](https://folkehelsestats.github.io/toa/rus2020)
+- [2021](https://folkehelsestats.github.io/toa/rus2021)
+- [2022](https://folkehelsestats.github.io/toa/rus2022)
+- [2023](https://folkehelsestats.github.io/toa/rus2023)
+- [2024](https://folkehelsestats.github.io/toa/rus2024)
 
 ## KFA
 Denne undersøkelsen sendes til kommunene, i henhold til §7-3  i alkoholforskriften. Undersøkelsen handler om kommunens arbeid med salgs- og skjenkesteder for alkohol, med utgangspunkt i de forpliktelsene alkoholloven og alkoholforskriften pålegger kommunene. 
