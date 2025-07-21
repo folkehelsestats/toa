@@ -1,10 +1,19 @@
 ## get dataset ie. dt
 pth <- "~/Git-hdir/toa/rus"
 source(file.path(pth, "setup.R"))
+source(file.path(pth, "functions.R"))
 
 ## ----
 drukket <- grep("Druk*", names(dt), value = TRUE)
 dt[, (drukket) := lapply(.SD, as.numeric), .SDcols = drukket]
+
+# De som drikker dvs. Drukket1= , og har drukket noen ganger (Drukket1=2 & Drukket1b=1)
+# Brukes til å lage nevner for de som drikker istendenfor hele befolkningen
+dt[, ndrink := fcase(
+       Drukket1 == 1, 1,
+       Drukket1 == 2 & Drukk1b == 1, 1)]
+
+dt[is.na(ndrink), ndrink := Drukket1]
 
 # Antall dager drukket alkohol siste år (blant siste års drikkere)
 dt[, alkodager := fcase(
@@ -28,29 +37,29 @@ dt[, alkodager := fcase(
 
 
 # Alkoholfrekvens totalt og siste år
-dt[, alkofrekvens := fcase(
-  Drukket1 == 1, 2,
-  Drukket1 == 2, 1,
-  Drukket1 == 8, NA_real_,
-  default = NA_real_
-)]
-dt[Drukk1b == 2, alkofrekvens := 0]
-dt[Drukket2 == 3, alkofrekvens := 3]
-dt[Drukket2 == 2, alkofrekvens := 4]
-dt[Drukket2 == 1, alkofrekvens := 5]
-dt[Drukket2 == 9 | Drukk1b %in% c(8, 9), alkofrekvens := NA_real_]
+dt[Drukket1 == 1, alkofrekvens := fcase(
+                    Drukket2 == 1, 5,
+                    Drukket2 == 2, 4,
+                    Drukket2 == 3, 3,
+                    Drukket2 == 4, 2
+                  )]
+dt[Drukket1 == 2, alkofrekvens := fcase(
+                    Drukk1b == 1, 1,
+                    Drukk1b == 2, 0
+                  )]
 
-# dt[, alkofrekvens3 := fcase(
-#   Drukk1b == 2, 0,
-#   Drukket2 == 3, 3,
-#   Drukket2 == 2, 4,
-#   Drukket2 == 1, 5,
-#   Drukket2 == 9 | Drukk1b %in% c(8, 9), NA_real_,
-#   Drukket1 == 1, 2,
-#   Drukket1 == 2, 1,
-#   Drukket1 == 8, NA_real_,
-#   default = NA_real_
-# )]
+
+## dt[, alkofrekvens := fcase(
+##   Drukket1 == 1, 2,
+##   Drukket1 == 2, 1,
+##   Drukket1 == 8, NA_real_,
+##   default = NA_real_
+## )]
+## dt[Drukk1b == 2, alkofrekvens := 0]
+## dt[Drukket2 == 3, alkofrekvens := 3]
+## dt[Drukket2 == 2, alkofrekvens := 4]
+## dt[Drukket2 == 1, alkofrekvens := 5]
+## dt[Drukket2 == 9 | Drukk1b %in% c(8, 9), alkofrekvens := NA_real_]
 
 
 # Define labels for 'alkofrekvens' (optional, for reference)
@@ -65,7 +74,7 @@ alkofrekvens_labels <- c(
 
 codebook::val_labels(dt$alkofrekvens) <- alkofrekvens_labels
 # attributes(dt$alkofrekvens)$labels <- alkofrekvens_labels
-labelled::val_labels(dt$alkofrekvens)
+## labelled::val_labels(dt$alkofrekvens)
 
 ## ----------------
 freq_labels <- data.table(
@@ -92,7 +101,7 @@ alkofeqaar_values <- c(
 )
 
 codebook::val_labels(dt$alkofeqaar) <- alkofeqaar_values
-labelled::val_labels(dt$alkofeqaar)
+## labelled::val_labels(dt$alkofeqaar)
 # class(dt$alkofeqaar)
 
 
@@ -156,7 +165,7 @@ codebook::val_labels(dt$totalfrekvens) <- c(
 # Antall dager drukket øl, hele utvalget
 dt[, oldager := fcase(
   Type1a == 1, 28,
-  Type1a == 2 & Typ1a_uk == 1, 18,
+  Type1a == 2 & Typ1a_uk == 1, 18, #4.5 dager x 4 uker
   Type1a == 2 & Typ1a_uk == 2, 10,
   Type1a == 2 & Typ1a_uk == 3, 4,
   Type1a == 3 & Typ1a_mn == 1, 3.5,
@@ -169,7 +178,7 @@ dt[, oldager := fcase(
 codebook::var_label(dt$oldager) <- "Antall dager drukket øl, hele utvalget"
   
 dt[, oldageraktive := fcase(
-  Drukket3 >= 2, NA_real_,  # if not drunk in last 4 weeks → na
+  Drukket3 >= 2, NA_real_,  # if not drukket in last 4 weeks → na
   default = oldager         # else keep the øldager value
 )]
 
@@ -381,11 +390,16 @@ var_label(dt$drikkefrekvens) <- "Total drikkerfrekvens"
 ## opp enhetsberegningene så de blir lik FHIs - siste nytt: winsorizing per
 ## enhet, dvs endrer alle over 95% percentilen til lik 95% percentilen]
 
+## -----------------------
+## --- To be continued
+## -----------------------
 ## -- ØL ---
+# linje 210 i do filen
 # dt[, flaskeroluke := 0]
 # dt[!is.na(Type1b_1), flaskeroluke := Type1b_1]
 # dt[Type1b_1 == 99998, flaskeroluke := NA_real_]
 
+# Drikker daglig eller ukenlig
 dt[, flaskeroluke := fcase(
        !is.na(Type1b_1), Type1b_1,
        Type1b_1 %in% c(99998, 99999), 0,
@@ -398,17 +412,18 @@ dt[, halvliteroluke := fcase(
        default = 0
      )]
 
+## Drikker sjeldnere enn ukenlig
 dt[, flaskeroltot := fcase(
-  !is.na(Type1c_1) & Type1c_1 %in% c(100, 99999), NA_real_,
-  !is.na(Type1c_1), Type1c_1,
-  default = 0
-)]
+       !is.na(Type1c_1) & Type1c_1 %in% c(100, 99999), NA_real_,
+       !is.na(Type1c_1), Type1c_1,
+       default = 0
+     )]
 
 dt[, halvlitertot := fcase(
-  !is.na(Type1c_2) & Type1c_2 == 100, NA_real_,
-  !is.na(Type1c_2), Type1c_2,
-  default = 0
-)]
+       !is.na(Type1c_2) & Type1c_2 == 100, NA_real_,
+       !is.na(Type1c_2), Type1c_2,
+       default = 0
+     )]
 
 # regner 1,5 enheter per halvliter øl
 dt[, olenheter := (flaskeroluke + 1.5 * halvliteroluke) * 4 + flaskeroltot + 1.5 * halvlitertot]
