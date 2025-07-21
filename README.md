@@ -3,6 +3,7 @@ Relevant informasjon angående rapporten til **Tall om Alkohol**
 
 ## Rusundersøkelsen
 - Info om undersøkelsen finnes hos [SSB](https://www.ssb.no/helse/undersokelsen-om-tobakk-og-rusmiddelbruk-i-norge)
+- Kart over filtreringsprosessen i spørreskjema kan ses [her](https://github.com/folkehelsestats/toa/blob/main/misc/toa.png)
 
 ### Kodebok
  [2012](https://folkehelsestats.github.io/toa/rus2012) 
