@@ -54,3 +54,13 @@ dt[, lapply(.SD, function(x)
     median(x, na.rm = T),
     tail(sort(x))
   )),.SDcols = OlVars ]
+
+
+VinVars <- c("Type2b_1", "Type2b_2", "Type2c_1", "Type2c_2")
+dt[, lapply(.SD, function(x)
+  c(
+    min(x, na.rm = TRUE),
+    max(x, na.rm = TRUE),
+    median(x, na.rm = T),
+    tail(sort(x))
+  )),.SDcols = VinVars ]
