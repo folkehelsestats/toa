@@ -7,6 +7,9 @@ Er disse feilkodet? De skal uansett omkodet til missing.
 - Variable =Drukket1= har verdi 8
 - Variable =Drukket3= har verdi 9
 - Det gjelder også variabler =Drukk2a, Drukk2b= og =Drukk2c=
+
+*** Svaret
+Det er *8* for =Vil ikke svare= og *9* for =Vet ikke=
 * Drukket daglig
 Det er 59 svarte at de har drukket daglig siste 12 mnd =(Drukket2)=, men på spørsmål =(AL2)= antall ukedager drikker alkohol ble svarene for det 59 som følgende:
 
@@ -20,3 +23,20 @@ Key: <AL2>
 3:                3    10  2 av 4 dager
 4:                4     4  1 av 4 dager
 #+end_example
+
+*** Svaret
+Bruk bare variabel =(Drukket2)=
+
+* Maks verdi
+Skal disse endres til missing? Foreløpig beholder disse som det er
+- =flaskeroltot= og =halvlitertot= har maks verdi av 100
+- =vinflaskeruke= har maks verdi av 28
+- =vinflaskertot= har maks verdi av 10
+
+*** Svaret
+Vi gjør som FHI dvs. beholder alle verdiene
+* Vil ikke svar og vet ikke
+FHI konverterer disse til 0, men vi anser dem som missing. Disse gjelder for verdien 99998 og 99999 særlig for alkoholenhet gjennomsnitt per uke i siste 4 uker eller total ila. siste 4 uker.
+
+* Vinglass
+Et vin glass regnes som 1 alkoholenhet i spørreskjema, men Ingeborg regnet det som 1.2 alkoholenhet [[file:~/Git-hdir/toa/do/toa.do::gen vinenheter= (1.2*vinglassuke + 6*vinflaskeruke)*4 + 1.2*vinglasstot + 6*vinflaskertot][(do fil)]]
