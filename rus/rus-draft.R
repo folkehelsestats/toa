@@ -403,7 +403,7 @@ dt[, flaskeroluke := fcase(
   default = Type1b_1
 )]
 
-
+## OBS! Maks verdi er 102 her
 dt[, halvliteroluke := fcase(
   as.integer(Type1b_2) %in% c(99998, 99999), NA_real_,
   is.na(Type1b_2), 0,
@@ -442,39 +442,41 @@ dt[, olhalvlitere := (flaskeroluke / 1.5 + halvliteroluke) * 4 + flaskeroltot / 
 ##      fcoalesce(flaskeroltot, 0) / 1.5 + fcoalesce(halvlitertot, 0)]
 var_label(dt$olhalvlitere) <- "Antall halvlitere øl per 4 uker"
 
-## -----------------------
-## --- To be continued
-## -----------------------
 ## --- Vin ---
+
 dt[, vinglassuke := fcase(
-  !is.na(Type2b_1) & Type2b_1 == 99998, NA_real_,
-  !is.na(Type2b_1), Type2b_1,
-  default = 0
-)]
+       as.integer(Type2b_1) %in% c(99998, 99999), NA_real_,
+       is.na(Type2b_1), 0,
+       default = Type2b_1
+     )]
 
 var_label(dt$vinglassuke) <- "Gjennomsnitt antall glass vin ukenlig siste 4 uker"
 
+## OBS! Maks verdi er 28. Skal den slettes?
 dt[, vinflaskeruke := fcase(
-  !is.na(Type2b_2) & Type2b_2 %in% c(28, 99999), NA_real_,
-  !is.na(Type2b_2), Type2b_2,
-  default = 0
-)]
+       as.integer(Type2b_2) %in% c(99998, 99999), NA_real_,
+       is.na(Type2b_2), 0,
+       default = Type2b_2
+     )]
 
 var_label(dt$vinflaskeruke) <- "Gjennomsnitt antall flaske vin ukenlig siste 4 uker"
 
+
 dt[, vinglasstot := fcase(
-  !is.na(Type2c_1) & Type2c_1 == 99999, NA_real_,
-  !is.na(Type2c_1), Type2c_1,
-  default = 0
-)]
+       as.integer(Type2c_1) %in% c(99998, 99999), NA_real_,
+       is.na(Type2c_1), 0,
+       default = Type2c_1
+     )]
 
 var_label(dt$vinglasstot) <- "Antall glass vin totalt siste 4 uker"
 
+
+## OBS! Maks verdi er 10. Skal den slettes?
 dt[, vinflaskertot := fcase(
-  !is.na(Type2c_2) & Type2c_2 == 10, NA_real_,
-  !is.na(Type2c_2), Type2c_2,
-  default = 0
-)]
+       as.integer(Type2c_2) %in% c(99998, 99999), NA_real_,
+       is.na(Type2c_2), 0,
+       default = Type2c_2
+     )]
 
 var_label(dt$vinflaskertot) <- "Antall flasker vin totalt siste 4 uker"
 
@@ -490,32 +492,38 @@ var_label(dt$allevinflasker) <- "Alle vin flasker siste 4 uker"
 
 ## -- Brennevin --
 dt[, brennevinglassuke := fcase(
-  !is.na(Type3b_1) & Type3b_1 == 99999, NA_real_,
-  !is.na(Type3b_1), Type3b_1,
-  default = 0
-)]
+       as.integer(Type3b_1) %in% c(99998, 99999), NA_real_,
+       is.na(Type3b_1), 0,
+       default = Type3b_1
+     )]
+
 
 dt[, brennevinflaskeruke := fcase(
-  !is.na(Type3b_2) & (Type3b_2 %in% c(28, 99999)), NA_real_,
-  !is.na(Type3b_2), Type3b_2,
-  default = 0
-)]
+       as.integer(Type3b_2) %in% c(99998, 99999), NA_real_,
+       is.na(Type3b_2), 0,
+       default = Type3b_2
+     )]
+
 
 dt[, brennevinglasstot := fcase(
-  !is.na(Type3c_1) & Type3c_1 == 99999, NA_real_,
-  !is.na(Type3c_1), Type3c_1,
-  default = 0
-)]
+       as.integer(Type3c_1) %in% c(99998, 99999), NA_real_,
+       is.na(Type3c_1), 0,
+       default = Type3c_1
+     )]
+
 
 dt[, brennevinflaskertot := fcase(
-  !is.na(Type3c_2) & Type3c_2 %in% c(6, 8), NA_real_,
-  !is.na(Type3c_2), Type3c_2,
-  default = 0
-)]
+       as.integer(Type3c_2) %in% c(99998, 99999), NA_real_,
+       is.na(Type3c_2), 0,
+       default = Type3c_2
+     )]
 
-dt[, brennevinenheter := (brennevinglassuke + 18 * brennevinflaskeruke) * 4 + brennevinglasstot + 18 * brennevinflaskertot]
+dt[, brennevinenheter := (brennevinglassuke + 17.5 * brennevinflaskeruke) * 4 + brennevinglasstot + 17.5 * brennevinflaskertot]
 ## dt[, brennevinenheter2 := fcoalesce((brennevinglassuke + 18 * brennevinflaskeruke) * 4, 0) + fcoalesce(brennevinglasstot, 0) + fcoalesce(18 * brennevinflaskertot, 0)]
 
+## -----------------------
+## --- To be continued
+## -----------------------
 
 ## -- Rusbrus --
 dt[, rusbrussmåflaskeruke := fcase(
