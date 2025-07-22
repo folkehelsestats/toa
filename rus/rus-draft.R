@@ -390,9 +390,6 @@ var_label(dt$drikkefrekvens) <- "Total drikkerfrekvens"
 ## opp enhetsberegningene så de blir lik FHIs - siste nytt: winsorizing per
 ## enhet, dvs endrer alle over 95% percentilen til lik 95% percentilen]
 
-## -----------------------
-## --- To be continued
-## -----------------------
 ## -- ØL ---
 # linje 210 i do filen
 # dt[, flaskeroluke := 0]
@@ -430,14 +427,14 @@ dt[, halvlitertot := fcase(
        default = Type1c_2
      )]
 
-
-# regner 1,5 enheter per halvliter øl
+# en flasker øl er en alkoholenhet
+# en halvliter øl er 1,5 alkoholenhet
 dt[, olenheter := (flaskeroluke + 1.5 * halvliteroluke) * 4 + flaskeroltot + 1.5 * halvlitertot]
 
 ## # Erstater NA med 0 med fcoalesce()
 ## dt[, olenheter2 := (fcoalesce(flaskeroluke, 0) + 1.5 * fcoalesce(halvliteroluke, 0)) * 4 +
 ##      fcoalesce(flaskeroltot, 0) + 1.5 * fcoalesce(halvlitertot, 0)]
-var_label(dt$olenheter) <- "Regnet som 1,5 enheter per halvliter øl"
+var_label(dt$olenheter) <- "Alkoholenheter (øl) siste 4 uker"
 
 
 dt[, olhalvlitere := (flaskeroluke / 1.5 + halvliteroluke) * 4 + flaskeroltot / 1.5 + halvlitertot]
@@ -445,6 +442,9 @@ dt[, olhalvlitere := (flaskeroluke / 1.5 + halvliteroluke) * 4 + flaskeroltot / 
 ##      fcoalesce(flaskeroltot, 0) / 1.5 + fcoalesce(halvlitertot, 0)]
 var_label(dt$olhalvlitere) <- "Antall halvlitere øl per 4 uker"
 
+## -----------------------
+## --- To be continued
+## -----------------------
 ## --- Vin ---
 dt[, vinglassuke := fcase(
   !is.na(Type2b_1) & Type2b_1 == 99998, NA_real_,
