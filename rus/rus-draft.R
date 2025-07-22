@@ -521,37 +521,33 @@ dt[, brennevinflaskertot := fcase(
 dt[, brennevinenheter := (brennevinglassuke + 17.5 * brennevinflaskeruke) * 4 + brennevinglasstot + 17.5 * brennevinflaskertot]
 ## dt[, brennevinenheter2 := fcoalesce((brennevinglassuke + 18 * brennevinflaskeruke) * 4, 0) + fcoalesce(brennevinglasstot, 0) + fcoalesce(18 * brennevinflaskertot, 0)]
 
-## -----------------------
-## --- To be continued
-## -----------------------
-
 ## -- Rusbrus --
-dt[, rusbrussmåflaskeruke := fcase(
-  !is.na(Type4b_1) & Type4b_1 == 99999, NA_real_,
-  !is.na(Type4b_1), Type4b_1,
-  default = 0
-)]
+dt[, rusbrussmaflaskeruke := fcase(
+       as.integer(Type4b_1) %in% c(99998, 99999), NA_real_,
+       is.na(Type4b_1), 0,
+       default = Type4b_1
+     )]
 
 dt[, rusbrushalvliteruke := fcase(
-  !is.na(Type4b_2) & Type4b_2 %in% c(64, 99999), NA_real_,
-  !is.na(Type4b_2), Type4b_2,
-  default = 0
-)]
+       as.integer(Type4b_2) %in% c(99998, 99999), NA_real_,
+       is.na(Type4b_2), 0,
+       default = Type4b_2
+     )]
 
-dt[, rusbrussmåflasketot := fcase(
-  !is.na(Type4c_1) & Type4c_1 %in% c(99998, 99999), NA_real_,
-  !is.na(Type4c_1), Type4c_1,
-  default = 0
-)]
+dt[, rusbrussmaflasketot := fcase(
+       as.integer(Type4c_1) %in% c(99998, 99999), NA_real_,
+       is.na(Type4c_1), 0,
+       default = Type4c_1
+     )]
 
 dt[, rusbrushalvlitertot := fcase(
-  !is.na(Type4c_2) & Type4c_2 %in% c(6, 8), NA_real_,
-  !is.na(Type4c_2), Type4c_2,
-  default = 0
-)]
+       as.integer(Type4c_2) %in% c(99998, 99999), NA_real_,
+       is.na(Type4c_2), 0,
+       default = Type4c_2
+     )]
 
-dt[, rusbrusenheter := (rusbrussmåflaskeruke + 1.5 * rusbrushalvliteruke) * 4 +
-     rusbrussmåflasketot + 1.5 * rusbrushalvlitertot]
+dt[, rusbrusenheter := (rusbrussmaflaskeruke + 1.5 * rusbrushalvliteruke) * 4 +
+     rusbrussmaflasketot + 1.5 * rusbrushalvlitertot]
 ## dt[, rusbrusenheter2 := fcoalesce((rusbrussmåflaskeruke + 1.5 * rusbrushalvliteruke) * 4, 0) +
 ##      fcoalesce(rusbrussmåflasketot, 0) + fcoalesce(1.5 * rusbrushalvlitertot, 0)]
 
@@ -564,6 +560,10 @@ var_label(dt$rusbrushalvlitere) <- "Havlitere rusbru eller cider"
 
 dt[, totalenheter := olenheter + vinenheter + brennevinenheter + rusbrusenheter]
 ## dt[, totalenheter2 := olenheter2 + vinenheter2 + brennevinenheter2 + rusbrusenheter2]
+
+## -----------------------
+## --- To be continued
+## -----------------------
 
 ## -------------------------------
 ##-- Beregne mengde ren alkohol --
