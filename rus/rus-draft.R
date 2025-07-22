@@ -4,16 +4,16 @@ source(file.path(pth, "setup.R"))
 source(file.path(pth, "functions.R"))
 
 ## ----
-drukket <- grep("Druk*", names(dt), value = TRUE)
-dt[, (drukket) := lapply(.SD, as.numeric), .SDcols = drukket]
+drukketVar <- grep("Druk*", names(dt), value = TRUE)
+dt[, (drukketVar) := lapply(.SD, as.numeric), .SDcols = drukketVar]
 
 # De som drikker dvs. Drukket1= , og har drukket noen ganger (Drukket1=2 & Drukket1b=1)
 # Brukes til å lage nevner for de som drikker istendenfor hele befolkningen
-dt[, ndrink := fcase(
+dt[, drinker := fcase(
        Drukket1 == 1, 1,
        Drukket1 == 2 & Drukk1b == 1, 1)]
 
-dt[is.na(ndrink), ndrink := Drukket1]
+## dt[is.na(drinker), drinker := Drukket1]
 
 # Antall dager drukket alkohol siste år (blant siste års drikkere)
 dt[, alkodager := fcase(
@@ -399,31 +399,37 @@ var_label(dt$drikkefrekvens) <- "Total drikkerfrekvens"
 # dt[!is.na(Type1b_1), flaskeroluke := Type1b_1]
 # dt[Type1b_1 == 99998, flaskeroluke := NA_real_]
 
-# Drikker daglig eller ukenlig
+# Drikker i snitt ukenlig
 dt[, flaskeroluke := fcase(
-       !is.na(Type1b_1), Type1b_1,
-       Type1b_1 %in% c(99998, 99999), 0,
-       default = 0
-     )]
+  as.integer(Type1b_1) %in% c(99998, 99999), NA_real_,
+  is.na(Type1b_1), 0,
+  default = Type1b_1
+)]
+
 
 dt[, halvliteroluke := fcase(
-       !is.na(Type1b_2), Type1b_2,
-       Type1b_2 %in% c(99998, 99999), 0,
-       default = 0
-     )]
+  as.integer(Type1b_2) %in% c(99998, 99999), NA_real_,
+  is.na(Type1b_2), 0,
+  default = Type1b_2
+)]
 
-## Drikker sjeldnere enn ukenlig
+
+## Drikker sjeldnere enn ukenlig dvs. totalt ila. siste fire uker
+## OBS! Maks verdi her er 100. Skal den slettes?
 dt[, flaskeroltot := fcase(
-       !is.na(Type1c_1) & Type1c_1 %in% c(100, 99999), NA_real_,
-       !is.na(Type1c_1), Type1c_1,
-       default = 0
+       as.integer(Type1c_1) %in% c(99998, 99999), NA_real_,
+       is.na(Type1c_1), 0,
+       default = Type1c_1
      )]
 
+
+## OBS! Maks verdi her er 100. Skal den slettes?
 dt[, halvlitertot := fcase(
-       !is.na(Type1c_2) & Type1c_2 == 100, NA_real_,
-       !is.na(Type1c_2), Type1c_2,
-       default = 0
+       as.integer(Type1c_2) %in% c(99998, 99999), NA_real_,
+       is.na(Type1c_2), 0,
+       default = Type1c_2
      )]
+
 
 # regner 1,5 enheter per halvliter øl
 dt[, olenheter := (flaskeroluke + 1.5 * halvliteroluke) * 4 + flaskeroltot + 1.5 * halvlitertot]
