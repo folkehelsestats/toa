@@ -40,3 +40,15 @@ FHI konverterer disse til 0, men vi anser dem som missing. Disse gjelder for ver
 
 * Vinglass
 Et vin glass regnes som 1 alkoholenhet i spørreskjema, men Ingeborg regnet det som 1.2 alkoholenhet [[file:~/Git-hdir/toa/do/toa.do::gen vinenheter= (1.2*vinglassuke + 6*vinflaskeruke)*4 + 1.2*vinglasstot + 6*vinflaskertot][(do fil)]]
+
+* AUDIT
+- I =do= file ie. =toa.do= blir =Audit2= til =Audit8= omkodet slik:
+
+#+begin_example
+recode Audit2 (1=0)(2=1)(3=2)(4=3)(5=4)(8/9=.)
+gen Audit2new=Audit2
+replace Audit2new=0 if Drukket1==2
+replace Audit2new=0 if Drukket1==8
+#+end_example
+
+Hvorfor skal de som ikke har drukket ie. ~Drukket1 %in% c(2,8)~ skal bli omkodet til 1 dvs. drukket 1-2. Se linje 425 i do filen.
