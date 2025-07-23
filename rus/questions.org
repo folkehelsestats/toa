@@ -56,4 +56,4 @@ replace Audit2new=0 if Drukket1==8
 Hvorfor skal de som ikke har drukket ie. ~Drukket1 %in% c(2,8)~ skal bli omkodet til 1 dvs. drukket 1-2. Se linje 425 i do filen.
 
 * AUDIT 3
-I =do= fil linje 432. Skal =Audit3_1= og =Audit3_2= brukes til å omkode =AUDIT3=? I =do= filen blir =Audit3_1= lik =Omtrent en dag i uken= til =månedlig=. Se [[https://github.com/folkehelsestats/toa/blob/33410e7ee185f240ed52124b3f35029a583f98ab/do/toa.do#L431][koden]]. Er det riktig?
+I =do= fil linje 432. Skal =Audit3_1= og =Audit3_2= brukes til å omkode =AUDIT3=? I =do= filen blir =Audit3_1= lik =Omtrent en dag i uken= omkodet til =månedlig=. Se [[https://github.com/folkehelsestats/toa/blob/33410e7ee185f240ed52124b3f35029a583f98ab/do/toa.do#L431][koden]]. Er det riktig?
