@@ -431,6 +431,12 @@ dt[, halvlitertot := fcase(
 # en halvliter øl er 1,5 alkoholenhet
 dt[, olenheter := (flaskeroluke + 1.5 * halvliteroluke) * 4 + flaskeroltot + 1.5 * halvlitertot]
 
+# Winsorize - endre alle over 95% percentile til verdien på 95% percentile
+dt[, olenheterWin := DescTools::Winsorize(olenheter,
+                                          quantile(olenheter,
+                                                   probs = c(0, 0.95), na.rm = TRUE))]
+
+
 ## # Erstater NA med 0 med fcoalesce()
 ## dt[, olenheter2 := (fcoalesce(flaskeroluke, 0) + 1.5 * fcoalesce(halvliteroluke, 0)) * 4 +
 ##      fcoalesce(flaskeroltot, 0) + 1.5 * fcoalesce(halvlitertot, 0)]
@@ -486,6 +492,11 @@ dt[, vinenheter := (1.2 * vinglassuke + 6 * vinflaskeruke) * 4 + 1.2 * vinglasst
 
 var_label(dt$vinenheter) <- "Regner 6 enheter per flaske vin siste 4 uker"
 
+# Winsorize - endre alle over 95% percentile til verdien på 95% percentile
+dt[, vinenheterWin := DescTools::Winsorize(vinenheter,
+                                          quantile(vinenheter,
+                                                   probs = c(0, 0.95), na.rm = TRUE))]
+
 dt[, allevinflasker := (vinflaskeruke + vinglassuke / 5) * 4 + vinglasstot / 5 + vinflaskertot]
 
 var_label(dt$allevinflasker) <- "Alle vin flasker siste 4 uker"
@@ -521,6 +532,10 @@ dt[, brennevinflaskertot := fcase(
 dt[, brennevinenheter := (brennevinglassuke + 17.5 * brennevinflaskeruke) * 4 + brennevinglasstot + 17.5 * brennevinflaskertot]
 ## dt[, brennevinenheter2 := fcoalesce((brennevinglassuke + 18 * brennevinflaskeruke) * 4, 0) + fcoalesce(brennevinglasstot, 0) + fcoalesce(18 * brennevinflaskertot, 0)]
 
+# Winsorize - endre alle over 95% percentile til verdien på 95% percentile
+dt[, brennevinenheterWin := DescTools::Winsorize(brennevinenheter,
+                                          quantile(brennevinenheter,
+                                                   probs = c(0, 0.95), na.rm = TRUE))]
 ## -- Rusbrus --
 dt[, rusbrussmaflaskeruke := fcase(
        as.integer(Type4b_1) %in% c(99998, 99999), NA_real_,
@@ -553,6 +568,11 @@ dt[, rusbrusenheter := (rusbrussmaflaskeruke + 1.5 * rusbrushalvliteruke) * 4 +
 
 var_label(dt$rusbrusenheter) <- "Regner 1,5 enheter per halvliter rusbrus"
 
+# Winsorize - endre alle over 95% percentile til verdien på 95% percentile
+dt[, rusbrusenheterWin := DescTools::Winsorize(rusbrusenheter,
+                                          quantile(rusbrusenheter,
+                                                   probs = c(0, 0.95), na.rm = TRUE))]
+
 dt[, rusbrushalvlitere := (rusbrussmåflaskeruke / 1.5 + rusbrushalvliteruke) * 4 +
      rusbrussmåflasketot / 1.5 + rusbrushalvlitertot]
 
@@ -561,6 +581,10 @@ var_label(dt$rusbrushalvlitere) <- "Havlitere rusbru eller cider"
 dt[, totalenheter := olenheter + vinenheter + brennevinenheter + rusbrusenheter]
 ## dt[, totalenheter2 := olenheter2 + vinenheter2 + brennevinenheter2 + rusbrusenheter2]
 
+# Winsorize - endre alle over 95% percentile til verdien på 95% percentile
+dt[, totalenheterWin := DescTools::Winsorize(totalenheter,
+                                          quantile(totalenheter,
+                                                   probs = c(0, 0.95), na.rm = TRUE))]
 ## -----------------------
 ## --- To be continued
 ## -----------------------
