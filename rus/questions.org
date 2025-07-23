@@ -39,7 +39,7 @@ Vi gjør som FHI dvs. beholder alle verdiene
 FHI konverterer disse til 0, men vi anser dem som missing. Disse gjelder for verdien 99998 og 99999 særlig for alkoholenhet gjennomsnitt per uke i siste 4 uker eller total ila. siste 4 uker.
 
 * Vinglass
-Et vin glass regnes som 1 alkoholenhet i spørreskjema, men Ingeborg regnet det som 1.2 alkoholenhet [[file:~/Git-hdir/toa/do/toa.do::gen vinenheter= (1.2*vinglassuke + 6*vinflaskeruke)*4 + 1.2*vinglasstot + 6*vinflaskertot][(do fil)]]
+Et vin glass regnes som 1 alkoholenhet i spørreskjema, men Ingeborg regnet det som 1.2 alkoholenhet. Se [[https://github.com/folkehelsestats/toa/blob/33410e7ee185f240ed52124b3f35029a583f98ab/do/toa.do#L261][koden]] eller [[file:~/Git-hdir/toa/do/toa.do::gen vinenheter= (1.2*vinglassuke + 6*vinflaskeruke)*4 + 1.2*vinglasstot + 6*vinflaskertot][(do fil)]]
 
 * AUDIT
 - I =do= file ie. =toa.do= blir =Audit2= til =Audit8= omkodet slik:
@@ -51,4 +51,9 @@ replace Audit2new=0 if Drukket1==2
 replace Audit2new=0 if Drukket1==8
 #+end_example
 
+[[https://github.com/folkehelsestats/toa/blob/33410e7ee185f240ed52124b3f35029a583f98ab/do/toa.do#L426][Se koden]]
+
 Hvorfor skal de som ikke har drukket ie. ~Drukket1 %in% c(2,8)~ skal bli omkodet til 1 dvs. drukket 1-2. Se linje 425 i do filen.
+
+* AUDIT 3
+I =do= fil linje 432. Skal =Audit3_1= og =Audit3_2= brukes til å omkode =AUDIT3=? I =do= filen blir =Audit3_1= lik =Omtrent en dag i uken= til =månedlig=. Se [[https://github.com/folkehelsestats/toa/blob/33410e7ee185f240ed52124b3f35029a583f98ab/do/toa.do#L431][koden]]. Er det riktig?
