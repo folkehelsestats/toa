@@ -4,7 +4,7 @@
 # ----------------------------------
 # tcltk - to display the CRAN windows when not active. Relevant for Emacs
 # DescTools - for Winsorize function
-pkgs <- c("data.table", "haven", "skimr", "codebook", "tcltk", "DescTools")
+pkgs <- c("skimr", "codebook", "tcltk", "DescTools", "data.table", "haven")
 invisible(lapply(pkgs, function(pkg) {
     if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
     library(pkg, character.only = TRUE)
