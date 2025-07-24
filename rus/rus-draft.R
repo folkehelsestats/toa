@@ -603,10 +603,10 @@ dt[, alkoclrusbrus := rusbrushalvlitere*2.25] #rusbrus/cider
 dt[, totalcl := alkoclol + alkoclvin + alkoclbrennevin + alkoclrusbrus]
 
 ## Alternativ beregning med alkoholenheter
-dt[, alkoclol02 := olenheter*1.55] #øl 33cl
-dt[, alkoclvin02 := vinenheter*0.195] #vin 15cl
-dt[, alkoclbrennevin02 := brennevinenheter*1.6] #brennevin 4cl
-dt[, alkoclrusbrus02 := rusbrusenheter*1.55] #rusbrus/cider 33cl
+dt[, alkoclol02 := olenheter*1.485] #øl 33cl 4.5%
+dt[, alkoclvin02 := vinenheter*1.8] #vin 15cl 12%
+dt[, alkoclbrennevin02 := brennevinenheter*1.6] #brennevin 4cl 40%
+dt[, alkoclrusbrus02 := rusbrusenheter*1.485] #rusbrus/cider 33cl 4.5%
 
 ## Total mengde ren alkohol siste fire uker
 dt[, totalcl02 := alkoclol02 + alkoclvin02 + alkoclbrennevin02 + alkoclrusbrus02]
