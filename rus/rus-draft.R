@@ -599,8 +599,18 @@ dt[, alkoclvin := allevinflasker*9] #vin
 dt[, alkoclbrennevin := brennevinenheter*1.6] #brennevin
 dt[, alkoclrusbrus := rusbrushalvlitere*2.25] #rusbrus/cider
 
-## Total mengde alkohol siste fire uker
+## Total mengde ren alkohol siste fire uker
 dt[, totalcl := alkoclol + alkoclvin + alkoclbrennevin + alkoclrusbrus]
+
+## Alternativ beregning med alkoholenheter
+dt[, alkoclol02 := olenheter*1.55] #øl 33cl
+dt[, alkoclvin02 := vinenheter*0.195] #vin 15cl
+dt[, alkoclbrennevin02 := brennevinenheter*1.6] #brennevin 4cl
+dt[, alkoclrusbrus02 := rusbrusenheter*1.55] #rusbrus/cider 33cl
+
+## Total mengde ren alkohol siste fire uker
+dt[, totalcl02 := alkoclol02 + alkoclvin02 + alkoclbrennevin02 + alkoclrusbrus02]
+
 
 ## Drikker ukedag og helg: fjerne missing AL2 - AL5
 ## ----------------
