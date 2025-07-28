@@ -118,7 +118,7 @@ alksistaar_values <- c(
 )
 
 codebook::val_labels(dt$alkosistaar) <- alksistaar_values
-labelled::val_labels(dt$alkosistaar)
+## labelled::val_labels(dt$alkosistaar)
 
 
 dt[, alko4ukr := fcase(
@@ -184,12 +184,12 @@ dt[, oldageraktive := fcase(
 
 codebook::var_label(dt$oldageraktive) <- "Antall dager drukket øl, kun folk som har drukket alkohol siste 4 uker"
 
-dt[, oldagersisteår := fcase(
+dt[, oldagersistear := fcase(
   Drukket1 >= 2, NA_real_,
   default = oldager
 )]
 
-codebook::var_label(dt$oldagersisteår) <- "Antall dager drukket øl, kun folk som har drukket alkohol siste år"
+codebook::var_label(dt$oldagersistear) <- "Antall dager drukket øl, kun folk som har drukket alkohol siste år"
 
 # - Vin ----
 # Antall dager drukket vin, hele utvalget
@@ -573,8 +573,8 @@ dt[, rusbrusenheterWin := DescTools::Winsorize(rusbrusenheter,
                                           quantile(rusbrusenheter,
                                                    probs = c(0, 0.95), na.rm = TRUE))]
 
-dt[, rusbrushalvlitere := (rusbrussmåflaskeruke / 1.5 + rusbrushalvliteruke) * 4 +
-     rusbrussmåflasketot / 1.5 + rusbrushalvlitertot]
+dt[, rusbrushalvlitere := (rusbrussmaflaskeruke / 1.5 + rusbrushalvliteruke) * 4 +
+     rusbrussmaflasketot / 1.5 + rusbrushalvlitertot]
 
 var_label(dt$rusbrushalvlitere) <- "Havlitere rusbru eller cider"
 

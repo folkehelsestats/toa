@@ -1,0 +1,33 @@
+---
+title: "Tall om alkohol"
+date: now
+date-format: "DD-MM-YYYY"
+format:
+  html:
+    code-fold: true
+---
+
+Analyser om alkohol 
+
+```{r}
+#| echo: false
+#| warning: false
+
+pth <- "~/Git-hdir/toa/rus"
+source(file.path(pth, "rus-draft.R"))
+```
+# Demografisk oversikt
+- Prevalens om alkohol bruk
+- Alders 
+- Kjønn 
+- Sosioøkonomisk
+- Geografisk
+
+# Drikkermønster i befolkningen
+- Frekvens
+- Kvantitet
+- Type alkohol
+- Mønstre overtid
+
+
+# Ren alkohol per drikker sort
