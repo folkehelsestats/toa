@@ -13,7 +13,7 @@ Analyser om alkohol
 #| echo: false
 #| warning: false
 
-pth <- "~/Git-hdir/toa/rus"
+pth <- "~/Git-hdir/toa/rusund"
 source(file.path(pth, "rus-draft.R"))
 ```
 # Demografisk oversikt

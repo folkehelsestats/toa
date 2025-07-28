@@ -1,4 +1,4 @@
-pth <- "~/Git-hdir/toa/rus"
+pth <- "~/Git-hdir/toa/rusund"
 source(file.path(pth, "setup.R"))
 
 ## 8 - Vil ikke svare

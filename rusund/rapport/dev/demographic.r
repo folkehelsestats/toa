@@ -1,5 +1,5 @@
 
-pth <- "~/Git-hdir/toa/rus"
+pth <- "~/Git-hdir/toa/rusund"
 source(file.path(pth, "rus-draft.R"))
 
 dt[, .N, keyby = alkodager]
