@@ -21,7 +21,19 @@ ttbl <- function(var, d = dt, sum = TRUE, codebook = NULL, digits = 1){
 
 }
 
-# Replace values to 0
+## Just like ttbl but with more info
+get_freq_cat <- function(var, d = dt){
+  bb <- DescTools::Desc(as.factor(d[[var]]))
+  ## Extract the freq data frame
+  x <- bb[[1]]$freq
+  ## Convert level to numeric, then sort
+  freqSorted <- x[order(as.numeric(as.character(x$level))), ]
+  freqTbl <- data.table(dag = as.numeric(bb[[1]]$freq$level),
+                        freq = bb[[1]]$freq$freq,
+                        prosent = round(bb[[1]]$freq$perc*100, 1))
+}
+
+                                        # Replace values to 0
 replace_with_zero <- function(cols, values = c(99999, 99998), d = dt){
   d[, (cols) := lapply(.SD, function(x) {
     if (is.numeric(x)) {
