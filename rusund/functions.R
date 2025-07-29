@@ -126,7 +126,7 @@ make_hist <- function(d, x, y, group, title, yint = 10) {
   group <- as.character(substitute(group))
 
   hchart(d, "column", hcaes(x = !!x, y = !!y, group = !!group)) |>
-    hc_colors(c("rgba(57,123,143,1)", "rgba(165,105,189,1)")) |>
+    hc_colors(c("rgba(49,101,117,1)", "rgba(138,41,77,1)")) |>
     hc_yAxis(
       title = list(text = " "),
       labels = list(format = "{value}%"),
@@ -140,8 +140,18 @@ make_hist <- function(d, x, y, group, title, yint = 10) {
       text = "Helsedirektoratet",
       href = "https://www.helsedirektoratet.no/"
     ) |>
-    hc_tooltip(sort = TRUE, table = TRUE) |>
-    hc_caption(text = "Tall om alkohol") |>
+    ## hc_tooltip(sort = TRUE, table = TRUE) |>
+    hc_tooltip(
+      useHTML = TRUE,
+      shared = TRUE,
+      headerFormat = '<span style="font-size: 14px; font-weight: bold;">{point.key}</span><br/>',
+      pointFormat = paste0(
+        '<span style="color:{series.color}">\u25CF</span> ',
+        '<span style="color:black">{series.name}</span>: ',
+        '<b>{point.y}%</b><br/>'
+      )
+    ) |>
+  hc_caption(text = "Tall om alkohol") |>
     hc_legend(
       align = "left",
       verticalAlign = "bottom",
