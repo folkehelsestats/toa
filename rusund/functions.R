@@ -115,3 +115,65 @@ age_cat <- function(dt, var, breaks, labels = NULL, new_var_name = NULL, right =
 
   return(dt)
 }
+
+
+## Highchart with categories and total
+## yint - interval of y-axis
+make_hist <- function(d, x, y, group, title, yint = 10) {
+
+  x <- as.character(substitute(x))
+  y <- as.character(substitute(y))
+  group <- as.character(substitute(group))
+
+  hchart(d, "column", hcaes(x = !!x, y = !!y, group = !!group)) |>
+    hc_colors(c("rgba(57,123,143,1)", "rgba(165,105,189,1)")) |>
+    hc_yAxis(
+      title = list(text = " "),
+      labels = list(format = "{value}%"),
+      tickInterval = yint
+    ) |>
+    hc_xAxis(title = list(text = " ")) |>
+    hc_title(text = title) |>
+    hc_subtitle(text = "Kilde: Rusundersøkelse 2024") |>
+    hc_credits(
+      enabled = TRUE,
+      text = "Helsedirektoratet",
+      href = "https://www.helsedirektoratet.no/"
+    ) |>
+    hc_tooltip(sort = TRUE, table = TRUE) |>
+    hc_caption(text = "Tall om alkohol") |>
+    hc_legend(
+      align = "left",
+      verticalAlign = "bottom",
+      layout = "horizontal",
+      x = 50,
+      y = 0
+    ) |>
+    hc_plotOptions(
+      column = list(
+        states = list(
+          hover = list(brightness = 0.2)
+        ),
+        point = list(
+          events = list(
+            mouseOver = JS("function() {
+              var chart = this.series.chart;
+              var categoryIndex = this.x;
+              chart.xAxis[0].removePlotBand('hover-band');
+              chart.xAxis[0].addPlotBand({
+                id: 'hover-band',
+                from: categoryIndex - 0.4,
+                to: categoryIndex + 0.4,
+                color: 'rgba(204, 211, 255, 0.25)',
+                zIndex: 0
+              });
+            }"),
+            mouseOut = JS("function() {
+              var chart = this.series.chart;
+              chart.xAxis[0].removePlotBand('hover-band');
+            }")
+          )
+        )
+      )
+    )
+}

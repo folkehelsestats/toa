@@ -55,62 +55,7 @@ alkokb <- data.table(v1 = 0:1, v2 = c("Drukket 6+", "Drukket mindre enn 6+"))
 kjAlko[kjonnkb, on = c(kj = "v1"), gender := i.v2]
 kjAlko[alkokb, on = c(alko6 = "v1"), alko := i.v2]
 
-
-kjHC <- hchart(kjAlko, "column", hcaes(x = gender, y = pros, group = alko)) |>
-  ## hc_colors(c("rgba(57,123,143,1)", "rgba(32,98,118,1)")) |>
-  hc_colors(c("rgba(57,123,143,1)", "rgba(165,105,189,1)")) |>  # Teal and purple
-  hc_yAxis(title = list(text = " "),
-           labels = list(format = "{value}%"),
-           tickInterval = 10) |>
-  hc_xAxis(title = list(text = " ")) |>
-  hc_title(text = "Andel drukket 6+ enheter siste 4 uker") |>
-  hc_subtitle(text = "Kilde: Rusundersøkelse 2024") |>
-  hc_credits(enabled = TRUE, text = "Helsedirektoratet", href = "https://www.helsedirektoratet.no/") |>
-  hc_tooltip(sort = TRUE, table = TRUE) |>
-  hc_caption(text = "Tall om alkohol") |>
-  hc_legend(
-    align = "left",
-    verticalAlign = "bottom",
-    layout = "horizontal",
-    x = 50,
-    y = 0
-  ) |>
-  hc_plotOptions(
-    column = list(
-      states = list(
-        hover = list(
-          brightness = 0.2
-        )
-      ),
-      point = list(
-        events = list(
-          mouseOver = JS("function() {
-            var chart = this.series.chart;
-            var categoryIndex = this.x;
-
-            // Remove existing plotBand
-            chart.xAxis[0].removePlotBand('hover-band');
-
-            // Add plotBand for the category
-            chart.xAxis[0].addPlotBand({
-              id: 'hover-band',
-              from: categoryIndex - 0.4,
-              to: categoryIndex + 0.4,
-              color: 'rgba(204, 211, 255, 0.25)',
-              zIndex: 0
-            });
-          }"),
-          mouseOut = JS("function() {
-            var chart = this.series.chart;
-            chart.xAxis[0].removePlotBand('hover-band');
-          }")
-        )
-      )
-    )
-  )
-
-kjHC
-
+make_hist(kjAlko, gender, pros, alko, "Andel drukket 6+ enheter siste 4 uker")
 ```
 
 ## Gjennomsnittlig drikkefrekvens siste år
