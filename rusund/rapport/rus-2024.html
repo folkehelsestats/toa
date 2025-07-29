@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -34,6 +69,94 @@ ul.task-list li input[type="checkbox"] {
 <script src="rus-2024_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="rus-2024_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="rus-2024_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="rus-2024_files/libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+
+<script src="rus-2024_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<script src="rus-2024_files/libs/jquery-3.5.1/jquery.min.js"></script>
+
+<script src="rus-2024_files/libs/proj4js-2.3.15/proj4.js"></script>
+
+<link href="rus-2024_files/libs/highcharts-9.3.1/css/motion.css" rel="stylesheet">
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/highcharts.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/highcharts-3d.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/highcharts-more.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/stock.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/map.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/data.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/exporting.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/offline-exporting.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/drilldown.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/item-series.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/overlapping-datalabels.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/annotations.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/export-data.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/funnel.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/heatmap.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/treemap.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/sankey.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/dependency-wheel.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/organization.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/solid-gauge.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/streamgraph.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/sunburst.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/vector.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/wordcloud.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/xrange.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/tilemap.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/venn.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/gantt.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/timeline.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/parallel-coordinates.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/bullet.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/coloraxis.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/dumbbell.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/lollipop.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/series-label.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/plugins/motion.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/custom/reset.js"></script>
+
+<script src="rus-2024_files/libs/highcharts-9.3.1/modules/boost.js"></script>
+
+<script src="rus-2024_files/libs/highchart-binding-0.9.4/highchart.js"></script>
+
 
 
 </head>
@@ -57,7 +180,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">25-07-2025</p>
+      <p class="date">28-07-2025</p>
     </div>
   </div>
   
@@ -70,8 +193,137 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>Analyser om alkohol</p>
+<section id="demografisk-oversikt" class="level1">
+<h1>Demografisk oversikt</h1>
+<p>Ulike aspekter ved alkoholbruk, som drikkefrekvens, volum og drikkemønster, varierer mellom ulike befolkningsgrupper, som for eksempel kjønns- og aldersgrupper.</p>
+<section id="andel-som-har-drukket-siste-år" class="level2">
+<h2 class="anchored" data-anchor-id="andel-som-har-drukket-siste-år">Andel som har drukket siste år</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>   alkosistaar  freq prosent
+         &lt;num&gt; &lt;int&gt;   &lt;num&gt;
+1:           1  4189    85.8
+2:           2   694    14.2</code></pre>
+</div>
+</div>
+</section>
+<section id="andel-som-har-drukket-6-enheter-siste-4-uker" class="level2">
+<h2 class="anchored" data-anchor-id="andel-som-har-drukket-6-enheter-siste-4-uker">Andel som har drukket 6+ enheter siste 4 uker</h2>
+<ul>
+<li>En alkoholenhet tilsvarer 0,33 l øl, 1,5 dl vin eller en 4 cl brennevin.</li>
+<li>Andel som har drukket 6+ enheter ved samme anledning minst en gang 4 ukene</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dt[, alko6 <span class="sc">:</span><span class="er">=</span> <span class="fu">fifelse</span>(totalenheter <span class="sc">&gt;</span> <span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">0</span>)]</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>kjAlko <span class="ot">&lt;-</span> <span class="fu">proscat</span>(<span class="st">"Kjonn"</span>, <span class="st">"alko6"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>kjAlko[, Kjonn <span class="sc">:</span><span class="er">=</span> <span class="fu">as.numeric</span>(Kjonn)]</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>kjonnkb <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">v1 =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">v2 =</span> <span class="fu">c</span>(<span class="st">"Menn"</span>, <span class="st">"Kvinner"</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>alkokb <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">v1 =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">v2 =</span> <span class="fu">c</span>(<span class="st">"&lt;6+"</span>, <span class="st">"&gt;5+"</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>kjAlko[kjonnkb, on <span class="ot">=</span> <span class="fu">c</span>(<span class="at">Kjonn =</span> <span class="st">"v1"</span>), gender <span class="sc">:</span><span class="er">=</span> i.v2]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>kjAlko[alkokb, on <span class="ot">=</span> <span class="fu">c</span>(<span class="at">alko6 =</span> <span class="st">"v1"</span>), alko <span class="sc">:</span><span class="er">=</span> i.v2]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>kjHC <span class="ot">&lt;-</span> <span class="fu">hchart</span>(kjAlko, <span class="st">"column"</span>, <span class="fu">hcaes</span>(<span class="at">x =</span> alko, <span class="at">y =</span> pros, <span class="at">group =</span> gender)) <span class="sc">|&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hc_yAxis</span>(<span class="at">title =</span> <span class="fu">list</span>(<span class="at">text =</span> <span class="st">"Prosent"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hc_title</span>(<span class="at">text =</span> <span class="st">"Andel drukket 6+ enheter siste 4 uker"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hc_subtitle</span>(<span class="at">text =</span> <span class="st">"Source: Rusundersøkelse 2024"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hc_credits</span>(<span class="at">enabled =</span> <span class="cn">TRUE</span>, <span class="at">text =</span> <span class="st">"Helsedirektoratet"</span>, <span class="at">href =</span> <span class="st">"https://www.helsedirektoratet.no/"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hc_tooltip</span>(<span class="at">sort =</span> <span class="cn">TRUE</span>, <span class="at">table =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hc_caption</span>(<span class="at">text =</span> <span class="st">"Tall om alkohol"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hc_legend</span>(</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"left"</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">verticalAlign =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">layout =</span> <span class="st">"horizontal"</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="dv">50</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="dv">0</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hc_plotOptions</span>(</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">column =</span> <span class="fu">list</span>(</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">states =</span> <span class="fu">list</span>(</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">hover =</span> <span class="fu">list</span>(</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>          <span class="at">brightness =</span> <span class="fl">0.2</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">point =</span> <span class="fu">list</span>(</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">events =</span> <span class="fu">list</span>(</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>          <span class="at">mouseOver =</span> <span class="fu">JS</span>(<span class="st">"function() {</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="st">            var chart = this.series.chart;</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="st">            var categoryIndex = this.x;</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="st">            // Remove existing plotBand</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="st">            chart.xAxis[0].removePlotBand('hover-band');</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="st">            // Add plotBand for the category</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="st">            chart.xAxis[0].addPlotBand({</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="st">              id: 'hover-band',</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="st">              from: categoryIndex - 0.4,</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="st">              to: categoryIndex + 0.4,</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="st">              color: 'rgba(255, 99, 132, 0.1)',</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="st">              zIndex: 0</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="st">            });</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="st">          }"</span>),</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>          <span class="at">mouseOut =</span> <span class="fu">JS</span>(<span class="st">"function() {</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="st">            var chart = this.series.chart;</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="st">            chart.xAxis[0].removePlotBand('hover-band');</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a><span class="st">          }"</span>)</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>kjHC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="highchart html-widget html-fill-item" id="htmlwidget-4f309bbb3607d1ee8c10" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-4f309bbb3607d1ee8c10">{"x":{"hc_opts":{"chart":{"reflow":true},"title":{"text":"Andel drukket 6+ enheter siste 4 uker"},"yAxis":{"title":{"text":"Prosent"},"type":"linear"},"credits":{"enabled":true,"text":"Helsedirektoratet","href":"https://www.helsedirektoratet.no/"},"exporting":{"enabled":false},"boost":{"enabled":false},"plotOptions":{"series":{"label":{"enabled":false},"turboThreshold":0,"showInLegend":true},"treemap":{"layoutAlgorithm":"squarified"},"scatter":{"marker":{"symbol":"circle"}},"column":{"states":{"hover":{"brightness":0.2}},"point":{"events":{"mouseOver":"function() {\n            var chart = this.series.chart;\n            var categoryIndex = this.x;\n\n            // Remove existing plotBand\n            chart.xAxis[0].removePlotBand('hover-band');\n\n            // Add plotBand for the category\n            chart.xAxis[0].addPlotBand({\n              id: 'hover-band',\n              from: categoryIndex - 0.4,\n              to: categoryIndex + 0.4,\n              color: 'rgba(255, 99, 132, 0.1)',\n              zIndex: 0\n            });\n          }","mouseOut":"function() {\n            var chart = this.series.chart;\n            chart.xAxis[0].removePlotBand('hover-band');\n          }"}}}},"series":[{"name":"Kvinner","data":[{"Kjonn":1,"alko6":0,"N":1252,"sum":2490,"pros":50.3,"gender":"Kvinner","alko":"<6+","y":50.3,"name":"<6+"},{"Kjonn":1,"alko6":1,"N":1238,"sum":2490,"pros":49.7,"gender":"Kvinner","alko":">5+","y":49.7,"name":">5+"}],"type":"column"},{"name":"Menn","data":[{"Kjonn":0,"alko6":0,"N":924,"sum":2446,"pros":37.8,"gender":"Menn","alko":"<6+","y":37.8,"name":"<6+"},{"Kjonn":0,"alko6":1,"N":1522,"sum":2446,"pros":62.2,"gender":"Menn","alko":">5+","y":62.2,"name":">5+"}],"type":"column"}],"xAxis":{"type":"category","title":{"text":"alko"},"categories":null},"subtitle":{"text":"Source: Rusundersøkelse 2024"},"tooltip":{"shared":true,"formatter":"function(tooltip){\n          function isArray(obj) {\n          return Object.prototype.toString.call(obj) === '[object Array]';\n          }\n\n          function splat(obj) {\n          return isArray(obj) ? obj : [obj];\n          }\n\n          var items = this.points || splat(this), series = items[0].series, s;\n\n          // sort the values\n          items.sort(function(a, b){\n          return ((a.y < b.y) ? -1 : ((a.y > b.y) ? 1 : 0));\n          });\n          items.reverse();\n\n          return tooltip.defaultFormatter.call(this, tooltip);\n        }","useHTML":true,"headerFormat":"<small>{point.key}<\/small><table>","pointFormat":"<tr><td style=\"color: {series.color}\">{series.name}: <\/td><td style=\"text-align: right\"><b>{point.y}<\/b><\/td><\/tr>","footerFormat":"<\/table>"},"caption":{"text":"Tall om alkohol"},"legend":{"align":"left","verticalAlign":"bottom","layout":"horizontal","x":50,"y":0}},"theme":{"chart":{"backgroundColor":"transparent"},"colors":["#7cb5ec","#434348","#90ed7d","#f7a35c","#8085e9","#f15c80","#e4d354","#2b908f","#f45b5b","#91e8e1"]},"conf_opts":{"global":{"Date":null,"VMLRadialGradientURL":"http =//code.highcharts.com/list(version)/gfx/vml-radial-gradient.png","canvasToolsURL":"http =//code.highcharts.com/list(version)/modules/canvas-tools.js","getTimezoneOffset":null,"timezoneOffset":0,"useUTC":true},"lang":{"contextButtonTitle":"Chart context menu","decimalPoint":".","downloadCSV":"Download CSV","downloadJPEG":"Download JPEG image","downloadPDF":"Download PDF document","downloadPNG":"Download PNG image","downloadSVG":"Download SVG vector image","downloadXLS":"Download XLS","drillUpText":"◁ Back to {series.name}","exitFullscreen":"Exit from full screen","exportData":{"annotationHeader":"Annotations","categoryDatetimeHeader":"DateTime","categoryHeader":"Category"},"hideData":"Hide data table","invalidDate":null,"loading":"Loading...","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"noData":"No data to display","numericSymbolMagnitude":1000,"numericSymbols":["k","M","G","T","P","E"],"printChart":"Print chart","resetZoom":"Reset zoom","resetZoomTitle":"Reset zoom level 1:1","shortMonths":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"shortWeekdays":["Sat","Sun","Mon","Tue","Wed","Thu","Fri"],"thousandsSep":" ","viewData":"View data table","viewFullscreen":"View in full screen","weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]}},"type":"chart","fonts":[],"debug":false},"evals":["hc_opts.plotOptions.column.point.events.mouseOver","hc_opts.plotOptions.column.point.events.mouseOut","hc_opts.tooltip.formatter"],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="gjennomsnittlig-drikkefrekvens-siste-år" class="level2">
+<h2 class="anchored" data-anchor-id="gjennomsnittlig-drikkefrekvens-siste-år">Gjennomsnittlig drikkefrekvens siste år</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>alkofrekvens_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"aldri drukket"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ikke drukket siste år"</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"drukket sjeldnere enn månedlig siste 12 mnd"</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"drukket månedlig siste 12 mnd"</span> <span class="ot">=</span> <span class="dv">3</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"drukket ukentlig siste 12 mnd"</span> <span class="ot">=</span> <span class="dv">4</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"drukket daglig siste 12 mnd"</span> <span class="ot">=</span> <span class="dv">5</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>dt[, .N, keyby <span class="ot">=</span> alkofrekvens]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Key: &lt;alkofrekvens&gt;
+       alkofrekvens     N
+   &lt;haven_labelled&gt; &lt;int&gt;
+1:               NA    75
+2:                0   257
+3:                1   434
+4:                2  1257
+5:                3  1347
+6:                4  1525
+7:                5    59</code></pre>
+</div>
+</div>
+</section>
+<section id="gjennomsnittlig-antall-alkoholenheter-siste-4-uker" class="level2">
+<h2 class="anchored" data-anchor-id="gjennomsnittlig-antall-alkoholenheter-siste-4-uker">Gjennomsnittlig antall alkoholenheter siste 4 uker</h2>
+</section>
+</section>
 <section id="drikkermønster-i-befolkningen" class="level1">
 <h1>Drikkermønster i befolkningen</h1>
+<ul>
+<li>Frekvens</li>
+<li>Kvantitet</li>
+<li>Type alkohol</li>
+<li>Mønstre overtid</li>
+</ul>
 </section>
 <section id="ren-alkohol-per-drikker-sort" class="level1">
 <h1>Ren alkohol per drikker sort</h1>

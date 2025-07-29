@@ -17,11 +17,118 @@ pth <- "~/Git-hdir/toa/rusund"
 source(file.path(pth, "rus-draft.R"))
 ```
 # Demografisk oversikt
-- Prevalens om alkohol bruk
-- Alders 
-- Kjønn 
-- Sosioøkonomisk
-- Geografisk
+
+Ulike aspekter ved alkoholbruk, som drikkefrekvens, volum og drikkemønster, varierer mellom ulike befolkningsgrupper, som for eksempel kjønns- og aldersgrupper.
+
+## Andel som har drukket siste år
+
+```{r}
+#| echo: false
+#| warning: false
+
+dt[, alkosistaar := fcase(
+  Drukket1 == 8, NA_real_,
+  default = Drukket1
+)]
+
+codebook::var_label(dt$alkosistaar) <- "Alkohol siste 12 måneder"
+alksistaar_values <- c(
+  "drukket alkohol siste 12 mnd" = 1,
+  "ikke drukket alkohol siste 12 mnd" = 2
+)
+
+alko <- get_freq_cat("alkosistaar")
+alko
+```
+
+## Andel som har drukket 6+ enheter siste 4 uker 
+- En alkoholenhet tilsvarer 0,33 l øl, 1,5 dl vin eller en 4 cl brennevin.
+- Andel som har drukket 6+ enheter ved samme anledning minst en gang 4 ukene 
+
+```{r}
+dt[, alko6 := fifelse(totalenheter > 5, 1, 0)]
+kjAlko <- proscat("Kjonn", "alko6")
+kjAlko[, Kjonn := as.numeric(Kjonn)]
+
+kjonnkb <- data.table(v1 = 0:1, v2 = c("Menn", "Kvinner"))
+alkokb <- data.table(v1 = 0:1, v2 = c("<6+", ">5+"))
+kjAlko[kjonnkb, on = c(Kjonn = "v1"), gender := i.v2]
+kjAlko[alkokb, on = c(alko6 = "v1"), alko := i.v2]
+
+
+kjHC <- hchart(kjAlko, "column", hcaes(x = alko, y = pros, group = gender)) |>
+  hc_yAxis(title = list(text = "Prosent")) |>
+  hc_title(text = "Andel drukket 6+ enheter siste 4 uker") |>
+  hc_subtitle(text = "Source: Rusundersøkelse 2024") |>
+  hc_credits(enabled = TRUE, text = "Helsedirektoratet", href = "https://www.helsedirektoratet.no/") |>
+  hc_tooltip(sort = TRUE, table = TRUE) |>
+  hc_caption(text = "Tall om alkohol") |>
+  hc_legend(
+    align = "left",
+    verticalAlign = "bottom",
+    layout = "horizontal",
+    x = 50,
+    y = 0
+  ) |>
+  hc_plotOptions(
+    column = list(
+      states = list(
+        hover = list(
+          brightness = 0.2
+        )
+      ),
+      point = list(
+        events = list(
+          mouseOver = JS("function() {
+            var chart = this.series.chart;
+            var categoryIndex = this.x;
+
+            // Remove existing plotBand
+            chart.xAxis[0].removePlotBand('hover-band');
+
+            // Add plotBand for the category
+            chart.xAxis[0].addPlotBand({
+              id: 'hover-band',
+              from: categoryIndex - 0.4,
+              to: categoryIndex + 0.4,
+              color: 'rgba(255, 99, 132, 0.1)',
+              zIndex: 0
+            });
+          }"),
+          mouseOut = JS("function() {
+            var chart = this.series.chart;
+            chart.xAxis[0].removePlotBand('hover-band');
+          }")
+        )
+      )
+    )
+  )
+
+kjHC
+
+```
+
+## Gjennomsnittlig drikkefrekvens siste år
+
+```{r}
+
+alkofrekvens_labels <- c(
+    "aldri drukket" = 0,
+    "ikke drukket siste år" = 1,
+    "drukket sjeldnere enn månedlig siste 12 mnd" = 2,
+    "drukket månedlig siste 12 mnd" = 3,
+    "drukket ukentlig siste 12 mnd" = 4,
+    "drukket daglig siste 12 mnd" = 5
+)
+
+dt[, .N, keyby = alkofrekvens]
+
+```
+
+
+## Gjennomsnittlig antall alkoholenheter siste 4 uker
+
+
 
 # Drikkermønster i befolkningen
 - Frekvens
