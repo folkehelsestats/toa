@@ -67,3 +67,11 @@ c("helse", "drukket1", "drukket2", "drukk2a", "drukk2b", "drukk2c",
 # Find which vectors contain "alder" and show matches
 alder_var <- lapply(ComDD, function(x) x[grepl("alder", x, ignore.case = TRUE)])
 names(alder_var) <- filNames
+
+# Variable for Alder has this variation. The other types of alder are computed or recoded values
+# These values are after tolower(). The real values are Alder and IOs_Alder
+alderVars <- c("alder", "ios_alder")
+
+allVars <- c(ComVars, alderVars)
+
+DD[["Rus2017"]][, alder_var[["Rus2017"]]]
