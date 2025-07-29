@@ -121,17 +121,22 @@ age_cat <- function(dt, var, breaks, labels = NULL, new_var_name = NULL, right =
 ## d - Dataset
 ## yint - interval of y-axis
 ## n - Count to show in tooltip if needed
-make_hist <- function(d, x, y, group,  n = NULL, title, yint = 10) {
+make_hist <- function(d, x, y, group, n, title, yint = 10) {
 
   x <- as.character(substitute(x))
   y <- as.character(substitute(y))
   group <- as.character(substitute(group))
+  n <- as.character(substitute(n))
 
-  if (!is.null(n))
-    n <- as.character(substitute(n))
+  gp <- length(unique(d[[group]]))
+  if (gp == 2){
+    hdir <- c("rgba(49,101,117,1)", "rgba(138,41,77,1)")
+  } else {
+    hdir <- viridis(10, option = "D")  # Options: A, B, C, D, E
+  }
 
   hchart(d, "column", hcaes(x = !!x, y = !!y, group = !!group)) |>
-    hc_colors(c("rgba(49,101,117,1)", "rgba(138,41,77,1)")) |>
+    hc_colors(hdir) |>
     hc_yAxis(
       title = list(text = " "),
       labels = list(format = "{value}%"),
@@ -150,19 +155,12 @@ make_hist <- function(d, x, y, group,  n = NULL, title, yint = 10) {
       useHTML = TRUE,
       shared = TRUE,
       headerFormat = '<span style="font-size: 14px; font-weight: bold;">{point.key}</span><br/>',
-      pointFormat = if (!is.null(n)) {
+      pointFormat =
                       paste0(
                         '<span style="color:{series.color}">\u25CF</span> ',
                         '<span style="color:black">{series.name}</span>: ',
                         '<b>{point.', n, '} ({point.y}%)</b><br/>'
                       )
-                    } else {
-                      paste0(
-                        '<span style="color:{series.color}">\u25CF</span> ',
-                        '<span style="color:black">{series.name}</span>: ',
-                        '<b>{point.y}%</b><br/>'
-                      )
-                    }
     ) |>
   hc_caption(text = "Tall om alkohol") |>
     hc_legend(
