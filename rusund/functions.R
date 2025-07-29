@@ -37,18 +37,31 @@ get_freq_cat <- function(var, d = dt){
 ## Percentage with 2 categories
 ## proscat("Kjonn", "alko6")
 proscat <- function(x, y, d = dt, na.rm = TRUE, digits = 1){
+
+  elm <- is.element("numeric", class(d[[x]]))
+  if (isFALSE(elm))
+    stop(x, " is type: ", paste(class(d[[x]]), collapse = " "))
+
   kb <- d[, .N, keyby = c(x, y)]
 
   if (isTRUE(na.rm))
     kb <- kb[!is.na(y), env = list(y = y)]
 
   kbsum <- kb[, .(sum=sum(N)), by = c(x)]
-
   kb[kbsum, on = x, sum := sum]
-  kb[, pros := round(N/sum*100, digits = digits)]
-  return(kb[])
+
+  ## Total
+  tot <- kb[, .(N=sum(N, na.rm = TRUE)), by = c(y)]
+  tot[, (x) := 3]
+  tot[, sum := sum(N, na.rm = TRUE)]
+
+  DT <- data.table::rbindlist(list(kb, tot), use.names = TRUE)
+
+  DT[, pros := round(N/sum*100, digits = digits)]
+  return(DT[])
 }
-                                        # Replace values to 0
+
+## Replace values to 0
 replace_with_zero <- function(cols, values = c(99999, 99998), d = dt){
   d[, (cols) := lapply(.SD, function(x) {
     if (is.numeric(x)) {

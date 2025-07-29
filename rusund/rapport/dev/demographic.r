@@ -120,6 +120,10 @@ alkkb[, pro := round(N/sum*100, digits = 1)]
 
 proscat <- function(x, y, d = dt, na.rm = TRUE, digits = 1){
 
+  elm <- is.element("numeric", class(d[[x]]))
+  if (isFALSE(elm))
+    stop(x, " is type: ", paste(class(d[[x]]), collapse = " "))
+
   kb <- d[, .N, keyby = c(x, y)]
 
   if (isTRUE(na.rm))
