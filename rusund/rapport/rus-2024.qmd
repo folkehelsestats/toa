@@ -47,19 +47,24 @@ alko
 
 ```{r}
 dt[, alko6 := fifelse(totalenheter > 5, 1, 0)]
-kjAlko <- proscat("Kjonn", "alko6")
-kjAlko[, Kjonn := as.numeric(Kjonn)]
+dt[, kj := as.numeric(Kjonn)]
+kjAlko <- proscat("kj", "alko6")
 
-kjonnkb <- data.table(v1 = 0:1, v2 = c("Menn", "Kvinner"))
-alkokb <- data.table(v1 = 0:1, v2 = c("<6+", ">5+"))
-kjAlko[kjonnkb, on = c(Kjonn = "v1"), gender := i.v2]
+kjonnkb <- data.table(v1 = unique(kjAlko$kj), v2 = c("Menn", "Kvinner", "Totalt"))
+alkokb <- data.table(v1 = 0:1, v2 = c("Drukket 6+", "Drukket mindre enn 6+"))
+kjAlko[kjonnkb, on = c(kj = "v1"), gender := i.v2]
 kjAlko[alkokb, on = c(alko6 = "v1"), alko := i.v2]
 
 
-kjHC <- hchart(kjAlko, "column", hcaes(x = alko, y = pros, group = gender)) |>
-  hc_yAxis(title = list(text = "Prosent")) |>
+kjHC <- hchart(kjAlko, "column", hcaes(x = gender, y = pros, group = alko)) |>
+  ## hc_colors(c("rgba(57,123,143,1)", "rgba(32,98,118,1)")) |>
+  hc_colors(c("rgba(57,123,143,1)", "rgba(165,105,189,1)")) |>  # Teal and purple
+  hc_yAxis(title = list(text = " "),
+           labels = list(format = "{value}%"),
+           tickInterval = 10) |>
+  hc_xAxis(title = list(text = " ")) |>
   hc_title(text = "Andel drukket 6+ enheter siste 4 uker") |>
-  hc_subtitle(text = "Source: Rusundersøkelse 2024") |>
+  hc_subtitle(text = "Kilde: Rusundersøkelse 2024") |>
   hc_credits(enabled = TRUE, text = "Helsedirektoratet", href = "https://www.helsedirektoratet.no/") |>
   hc_tooltip(sort = TRUE, table = TRUE) |>
   hc_caption(text = "Tall om alkohol") |>
@@ -91,7 +96,7 @@ kjHC <- hchart(kjAlko, "column", hcaes(x = alko, y = pros, group = gender)) |>
               id: 'hover-band',
               from: categoryIndex - 0.4,
               to: categoryIndex + 0.4,
-              color: 'rgba(255, 99, 132, 0.1)',
+              color: 'rgba(204, 211, 255, 0.25)',
               zIndex: 0
             });
           }"),
