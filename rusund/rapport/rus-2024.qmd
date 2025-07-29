@@ -1,11 +1,20 @@
 ---
 title: "Tall om alkohol"
-date: now
-date-format: "DD-MM-YYYY"
 format:
   html:
     code-fold: true
+    toc: true
+    toc-title: "Innhold"
+    toc-location: right
+    toc-depth: 3  
+    toc-expand: 2
+    number-sections: true  
+
 ---
+
+
+**Publisert:** `r format(Sys.Date(), "%d. %B %Y")`
+
 
 Analyser om alkohol 
 
@@ -22,6 +31,7 @@ Ulike aspekter ved alkoholbruk, som drikkefrekvens, volum og drikkemønster, var
 
 ## Andel som har drukket siste år
 
+
 ```{r}
 #| echo: false
 #| warning: false
@@ -37,9 +47,35 @@ alksistaar_values <- c(
   "ikke drukket alkohol siste 12 mnd" = 2
 )
 
-alko <- get_freq_cat("alkosistaar")
-alko
+dt[, kj := as.numeric(Kjonn)]
+alko <- proscat("kj", "alkosistaar")
+
+kjonnkb <- data.table(v1 = unique(alko$kj), v2 = c("Menn", "Kvinner", "Totalt"))
+alkkb <- data.table(v1 = as.integer(alksistaar_values),
+                    v2 = names(alksistaar_values))
+
+alko[kjonnkb, on = c(kj = "v1"), gender := i.v2]
+alko[alkkb, on = c(alkosistaar ="v1"), alkoyr := i.v2]
+
 ```
+
+::: {.panel-tabset}
+
+## Figur
+
+```{r}
+make_hist(alko, gender, pros, alkoyr, "Alkohol siste 12 måneder")
+```
+
+## Tabell
+
+```{r}
+alko
+
+```
+
+:::
+
 
 ## Andel som har drukket 6+ enheter siste 4 uker 
 - En alkoholenhet tilsvarer 0,33 l øl, 1,5 dl vin eller en 4 cl brennevin.
@@ -57,6 +93,7 @@ kjAlko[alkokb, on = c(alko6 = "v1"), alko := i.v2]
 
 make_hist(kjAlko, gender, pros, alko, "Andel drukket 6+ enheter siste 4 uker")
 ```
+
 
 ## Gjennomsnittlig drikkefrekvens siste år
 
