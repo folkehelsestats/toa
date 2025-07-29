@@ -133,8 +133,14 @@ proscat <- function(x, y, d = dt, na.rm = TRUE, digits = 1){
   kb[kbsum, on = x, sum := sum]
 
   ## Total
+  val <- length(kbsum[[x]])+1 #need to know the max number of categories
+
+  velm <- is.element(val, kbsum[[x]])
+  if (isTRUE(velm))
+    stop(val, " can't be a total because it is part of the values in ", x)
+
   tot <- kb[, .(N=sum(N, na.rm = TRUE)), by = c(y)]
-  tot[, (x) := 3]
+  tot[, (x) := val]
   tot[, sum := sum(N, na.rm = TRUE)]
 
   DT <- data.table::rbindlist(list(kb, tot), use.names = TRUE)
