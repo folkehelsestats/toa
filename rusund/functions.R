@@ -118,12 +118,17 @@ age_cat <- function(dt, var, breaks, labels = NULL, new_var_name = NULL, right =
 
 
 ## Highchart with categories and total
+## d - Dataset
 ## yint - interval of y-axis
-make_hist <- function(d, x, y, group, title, yint = 10, n = NULL) {
+## n - Count to show in tooltip if needed
+make_hist <- function(d, x, y, group,  n = NULL, title, yint = 10) {
 
   x <- as.character(substitute(x))
   y <- as.character(substitute(y))
   group <- as.character(substitute(group))
+
+  if (!is.null(n))
+    n <- as.character(substitute(n))
 
   hchart(d, "column", hcaes(x = !!x, y = !!y, group = !!group)) |>
     hc_colors(c("rgba(49,101,117,1)", "rgba(138,41,77,1)")) |>

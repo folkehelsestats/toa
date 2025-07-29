@@ -65,7 +65,12 @@ alko[alkkb, on = c(alkosistaar ="v1"), alkoyr := i.v2]
 ## Figur
 
 ```{r}
-make_hist(alko, gender, pros, alkoyr, "Alkohol siste 12 måneder")
+make_hist(d = alko,
+          x = gender,
+          y = pros,
+          group = alkoyr,
+          n = N,
+          title = "Alkohol siste 12 måneder")
 ```
 
 ## Tabell
@@ -106,7 +111,12 @@ kjAlko[alkokb, on = c(alko6 = "v1"), alko := i.v2]
 
 ## Figur
 ```{r}
-make_hist(kjAlko, gender, pros, alko, "Andel drukket 6+ enheter siste 4 uker")
+make_hist(d = kjAlko,
+          x = gender,
+          y = pros,
+          group = alko,
+          n = N,
+          title = "Andel drukket 6+ enheter siste 4 uker")
 ```
 
 ## Tabell
