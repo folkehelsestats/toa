@@ -6,10 +6,11 @@ format:
     toc: true
     toc-title: "Innhold"
     toc-location: right
-    toc-depth: 3  
+    toc-depth: 3
     toc-expand: 2
-    number-sections: true  
-
+    number-sections: true
+execute:
+  echo: false
 ---
 
 
@@ -70,10 +71,17 @@ make_hist(alko, gender, pros, alkoyr, "Alkohol siste 12 måneder")
 ## Tabell
 
 ```{r}
-alko
+cols <- c("kj", "alkosistaar", "sum")
+alko[, (cols) := NULL]
+
+colout <- c("alkoyr", "gender", "N", "pros")
+colns <- c(" ", "Kjønn", "Antall", "Andel")
+setcolorder(alko, colout)
+data.table::setnames(alko, colout, colns)
+
+gt::gt(alko)
 
 ```
-
 :::
 
 
