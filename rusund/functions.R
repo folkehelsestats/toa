@@ -203,16 +203,14 @@ make_hist <- function(d, x, y, group,  n = NULL, title, yint = 10) {
       enabled = TRUE,
       buttons = list(
         contextButton = list(
-          menuItems = list(
-            list(text = "Last ned PNG", onclick = JS("function() { this.exportChart({type: 'image/png'}); }")),
-            list(text = "Last ned JPEG", onclick = JS("function() { this.exportChart({type: 'image/jpeg'}); }")),
-            list(text = "Last ned PDF", onclick = JS("function() { this.exportChart({type: 'application/pdf'}); }")),
-            list(text = "Last ned SVG", onclick = JS("function() { this.exportChart({type: 'image/svg+xml'}); }")),
-            list(separator = TRUE),
-            list(text = "Last ned CSV", onclick = JS("function() { this.downloadCSV(); }")),
-            list(text = "Last ned Excel", onclick = JS("function() { this.downloadXLS(); }"))
+          menuItems = c(
+           "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG",
+            "downloadCSV", "downloadXLS"
           )
         )
       )
+      ## Ensure export use local browser
+      ## useLocalStorage = TRUE,
+      ## fallbackToExportServer = FALSE
     )
 }

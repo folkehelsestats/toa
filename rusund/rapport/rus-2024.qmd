@@ -25,6 +25,17 @@ Analyser om alkohol
 
 pth <- "~/Git-hdir/toa/rusund"
 source(file.path(pth, "rus-draft.R"))
+
+## Gir norsk tekster
+options(highcharter.lang = list(
+  contextButtonTitle = "Eksport figur",
+  downloadPNG = "Last ned PNG",
+  downloadJPEG = "Last ned JPEG",
+  downloadPDF = "Last ned PDF",
+  downloadSVG = "Last ned SVG",
+  downloadCSV = "Last ned CSV",
+  downloadXLS = "Last ned Excel-fil"
+))
 ```
 # Demografisk oversikt
 
