@@ -185,5 +185,21 @@ make_hist <- function(d, x, y, group, title, yint = 10) {
           )
         )
       )
+    ) |>
+    hc_exporting(
+      enabled = TRUE,
+      buttons = list(
+        contextButton = list(
+          menuItems = list(
+            list(text = "Last ned PNG", onclick = JS("function() { this.exportChart({type: 'image/png'}); }")),
+            list(text = "Last ned JPEG", onclick = JS("function() { this.exportChart({type: 'image/jpeg'}); }")),
+            list(text = "Last ned PDF", onclick = JS("function() { this.exportChart({type: 'application/pdf'}); }")),
+            list(text = "Last ned SVG", onclick = JS("function() { this.exportChart({type: 'image/svg+xml'}); }")),
+            list(separator = TRUE),
+            list(text = "Last ned CSV", onclick = JS("function() { this.downloadCSV(); }")),
+            list(text = "Last ned Excel", onclick = JS("function() { this.downloadXLS(); }"))
+          )
+        )
+      )
     )
 }
