@@ -119,7 +119,7 @@ age_cat <- function(dt, var, breaks, labels = NULL, new_var_name = NULL, right =
 
 ## Highchart with categories and total
 ## yint - interval of y-axis
-make_hist <- function(d, x, y, group, title, yint = 10) {
+make_hist <- function(d, x, y, group, title, yint = 10, n = NULL) {
 
   x <- as.character(substitute(x))
   y <- as.character(substitute(y))
@@ -145,11 +145,19 @@ make_hist <- function(d, x, y, group, title, yint = 10) {
       useHTML = TRUE,
       shared = TRUE,
       headerFormat = '<span style="font-size: 14px; font-weight: bold;">{point.key}</span><br/>',
-      pointFormat = paste0(
-        '<span style="color:{series.color}">\u25CF</span> ',
-        '<span style="color:black">{series.name}</span>: ',
-        '<b>{point.y}%</b><br/>'
-      )
+      pointFormat = if (!is.null(n)) {
+                      paste0(
+                        '<span style="color:{series.color}">\u25CF</span> ',
+                        '<span style="color:black">{series.name}</span>: ',
+                        '<b>{point.', n, '} ({point.y}%)</b><br/>'
+                      )
+                    } else {
+                      paste0(
+                        '<span style="color:{series.color}">\u25CF</span> ',
+                        '<span style="color:black">{series.name}</span>: ',
+                        '<b>{point.y}%</b><br/>'
+                      )
+                    }
     ) |>
   hc_caption(text = "Tall om alkohol") |>
     hc_legend(
