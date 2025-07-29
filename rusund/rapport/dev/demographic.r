@@ -100,3 +100,41 @@ hc_plot3
 x <- list(1, 2, 3)
 y <- list(10, 20, 30)
 purrr::map2(x, y, ~ list(b = .x, tooltip = .y))
+
+## Per kjønn
+dt[, alko6 := fifelse(totalenheter > 5, 1, 0)]
+alkkb <- dt[, .N, keyby = .(Kjonn, alko6)]
+
+alkkb[!is.na(alko6)]
+kbsum <- alkkb[, .(sum=sum(N)), by = Kjonn]
+alkkb[kbsum, on = "Kjonn", sum := sum]
+
+alksum <- alkkb[, .(N=sum(N)), by = alko6]
+alksum[, Kjonn := 3]
+alksum[, sum := sum(N)]
+
+
+
+alkkb[, pro := round(N/sum*100, digits = 1)]
+
+
+proscat <- function(x, y, d = dt, na.rm = TRUE, digits = 1){
+
+  kb <- d[, .N, keyby = c(x, y)]
+
+  if (isTRUE(na.rm))
+    kb <- kb[!is.na(y), env = list(y = y)]
+
+  kbsum <- kb[, .(sum=sum(N)), by = c(x)]
+  kb[kbsum, on = x, sum := sum]
+
+  ## Total
+  tot <- kb[, .(N=sum(N, na.rm = TRUE)), by = c(y)]
+  tot[, (x) := 3]
+  tot[, sum := sum(N, na.rm = TRUE)]
+
+  DT <- data.table::rbindlist(list(kb, tot), use.names = TRUE)
+
+  DT[, pros := round(N/sum*100, digits = digits)]
+  return(DT[])
+}
