@@ -17,23 +17,32 @@ invisible(lapply(pkgs, function(pkg) {
 
 Sys.setlocale("LC_ALL", "nb-NO.UTF-8")
 
-filnr <- length(filer)
+filb4 <- length(filer)
 ## Read all files --------------------------
-DD <- vector("list", filnr)
-for (i in seq_len(filnr)){
+DD <- vector("list", filb4)
+for (i in seq_len(filb4)){
   DD[[i]] <- haven::read_dta(file.path(filpath, filer[i]))
 }
 
 ## filNames <- gsub("\\.dta$", "", filer)
 ## filNames <- stringi::stri_extract_first_regex(filer, "^Rus\\d{4}")
-filNames <- sub("^(Rus\\d{4}).*", "\\1", filer, perl = TRUE)
-names(DD) <- filNames
+filnn <- sub("^(Rus\\d{4}).*", "\\1", filer, perl = TRUE)
+names(DD) <- filnn
+
+## Add 2024 data
+fil2024 <- "O:\\Prosjekt\\Rusdata"
+DD[["Rus2024"]] <- readRDS(file.path(fil2024, "Rusundersøkelsen", "Rusus 2024","rus2024.rds"))
+
+filnr <- length(DD)
 
 ## Comman names ------------------
 ComDD <- vector("list", filnr)
 for (i in seq_len(filnr)){
   ComDD[[i]] <- names(DD[[i]])
 }
+
+names(ComDD) <- names(DD)
+filNames <- names(DD)
 
 varFelles <- Reduce(intersect, lapply(ComDD, tolower))
 ## dput(varFelles)
@@ -84,7 +93,7 @@ names(dd) <- filNames
 lapply(dd, function(x) names(x)[grepl("alder", names(x), ignore.case = TRUE)])
 lapply(dd, function(x) names(x)[grepl("kjonn", names(x), ignore.case = TRUE)])
 
-dd$Rus2019[, alder := NULL] #har to variabler alder som er like
+dd$Rus2019[, alder := NULL] #har to variabler alder som er like. Det er ios_alder som skal beholders
 
 for (i in seq_len(filnr)){
   setnames(dd[[i]], c("ios_alder", "ios_kjonn"), c("alder", "kjonn"), skip_absent = TRUE)
@@ -94,8 +103,10 @@ for (i in seq_len(filnr)){
 
 DT <- data.table::rbindlist(dd, use.names = TRUE, ignore.attr=TRUE)
 ## spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
-## fwrite(DT, file.path(spth, "data_2012_2023.csv"))
-## saveRDS(DT, file.path(spth, "data_2012_2023.rds"))
+## fwrite(DT, file.path(spth, "data_2012_2024.csv"))
+## saveRDS(DT, file.path(spth, "data_2012_2024.rds"))
+
+
 
 ## Codebook -----------
 
