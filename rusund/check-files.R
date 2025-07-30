@@ -95,6 +95,7 @@ for (i in seq_len(filnr)){
 DT <- data.table::rbindlist(dd, use.names = TRUE, ignore.attr=TRUE)
 ## spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
 ## fwrite(DT, file.path(spth, "data_2012_2023.csv"))
+## saveRDS(DT, file.path(spth, "data_2012_2023.rds"))
 
 ## Codebook -----------
 
