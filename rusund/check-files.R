@@ -17,29 +17,19 @@ invisible(lapply(pkgs, function(pkg) {
 
 Sys.setlocale("LC_ALL", "nb-NO.UTF-8")
 
-alk01 <- haven::read_dta(file.path(filpath, filer[1]))
-skimr::skim(alk01)
-str(alk01$Kjonn)
-str(alk01)
-
-codebook::codebook(alk01)
-
-# Example: Generate HTML codebook
-dataMaid::makeCodebook(alk01, file = "alk01.html")
-# Example: Generate HTML data summary
-summarytools::dfSummary(alk01, file = "alk01.html", report.title = "My Codebook")
-
 filnr <- length(filer)
-## Read all files
+## Read all files --------------------------
 DD <- vector("list", filnr)
 for (i in seq_len(filnr)){
   DD[[i]] <- haven::read_dta(file.path(filpath, filer[i]))
 }
 
-filNames <- gsub("\\.dta$", "", filer)
+## filNames <- gsub("\\.dta$", "", filer)
+## filNames <- stringi::stri_extract_first_regex(filer, "^Rus\\d{4}")
+filNames <- sub("^(Rus\\d{4}).*", "\\1", filer, perl = TRUE)
 names(DD) <- filNames
 
-## Comman names
+## Comman names ------------------
 ComDD <- vector("list", filnr)
 for (i in seq_len(filnr)){
   ComDD[[i]] <- names(DD[[i]])
@@ -64,14 +54,86 @@ c("helse", "drukket1", "drukket2", "drukk2a", "drukk2b", "drukk2c",
 )
   
 
-# Find which vectors contain "alder" and show matches
+## Find which vectors contain selected variable and show matches
+## Alder --------------
 alder_var <- lapply(ComDD, function(x) x[grepl("alder", x, ignore.case = TRUE)])
 names(alder_var) <- filNames
-
-# Variable for Alder has this variation. The other types of alder are computed or recoded values
-# These values are after tolower(). The real values are Alder and IOs_Alder
+## Variable for Alder has this variation. The other types of alder are computed or recoded values
+## These values are after tolower(). The real values are Alder and IOs_Alder
 alderVars <- c("alder", "ios_alder")
 
-allVars <- c(ComVars, alderVars)
+## Kjonn ---------
+kjonn_var <- lapply(ComDD, function(x) x[grepl("kjon", x, ignore.case = TRUE)])
+names(kjonn_var) <- filNames
+kjonnVars <- unlist(unique(tolower(kjonn_var)))
 
+allVars <- c(ComVars, alderVars, kjonnVars)
+length(allVars)
+
+dd <- vector("list", filnr)
+for (i in seq_len(filnr)){
+  d <- as.data.table(DD[[i]])
+  data.table::setnames(d, tolower(names(d)))
+  dn <- setdiff(names(d), allVars)
+  d[, (dn) := NULL]
+  dd[[i]] <- d
+}
+
+names(dd) <- filNames
+
+lapply(dd, function(x) names(x)[grepl("alder", names(x), ignore.case = TRUE)])
+lapply(dd, function(x) names(x)[grepl("kjonn", names(x), ignore.case = TRUE)])
+
+dd$Rus2019[, alder := NULL] #har to variabler alder som er like
+
+for (i in seq_len(filnr)){
+  setnames(dd[[i]], c("ios_alder", "ios_kjonn"), c("alder", "kjonn"), skip_absent = TRUE)
+  yr <- as.integer(gsub("Rus", "", names(dd[i])))
+  dd[[i]][, year := yr]
+}
+
+DT <- data.table::rbindlist(dd, use.names = TRUE, ignore.attr=TRUE)
+## spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
+## fwrite(DT, file.path(spth, "data_2012_2023.csv"))
+
+## Codebook -----------
+
+alk01 <- haven::read_dta(file.path(filpath, filer[1]))
+skimr::skim(alk01)
+str(alk01$Kjonn)
+str(alk01)
+
+codebook::codebook(alk01)
+
+# Example: Generate HTML codebook
+dataMaid::makeCodebook(alk01, file = "alk01.html")
+# Example: Generate HTML data summary
+summarytools::dfSummary(alk01, file = "alk01.html", report.title = "My Codebook")
+
+
+## ------------------------
+## Checking ---------------
 DD[["Rus2017"]][, alder_var[["Rus2017"]]]
+
+
+audit_var <- lapply(ComDD, function(x) x[grepl("audit", x, ignore.case = TRUE)])
+names(audit_var) <- filNames
+audit_var
+
+lapply(dd, function(x) names(x)[grepl("alder", names(x), ignore.case = TRUE)])
+lapply(dd, function(x) names(x)[grepl("kjonn", names(x), ignore.case = TRUE)])
+
+
+identical(dd[["Rus2019"]][["ios_alder"]], dd[["Rus2019"]][["alder"]])
+all.equal(dd[["Rus2019"]][["ios_alder"]], dd[["Rus2019"]][["alder"]])
+
+ios  <- dd[["Rus2019"]][["ios_alder"]]
+ald  <- dd[["Rus2019"]][["alder"]]
+
+which(!(ios == ald | (is.na(ios) & is.na(ald))))
+dd[["Rus2019"]][which(!(ios == ald | (is.na(ios) & is.na(ald)))), c("ios_alder", "alder")]
+
+
+length(filer)
+d <- DD[[1]]
+setnames(setDT(d), tolower(names(d)))
