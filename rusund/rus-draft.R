@@ -3,6 +3,14 @@ pth <- "~/Git-hdir/toa/rusund"
 source(file.path(pth, "setup.R"))
 source(file.path(pth, "functions.R"))
 
+## Data 2024
+mainpath <- "O:\\Prosjekt\\Rusdata"
+## DT <- haven::read_dta(file.path("Rusundersøkelsen", "Rusus 2024", "nytt forsøk februar 25 rus24.dta"))
+## saveRDS(DT, file.path("Rusundersøkelsen", "Rusus 2024","rus2024.rds"))
+DT <- readRDS(file.path(mainpath, "Rusundersøkelsen", "Rusus 2024","rus2024.rds"))
+dt <- as.data.table(DT)
+
+
 ## ----
 drukketVar <- grep("Druk*", names(dt), value = TRUE)
 dt[, (drukketVar) := lapply(.SD, as.numeric), .SDcols = drukketVar]
