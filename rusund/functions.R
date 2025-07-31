@@ -126,7 +126,7 @@ age_cat <- function(dt, var, breaks, labels = NULL, new_var_name = NULL, right =
 ## d - Dataset
 ## yint - interval of y-axis
 ## n - Count to show in tooltip if needed
-make_hist <- function(d, x, y, group, n, title, yint = 10) {
+make_hist2 <- function(d, x, y, group, n, title, yint = 10, flip = FALSE) {
 
   x <- as.character(substitute(x))
   y <- as.character(substitute(y))
@@ -142,6 +142,7 @@ make_hist <- function(d, x, y, group, n, title, yint = 10) {
 
   hchart(d, "column", hcaes(x = !!x, y = !!y, group = !!group)) |>
     hc_colors(hdir) |>
+    hc_chart(inverted = flip) |>
     hc_yAxis(
       title = list(text = " "),
       labels = list(format = "{value}%"),
@@ -217,3 +218,157 @@ make_hist <- function(d, x, y, group, n, title, yint = 10) {
       ## fallbackToExportServer = FALSE
     )
 }
+
+## Include line graph ie. chart_type = "line"
+make_hist <- function(d, x, y, group, n, title, yint = 10, flip = FALSE, chart_type = "column") {
+  x <- as.character(substitute(x))
+  y <- as.character(substitute(y))
+  group <- as.character(substitute(group))
+  n <- as.character(substitute(n))
+  gp <- length(unique(d[[group]]))
+
+  if (gp == 2){
+    hdir <- c("rgba(49,101,117,1)", "rgba(138,41,77,1)")
+  } else if (gp <= 7) {
+    # Extended custom palette with good contrast for up to 7 groups
+    custom_colors <- c(
+      "#2E7D7B",  # Dark teal (original)
+      "#8A2952",  # Purple (original)
+      "#5CB3CC",  # Light blue (original)
+      "#CC8A33",  # Orange (original)
+      "#4A7C59",  # Forest green (new - similar to teal but distinguishable)
+      "#B8336A",  # Rose/pink (new - similar to purple but lighter)
+      "#7A4F01"   # Dark brown (new - earthy tone that complements orange)
+    )
+    hdir <- custom_colors[1:gp]
+  } else {
+    hdir <- viridis(gp, option = "D")  # Fallback to viridis for many groups
+  }
+
+  hchart(d, chart_type, hcaes(x = !!x, y = !!y, group = !!group)) |>
+    hc_colors(hdir) |>
+    hc_chart(inverted = flip) |>  # Add this line to control chart orientation
+    hc_yAxis(
+      title = list(text = " "),
+      labels = list(format = "{value}%"),
+      tickInterval = yint
+    ) |>
+    hc_xAxis(
+      title = list(text = " "),
+      tickInterval = 1,
+      labels = list(
+        ## rotation = -45,  # Rotate labels 45 degrees
+        step = 1 #step 2 show every other level etc
+      )) |>
+    hc_title(text = title) |>
+    hc_subtitle(text = "Kilde: Rusundersøkelse 2024") |>
+    hc_credits(
+      enabled = TRUE,
+      text = "Helsedirektoratet",
+      href = "https://www.helsedirektoratet.no/"
+    ) |>
+    ## hc_tooltip(sort = TRUE, table = TRUE) |>
+    hc_tooltip(
+      useHTML = TRUE,
+      shared = TRUE,
+      headerFormat = '<span style="font-size: 14px; font-weight: bold;">{point.key}</span><br/>',
+      pointFormat =
+                      paste0(
+                        '<span style="color:{series.color}">\u25CF</span> ',
+                        '<span style="color:black">{series.name}</span>: ',
+                        '<b>{point.', n, '} ({point.y}%)</b><br/>'
+                      )
+    ) |>
+  hc_caption(text = "Tall om alkohol") |>
+    hc_legend(
+      align = "left",
+      verticalAlign = "bottom",
+      layout = "horizontal",
+      x = 50,
+      y = 0
+    ) |>
+    hc_plotOptions(
+      column = list(
+        states = list(
+          hover = list(brightness = 0.2)
+        ),
+        point = list(
+          events = list(
+            mouseOver = JS("function() {
+              var chart = this.series.chart;
+              var categoryIndex = this.x;
+              chart.xAxis[0].removePlotBand('hover-band');
+              chart.xAxis[0].addPlotBand({
+                id: 'hover-band',
+                from: categoryIndex - 0.4,
+                to: categoryIndex + 0.4,
+                color: 'rgba(204, 211, 255, 0.25)',
+                zIndex: 0
+              });
+            }"),
+            mouseOut = JS("function() {
+              var chart = this.series.chart;
+              chart.xAxis[0].removePlotBand('hover-band');
+            }")
+          )
+        )
+      ),
+      line = list(
+        marker = list(
+          enabled = TRUE,
+          radius = 4,
+          symbol = "circle"
+        ),
+        lineWidth = 2,
+        states = list(
+          hover = list(
+            lineWidth = 3
+          )
+        ),
+        point = list(
+          events = list(
+            mouseOver = JS("function() {
+              var chart = this.series.chart;
+              var categoryIndex = this.x;
+              chart.xAxis[0].removePlotBand('hover-band');
+              chart.xAxis[0].addPlotBand({
+                id: 'hover-band',
+                from: categoryIndex - 0.4,
+                to: categoryIndex + 0.4,
+                color: 'rgba(204, 211, 255, 0.25)',
+                zIndex: 0
+              });
+            }"),
+            mouseOut = JS("function() {
+              var chart = this.series.chart;
+              chart.xAxis[0].removePlotBand('hover-band');
+            }")
+          )
+        )
+      )
+    ) |>
+    hc_exporting(
+      enabled = TRUE,
+      buttons = list(
+        contextButton = list(
+          menuItems = c(
+           "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG",
+            "downloadCSV", "downloadXLS"
+          )
+        )
+      )
+      ## Ensure export use local browser
+      ## useLocalStorage = TRUE,
+      ## fallbackToExportServer = FALSE
+    )
+}
+
+## If need to change font size for x-axis
+## hc_xAxis(
+##   title = list(text = " "),
+##   tickInterval = 1,
+##   labels = list(
+##     step = 1,
+##     style = list(fontSize = "10px")
+##   )
+## )
