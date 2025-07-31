@@ -76,6 +76,7 @@ make_hist(d = alkoAll,
           group = alkoyr,
           n = N,
           title = "Alkohol siste 12 måneder",
+          chart_type = "line",
           flip = FALSE)
 ```
 
