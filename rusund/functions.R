@@ -36,9 +36,10 @@ get_freq_cat <- function(var, d = dt){
 
 ## Percentage with 2 categories
 ## proscat("Kjonn", "alko6")
-proscat <- function(x, y, d = dt, na.rm = TRUE, digits = 1){
+## total - Add total if TRUE
+proscat <- function(x, y, d = dt, na.rm = TRUE, digits = 1, total = TRUE){
 
-  elm <- is.element("numeric", class(d[[x]]))
+  elm <- any(class(d[[x]]) %in% c("numeric", "integer"))
   if (isFALSE(elm))
     stop(x, " is type: ", paste(class(d[[x]]), collapse = " "))
 
@@ -57,11 +58,15 @@ proscat <- function(x, y, d = dt, na.rm = TRUE, digits = 1){
   if (isTRUE(velm))
     stop(val, " can't be a total because it is part of the values in ", x)
 
-  tot <- kb[, .(N=sum(N, na.rm = TRUE)), by = c(y)]
-  tot[, (x) := val]
-  tot[, sum := sum(N, na.rm = TRUE)]
+  if (total){
+    tot <- kb[, .(N=sum(N, na.rm = TRUE)), by = c(y)]
+    tot[, (x) := val]
+    tot[, sum := sum(N, na.rm = TRUE)]
 
-  DT <- data.table::rbindlist(list(kb, tot), use.names = TRUE)
+    DT <- data.table::rbindlist(list(kb, tot), use.names = TRUE)
+  } else {
+    DT <- kb
+  }
 
   DT[, pros := round(N/sum*100, digits = digits)]
   return(DT[])
