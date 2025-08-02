@@ -1,0 +1,73 @@
+
+## Andel som har drukket siste år 
+
+```{r}
+#| echo: false
+#| warning: false
+
+DD[year == 2018, drukket1 := ifelse(drukket1 == 0, 2, drukket1)]
+DD[, alkosistaar := ifelse(drukket1 %in% 8:9, NA, drukket1)]
+
+DD[year %in% c(2022,2024), kjonn := fcase(kjonn == 1, 2, #Kvinne
+                                          kjonn == 0, 1)] #Mann
+
+alkosistaar_values <- c(
+  "drukket alkohol siste 12 mnd" = 1,
+  "ikke drukket alkohol siste 12 mnd" = 2
+)
+
+alkoAll <- proscat("year", "alkosistaar", d=DD, total = FALSE)
+alkoAllMan <- proscat("year", "alkosistaar", d=DD[kjonn == 1,], total = FALSE)
+alkoAllWom <- proscat("year", "alkosistaar", d=DD[kjonn == 2,], total = FALSE)
+
+alkoAll[, pop := "Alle"]
+alkoAllMan[, pop := "Menn"]
+alkoAllWom[, pop := "Kvinner"]
+
+## Velg bare de som drikker
+alkoAllx <- alkoAll[alkosistaar == 1][, pop := "Alle"]
+alkoAllManx <- alkoAllMan[alkosistaar == 1][, pop := "Menn"]
+alkoAllWomx <- alkoAllWom[alkosistaar == 1][, pop := "Kvinner"]
+
+alkoDT <- rbindlist(list(alkoAll, alkoAllMan, alkoAllWom))
+alkoDTx <- rbindlist(list(alkoAllx, alkoAllManx, alkoAllWomx))
+
+
+alAllkb <- data.table(v1 = as.integer(alkosistaar_values),
+                      v2 = names(alkosistaar_values))
+
+alkoDT[alAllkb, on = c(alkosistaar = "v1"), alkoyr := i.v2]
+
+```
+
+::: {.panel-tabset}
+## Figur
+```{r}
+
+make_hist(d = alkoDTx,
+          x = year,
+          y = pros,
+          group = pop,
+          n = N,
+          title = "Alkoholbruk siste 12 måneder 2012-2024",
+          chart_type = "line",
+          flip = FALSE)
+```
+
+
+## Tabell
+
+```{r}
+cols <- c("alkosistaar", "sum")
+alkoDT[, (cols) := NULL]
+
+colout <- c("alkoyr", "year", "N", "pros") #Column order
+colns <- c(" ", "year", "Antall", "Andel") #Columns rename
+setcolorder(alkoDT, colout)
+data.table::setnames(alkoDT, colout, colns)
+
+gt::gt(alkoDT)
+
+```
+:::
+
