@@ -380,3 +380,28 @@ make_hist <- function(d, x, y, group, n,
 ##     style = list(fontSize = "10px")
 ##   )
 ## )
+
+
+## Split results to All, men and women
+## select - value for y to be selected
+split_gender <- function(d, x, y, select, total = FALSE){
+
+  all <- proscat(x = x, y = y, d=d, total = total)
+  men <- proscat(x = x, y = y, d=d[kjonn == 1], total = total)
+  wom <- proscat(x = x, y = y, d=d[kjonn == 2], total = total)
+
+  ## For table
+  all[, pop := "Alle"]
+  men[, pop := "Menn"]
+  wom[, pop := "Kvinner"]
+
+  ## For figure
+  allx <- all[get(y) == select][, pop := "Alle"]
+  menx <- men[get(y) == select][, pop := "Menn"]
+  womx <- wom[get(y) == select][, pop := "Kvinner"]
+
+  dt <- data.table::rbindlist(list(all, men, wom))
+  dtx <- data.table::rbindlist(list(allx, menx, womx))
+
+  return(list(d1 = dt, d2 = dtx))
+}
