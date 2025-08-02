@@ -91,9 +91,9 @@ drk6 <- split_gender(d=DD, x = "year", y = "drink6w", select = 1)
 
 ```{r}
 
-make_hist(d = drk6$d2, x = year, y = pros, group = pop,
+make_hist(d = drk6$d2, x = year, y = pros, n = N,  group = pop,
           title = "Drukket 6+ enheter ved en og samme anledning siste år",
-          type = "line")
+          type = "line", yint = 2)
 ```
 
 ## Tabell
