@@ -16,22 +16,11 @@ alkosistaar_values <- c(
   "ikke drukket alkohol siste 12 mnd" = 2
 )
 
-alkoAll <- proscat("year", "alkosistaar", d=DD, total = FALSE)
-alkoAllMan <- proscat("year", "alkosistaar", d=DD[kjonn == 1,], total = FALSE)
-alkoAllWom <- proscat("year", "alkosistaar", d=DD[kjonn == 2,], total = FALSE)
 
-alkoAll[, pop := "Alle"]
-alkoAllMan[, pop := "Menn"]
-alkoAllWom[, pop := "Kvinner"]
+alkDD <- split_gender(d = DD, x = "year", y = "alkosistaar", select = 1)
 
-## Velg bare de som drikker
-alkoAllx <- alkoAll[alkosistaar == 1][, pop := "Alle"]
-alkoAllManx <- alkoAllMan[alkosistaar == 1][, pop := "Menn"]
-alkoAllWomx <- alkoAllWom[alkosistaar == 1][, pop := "Kvinner"]
-
-alkoDT <- rbindlist(list(alkoAll, alkoAllMan, alkoAllWom))
-alkoDTx <- rbindlist(list(alkoAllx, alkoAllManx, alkoAllWomx))
-
+alkoDT <- alkDD$d1 
+alkoDTx <- alkDD$d2 
 
 alAllkb <- data.table(v1 = as.integer(alkosistaar_values),
                       v2 = names(alkosistaar_values))
@@ -51,7 +40,7 @@ make_hist(d = alkoDTx,
           n = N,
           title = "Alkoholbruk siste 12 måneder 2012-2024",
           subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
-          chart_type = "line",
+          type = "line",
           flip = FALSE)
 ```
 
@@ -72,3 +61,49 @@ gt::gt(alkoDT)
 ```
 :::
 
+
+## Andel har drukket 6+ alkoholenheter ved en og samme anledning
+
+Basert på variabel `Audit3`.
+
+```{r}
+## Noen koder for Audit er omvent
+DD[year %in% 2012:2014,  audit3 := fcase(audit3 == 5, 1,
+                                         audit3 == 4, 2,
+                                         audit3 == 2, 4,
+                                         audit3 == 1, 5,
+                                         default = as.numeric(audit3))]
+
+## Omkoding
+DD[, drink6w := fcase(audit3 %in% 1:2, 1, #Daglig og ukenlig
+                      audit3 %in% 3:4, 2, #månedlig og sjeldenere
+                      audit3 == 5, 0, #aldri
+                      default = NA)]
+
+drk6 <- split_gender(d=DD, x = "year", y = "drink6w", select = 1)
+
+```
+
+
+::: {.panel-tabset}
+
+## Figur
+
+```{r}
+
+make_hist(d = drk6$d2, x = year, y = pros, group = pop,
+          title = "Drukket 6+ enheter ved en og samme anledning siste år",
+          type = "line")
+```
+
+## Tabell
+
+```{r}
+
+drk6D1 <- drk6$d1
+drk6D1[, sum := NULL]
+
+gt::gt(drk6D1)
+```
+
+:::

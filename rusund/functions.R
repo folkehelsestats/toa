@@ -160,7 +160,7 @@ make_hist <- function(d, x, y, group, n,
     hdir <- viridis(gp, option = "D")  # Fallback to viridis for many groups
   }
 
-  hchart(d, chart_type, hcaes(x = !!x, y = !!y, group = !!group)) |>
+  hchart(d, type, hcaes(x = !!x, y = !!y, group = !!group)) |>
     hc_colors(hdir) |>
     hc_chart(inverted = flip) |>  # Add this line to control chart orientation
     hc_yAxis(
