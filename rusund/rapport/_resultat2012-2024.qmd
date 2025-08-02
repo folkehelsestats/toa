@@ -64,7 +64,8 @@ gt::gt(alkoDT)
 
 ## Andel har drukket 6+ alkoholenheter ved en og samme anledning
 
-Basert på variabel `Audit3`.
+Tallene som blir presentert her er for de som har drukket 6+ alkoholenheter
+daglig eller ukentlig ved en og samme anledning i det siste året.
 
 ```{r}
 ## Noen koder for Audit er omvent
@@ -92,7 +93,8 @@ drk6 <- split_gender(d=DD, x = "year", y = "drink6w", select = 1)
 ```{r}
 
 make_hist(d = drk6$d2, x = year, y = pros, n = N,  group = pop,
-          title = "Drukket 6+ enheter ved en og samme anledning siste år",
+          title = "Drukket 6+ enheter daglig eller ukenlig ved en og samme anledning siste år",
+          subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
           type = "line", yint = 2)
 ```
 
