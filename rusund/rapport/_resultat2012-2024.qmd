@@ -50,6 +50,7 @@ make_hist(d = alkoDTx,
           group = pop,
           n = N,
           title = "Alkoholbruk siste 12 måneder 2012-2024",
+          subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
           chart_type = "line",
           flip = FALSE)
 ```

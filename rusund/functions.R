@@ -220,12 +220,20 @@ make_hist2 <- function(d, x, y, group, n, title, yint = 10, flip = FALSE) {
 }
 
 ## Include line graph ie. chart_type = "line"
-make_hist <- function(d, x, y, group, n, title, yint = 10, flip = FALSE, chart_type = "column") {
+make_hist <- function(d, x, y, group, n,
+                      title,
+                      subtitle = NULL,
+                      yint = 10,
+                      flip = FALSE,
+                      chart_type = "column") {
   x <- as.character(substitute(x))
   y <- as.character(substitute(y))
   group <- as.character(substitute(group))
   n <- as.character(substitute(n))
   gp <- length(unique(d[[group]]))
+
+  if (is.null(subtitle))
+    subtitle <- "Kilde: Rusundersøkelse 2024"
 
   if (gp == 2){
     hdir <- c("rgba(49,101,117,1)", "rgba(138,41,77,1)")
@@ -261,7 +269,7 @@ make_hist <- function(d, x, y, group, n, title, yint = 10, flip = FALSE, chart_t
         step = 1 #step 2 show every other level etc
       )) |>
     hc_title(text = title) |>
-    hc_subtitle(text = "Kilde: Rusundersøkelse 2024") |>
+    hc_subtitle(text = subtitle) |>
     hc_credits(
       enabled = TRUE,
       text = "Helsedirektoratet",
