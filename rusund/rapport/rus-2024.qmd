@@ -44,58 +44,7 @@ options(highcharter.lang = list(
 ```
 # Alkoholbruk over tid fra 2012 - 2024
 
-## Andel som har drukket siste år 
-
-```{r}
-#| echo: false
-#| warning: false
-
-DD[year == 2018, drukket1 := ifelse(drukket1 == 0, 2, drukket1)]
-DD[, alkosistaar := ifelse(drukket1 %in% 8:9, NA, drukket1)]
-
-alkosistaar_values <- c(
-  "drukket alkohol siste 12 mnd" = 1,
-  "ikke drukket alkohol siste 12 mnd" = 2
-)
-
-alkoAll <- proscat("year", "alkosistaar", d=DD, total = FALSE)
-alAllkb <- data.table(v1 = as.integer(alkosistaar_values),
-                      v2 = names(alkosistaar_values))
-
-alkoAll[alAllkb, on = c(alkosistaar = "v1"), alkoyr := i.v2]
-
-```
-
-::: {.panel-tabset}
-## Figur
-```{r}
-
-make_hist(d = alkoAll,
-          x = year,
-          y = pros,
-          group = alkoyr,
-          n = N,
-          title = "Alkohol siste 12 måneder",
-          chart_type = "line",
-          flip = FALSE)
-```
-
-
-## Tabell
-
-```{r}
-cols <- c("alkosistaar", "sum")
-alkoAll[, (cols) := NULL]
-
-colout <- c("alkoyr", "year", "N", "pros") #Column order
-colns <- c(" ", "year", "Antall", "Andel") #Columns rename
-setcolorder(alkoAll, colout)
-data.table::setnames(alkoAll, colout, colns)
-
-gt::gt(alkoAll)
-
-```
-:::
+{{< include _longitudinal.qmd >}}
 
 # Demografisk oversikt
 
