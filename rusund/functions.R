@@ -1,5 +1,6 @@
 source("~/Git-hdir/toa/rusund/fun-percent.R")
 source("~/Git-hdir/toa/rusund/fun-age.R")
+source("~/Git-hdir/toa/rusund/fun-graph.R")
 
 ## var - variable for frequency
 ## dt - dataset to use
