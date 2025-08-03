@@ -1,4 +1,5 @@
 source("~/Git-hdir/toa/rusund/fun-percent.R")
+source("~/Git-hdir/toa/rusund/fun-age.R")
 
 ## var - variable for frequency
 ## dt - dataset to use
@@ -60,35 +61,6 @@ replace_with_zero_vec <- function(x, value = 99) {
   x
 }
 
-## Example
-## # Define age group breaks and labels
-## age_breaks <- c(0, 18, 30, 50, 100) #ensure lowest value included
-## age_labels <- c("0-18", "19-30", "31-50", "51+")
-
-## new_var - Name of new variable created for the age group
-group_age <- function(dt, var, breaks,
-                      labels = NULL,
-                      new_var = NULL,
-                      right = TRUE,
-                      include.lowest = TRUE) {
-  if (!is.data.table(dt)) {
-    stop("Input must be a data.table.")
-  }
-
-  # Default name for new variable
-  if (is.null(new_var)) {
-    new_var <- paste0(var, "_group")
-  }
-
-  ## Create categorized variable
-  dt[, (new_var) := cut(get(var),
-                        breaks = breaks,
-                        labels = labels,
-                        right = right,
-                        include.lowest = include.lowest)]
-
-  return(dt)
-}
 
 
 ## Highchart with categories and total
