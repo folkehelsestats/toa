@@ -174,4 +174,60 @@ gt::gt(drk6D1)
 
 :::
 
+<!-- Drukket 6+ alder og kjønn -->
+
+```{r}
+#| echo: false
+#| warning: false
+#| output: false
+
+drk6Men <- proscat("year", "drink6w", d = DD[kjonn == 1], total = F, z = "agecat")
+drk6Wom <- proscat("year", "drink6w", d = DD[kjonn == 2], total = F, z = "agecat")
+
+```
+
+::: {.panel-tabset}
+
+## Figur
+```{r}
+make_hist(d = drk6Men[drink6w == 1],
+          x = year,
+          y = percentage,
+          group = agecat,
+          n = count,
+          title = "Drukket 6+ enheter daglig eller ukenlig ved en og samme anledning siste år",
+          subtitle = "Menn, 2012-2024",
+          type = "line")
+
+```
+## Tabell
+
+```{r}
+drk6Men
+```
+
+:::
+
+<!-- For kvinner -->
+
+::: {.panel-tabset}
+
+## Figur
+```{r}
+make_hist(d = drk6Wom[drink6w == 1],
+          x = year,
+          y = percentage,
+          group = agecat,
+          n = count,
+          title = "Drukket 6+ enheter daglig eller ukenlig ved en og samme anledning siste år",
+          subtitle = "Kvinner, 2012-2024",
+          type = "line")
+
+```
+## Tabell
+
+```{r}
+drk6Wom
+```
+:::
 
