@@ -35,9 +35,9 @@ alko[alkkb, on = c(alkosistaar ="v1"), alkoyr := i.v2]
 ```{r}
 make_hist(d = alko,
           x = gender,
-          y = pros,
+          y = percentage,
           group = alkoyr,
-          n = N,
+          n = count,
           title = "Alkohol siste 12 måneder")
 ```
 
@@ -47,7 +47,7 @@ make_hist(d = alko,
 cols <- c("kj", "alkosistaar", "sum")
 alko[, (cols) := NULL]
 
-colout <- c("alkoyr", "gender", "N", "pros")
+colout <- c("alkoyr", "gender", "count", "percentage")
 colns <- c(" ", "Kjønn", "Antall", "Andel")
 setcolorder(alko, colout)
 data.table::setnames(alko, colout, colns)
@@ -90,9 +90,9 @@ alkofreq[, alkofrekvens := as.numeric(alkofrekvens)]
 
 make_hist(d = alkofreq,
           x = gender,
-          y = pros,
+          y = percentage,
           group = alkof,
-          n = N,
+          n = count,
           title = "Drikkerfrekvens siste 12 måneder")
 
 ```
@@ -103,7 +103,7 @@ make_hist(d = alkofreq,
 cols <- c("kj", "alkofrekvens", "sum")
 alkofreq[, (cols) := NULL]
 
-colout <- c("alkof", "gender", "N", "pros")
+colout <- c("alkof", "gender", "count", "percentage")
 colns <- c(" ", "Kjønn", "Antall", "Andel")
 setcolorder(alkofreq, colout)
 data.table::setnames(alkofreq, colout, colns)
@@ -137,9 +137,9 @@ kjAlko[alkokb, on = c(alko6 = "v1"), alko := i.v2]
 ```{r}
 make_hist(d = kjAlko,
           x = gender,
-          y = pros,
+          y = percentage,
           group = alko,
-          n = N,
+          n = count,
           title = "Andel drukket 6+ enheter siste 4 uker")
 ```
 
@@ -148,7 +148,7 @@ make_hist(d = kjAlko,
 cols <- c("kj", "alko6", "sum")
 kjAlko[, (cols) := NULL]
 
-colout <- c("alko", "gender", "N", "pros")
+colout <- c("alko", "gender", "count", "percentage")
 colns <- c(" ", "Kjønn", "Antall", "Andel")
 setcolorder(kjAlko, colout)
 data.table::setnames(kjAlko, colout, colns)
