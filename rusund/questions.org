@@ -29,6 +29,9 @@ Bruk bare variabel =(Drukket2)=
 * Drikker 6+
 I FHI [[https://www.fhi.no/le/alkohol/alkoholinorge/omsetning-og-bruk/alkoholbruk-i-den-voksne-befolkningen/?term=#forskjeller-i-alkoholbruk-i-ulike-befolkningsgrupper][rapporten]] står det om "Drukket 6+ siste år(%)". Er det tall som egentlig /siste fire uker/ som telles til /siste år/? Spørsmål om alkoholbruk dvs. frekvens og mengde, gjelder bare for *siste fire uker*.
 
+*** Svaret
+Bruk variable =Audit3_1= osv
+
 * Maks verdi
 Skal disse endres til missing? Foreløpig beholder disse som det er
 - =flaskeroltot= og =halvlitertot= har maks verdi av 100
@@ -40,12 +43,21 @@ Vi gjør som FHI dvs. beholder alle verdiene
 * Vil ikke svar og vet ikke
 FHI konverterer disse til 0, men vi anser dem som missing. Disse gjelder for verdien 99998 og 99999 særlig for alkoholenhet gjennomsnitt per uke i siste 4 uker eller total ila. siste 4 uker.
 
+*** Svaret
+Det er /vil ikke svaret/ og /vet ikke/
+
 * Ren alkohol i cl
 
 Tall som brukes til å bregne dette. Hvilken bør vi bruke. Begreningen kan ses [[https://github.com/folkehelsestats/toa/blob/2e1ecdd268e8568d4ed9275fde50a234f5a33a36/rusund/rus-draft.R#L601][her]]
 
+*** Svaret
+Bruk som Ingeborg gjør
+
 * Vinglass
 Et vin glass regnes som 1 alkoholenhet i spørreskjema, men Ingeborg regnet det som 1.2 alkoholenhet. Se [[https://github.com/folkehelsestats/toa/blob/33410e7ee185f240ed52124b3f35029a583f98ab/do/toa.do#L261][koden]] eller [[file:~/Git-hdir/toa/do/toa.do::gen vinenheter= (1.2*vinglassuke + 6*vinflaskeruke)*4 + 1.2*vinglasstot + 6*vinflaskertot][(do fil)]]
+
+*** Svaret
+Selv om det står at en enhet for vin er 1.5 dl, så er det 1.2 dl som er riktig siden en flasker er 0.75l
 
 * AUDIT
 - I =do= file ie. =toa.do= blir =Audit2= til =Audit8= omkodet slik:
@@ -63,3 +75,6 @@ Hvorfor skal de som ikke har drukket ie. ~Drukket1 %in% c(2,8)~ skal bli omkodet
 
 * AUDIT 3
 I =do= fil linje 432. Skal =Audit3_1= og =Audit3_2= brukes til å omkode =AUDIT3=? I =do= filen blir =Audit3_1= lik =Omtrent en dag i uken= omkodet til =månedlig=. Se [[https://github.com/folkehelsestats/toa/blob/33410e7ee185f240ed52124b3f35029a583f98ab/do/toa.do#L431][koden]]. Er det riktig? Hos [[https://www.ssb.no/helse/helseforhold-og-levevaner/statistikk/royk-alkohol-og-andre-rusmidler][SSB]] bruker det bare AUDIT3 som det er.
+
+*** Svaret
+Se den nye omkodingen for =Audit3new=
