@@ -26,6 +26,11 @@ Key: <AL2>
 
 *** Svaret
 Bruk bare variabel =(Drukket2)=
+* Drikkefrekvens
+For å bregne [[https://github.com/folkehelsestats/toa/blob/e101075d723efc73d317bff17d135dadffd926ec/do/toa.do#L5][alkoholdager]] bruker man variabel =Drukket2= og venner bl.a =Drukk2c=. Spørsmålet:
+- Når =Drukket2= er /Sjeldnere enn månedlig/ regnes det som *7.5* dager når svaret i =Drukk2c= /Flere enn tre dager/. Se [[https://github.com/folkehelsestats/toa/blob/e101075d723efc73d317bff17d135dadffd926ec/do/toa.do#L13][koden]]
+- For longitudinal data er svarene for 2012 og 2013 for variabel =drukk2c= annerledes enn de andre. Se [[https://folkehelsestats.github.io/toa/rus2012][kodebok]] dvs. /Noen få dager/ og /En dag/. Hvordan teller man alkohol dager for disse årene som i FHI [[https://www.fhi.no/le/alkohol/alkoholinorge/omsetning-og-bruk/alkoholbruk-i-den-voksne-befolkningen/#forskjeller-i-alkoholbruk-i-ulike-befolkningsgrupper][rapporten]]?
+
 * Drikker 6+
 I FHI [[https://www.fhi.no/le/alkohol/alkoholinorge/omsetning-og-bruk/alkoholbruk-i-den-voksne-befolkningen/?term=#forskjeller-i-alkoholbruk-i-ulike-befolkningsgrupper][rapporten]] står det om "Drukket 6+ siste år(%)". Er det tall som egentlig /siste fire uker/ som telles til /siste år/? Spørsmål om alkoholbruk dvs. frekvens og mengde, gjelder bare for *siste fire uker*.
 
