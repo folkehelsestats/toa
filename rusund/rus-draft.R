@@ -26,15 +26,15 @@ dt[, drinker := fcase(
 # Antall dager drukket alkohol siste år (blant siste års drikkere)
 dt[, alkodager := fcase(
   Drukket2 == 1, 365,
-  Drukket2 == 2 & Drukk2a == 1, 234,
-  Drukket2 == 2 & Drukk2a == 2, 130,
-  Drukket2 == 2 & Drukk2a == 3, 52,
-  Drukket2 == 3 & Drukk2b == 1, 42,
-  Drukket2 == 3 & Drukk2b == 2, 30,
-  Drukket2 == 3 & Drukk2b == 3, 12,
-  Drukket2 == 4 & Drukk2c == 1, 7.5,
-  Drukket2 == 4 & Drukk2c == 2, 2.5,
-  Drukket2 == 4 & Drukk2c == 3, 1,
+  Drukket2 == 2 & Drukk2a == 1, 234, #4-5 dager i uken
+  Drukket2 == 2 & Drukk2a == 2, 130, #2-3 dager i uken
+  Drukket2 == 2 & Drukk2a == 3, 52,  #1 dag i uken
+  Drukket2 == 3 & Drukk2b == 1, 42,  #Flere enn tre dager i måneden
+  Drukket2 == 3 & Drukk2b == 2, 30,  #2-3 dager i måneden
+  Drukket2 == 3 & Drukk2b == 3, 12,  #1 dag i måneden
+  Drukket2 == 4 & Drukk2c == 1, 7.5, #Flere enn tre dager i året (Hvordan få man 7.5 dager?)
+  Drukket2 == 4 & Drukk2c == 2, 2.5, #2-3 dager i året
+  Drukket2 == 4 & Drukk2c == 3, 1,   #1 dag i året
   Drukket2 == 9 |
     Drukk2a == 8 |
     Drukk2b == 9 |
