@@ -40,9 +40,16 @@ Denne undersøkelsen sendes til kommunene, i henhold til §7-3  i alkoholforskri
 ## Taxfree-omsetning
 Taxfree-omsetningen fås i 2024 fra Travel Retain Norway (TRN) og Airport Retain Norway (ARN). TRN har omsetningen på taxfree på de største flyplassene, mens ARN har fra de mindre flyplassene.
 
+For å beregne taxfree-omsetning, på lik linje med tidligere, er det behov for følgende data:
+- Omsetning av alkohol og tobakksvarer i l, kg og/eller stykk (sigaretter)
+- Passasjer-data etter ved ankomst (rute-fly og charter), avgang, bytte (transfer) og transitt. Dette hentes fra SSB.no
+- Særavgiftsrapporter, vinmonopolets salgsdata og SSBs alkoholstatistikk.
+
 ### Relevante endringer over tid:
 - Endring i vareførselreglene: https://www.regjeringen.no/no/aktuelt/endring-i-vareforselsreglene/id2952575/ / https://lovdata.no/dokument/LTI/forskrift/2022-12-20-2346. 
 
 ### TRN
+- Filene fås direkte fra TRN
 
 ### ARN
+- Filene fås direkte fra TRN
