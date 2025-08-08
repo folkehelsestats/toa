@@ -1,0 +1,106 @@
+digraph toa {
+rankdir=LR
+ d1 [label="Ja"]
+ d2 [label="Nei"]
+ d11 [label="Ja"]
+ d22 [label="Nei"]
+ Drukket1 -> d1
+ Drukket1 -> d2
+
+ d1b [label="Drukket1b\n(noen ganger)"]
+ d2 -> d1b
+ d1b -> d11
+ d1b -> d22
+ d1 -> Drukket2
+
+ dr21 [label = "1-Daglig"]
+ dr22 [label = "2-Ukenlig"]
+ dr23 [label = "3-Månedlig"]
+ dr24 [label = "4-Sjeldnere"]
+ Drukket2 -> dr21
+ Drukket2 -> dr22
+ Drukket2 -> dr23
+ Drukket2 -> dr24
+
+ d2a1 [label="1(4-5)"]
+ d2a2 [label="2(2-3)"]
+ d2a3 [label="3(1)"]
+ dr22 -> Drukket2a
+ Drukket2a -> d2a1
+ Drukket2a -> d2a2
+ Drukket2a -> d2a3
+
+ d2b1 [label="1(>3)"]
+ d2b2 [label="2(2-3)"]
+ d2b3 [label="3(1)"]
+ dr23 -> Drukket2b
+ Drukket2b -> d2b1
+ Drukket2b -> d2b2
+ Drukket2b -> d2b3
+
+ d2c1 [label="1(>3)"]
+ d2c2 [label="2(2-3)"]
+ d2c3 [label="3(1)"]
+ dr24 -> Drukket2c
+ Drukket2c -> d2c1
+ Drukket2c -> d2c2
+ Drukket2c -> d2c3
+
+ d3 [label = "Drukket3\n(siste 4 uker)"]
+ d31 [label="Ja"]
+ d32 [label="Nei"]
+ d1 -> d3
+ d3 -> d31
+ d3 -> d32
+
+ t1 [label="Type1\n(Øl)"]
+ t2 [label="Type2\n(Vin)"]
+ t3 [label="Type3\n(Brennevin)"]
+ t4 [label="Type4\n(Rusbrus)"]
+ d31 -> t1
+ d31 -> t2
+ d31 -> t3
+ d31 -> t4
+
+ dt1 [label = "1-Daglig"]
+ dt2 [label = "2-Ukenlig"]
+ dt3 [label = "3-Sjeldnere\n enn ukentlig"]
+ t1ja [label = "Ja"]
+ t1nei [label = "Nei"]
+ t1 -> t1ja
+ t1 -> t1nei
+ t1ja -> Type1a
+ Type1a -> dt1
+ Type1a -> dt2
+ Type1a -> dt3
+
+ tu1 [label="1 (4-5 dager\n i uken)"]
+ tu2 [label="2 (2-3 dager\n i uken)"]
+ tu3 [label="3 (omt. 1 dag\n i uken)"]
+ dt2 -> Typ1a_uk
+ Typ1a_uk -> tu1
+ Typ1a_uk -> tu2
+ Typ1a_uk -> tu3
+
+ t1b1 [label="Type_1b_1 (0,33 l)"]
+ t1b2 [label="Type_1b_2 (0,5 l)"]
+ dt1 -> Type1b
+ dt2 -> Type1b
+ Type1b -> t1b1
+ Type1b -> t1b2
+
+ tm1 [label="1 (>3 dager)"]
+ tm2 [label="2 (2-3 dager\n i uken)"]
+ tm3 [label="3 (omt. 1 dag\n i uken)"]
+ dt3 -> Typ1a_mn
+ Typ1a_mn -> tm1
+ Typ1a_mn -> tm2
+ Typ1a_mn -> tm3
+
+ t1c1 [label="Type_1c_1 (0,33 l)"]
+ t1c2 [label="Type_1c_2 (0,5 l)"]
+ dt3 -> Type1c
+ Type1c -> t1c1
+ Type1c -> t1c2
+
+}
