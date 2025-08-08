@@ -1,21 +1,14 @@
 ## Check all files from 2012 to 2023
 ## ----------------------------------
+## chooseCRANmirror(ind = 18)
+source("c:/Users/ykama/Git-hdir/toa/rusund/setup.R")
+
 ## readClipboard()
 odrive <- "O:\\Prosjekt\\Rusdata"
 rusdrive <- "Rusundersøkelsen\\Rusus historiske data\\ORG\\alkohol_rusundersokelsen"
 filpath <- file.path(odrive, rusdrive)
 filer <- grep("dta$", list.files(filpath), value = TRUE)
 
-## chooseCRANmirror(ind = 18)
-pkgs <- c("tcltk","DescTools", "gt", "here",
-          "skimr", "codebook", "dataMaid", "summarytools",
-          "data.table", "haven")
-invisible(lapply(pkgs, function(pkg) {
-    if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
-    library(pkg, character.only = TRUE)
-}))
-
-Sys.setlocale("LC_ALL", "nb-NO.UTF-8")
 
 filb4 <- length(filer)
 ## Read all files --------------------------
@@ -35,7 +28,7 @@ DD[["Rus2024"]] <- readRDS(file.path(fil2024, "Rusundersøkelsen", "Rusus 2024",
 
 filnr <- length(DD)
 
-## Comman names ------------------
+## Comman column names ------------------
 ComDD <- vector("list", filnr)
 for (i in seq_len(filnr)){
   ComDD[[i]] <- names(DD[[i]])
@@ -76,7 +69,16 @@ kjonn_var <- lapply(ComDD, function(x) x[grepl("kjon", x, ignore.case = TRUE)])
 names(kjonn_var) <- filNames
 kjonnVars <- unlist(unique(tolower(kjonn_var)))
 
-allVars <- c(ComVars, alderVars, kjonnVars)
+## Audit ---------
+## Follow up questions for Audit3 only available for data from 2015
+
+grep("audit3", tolower(ComDD$Rus2014), value = T)
+grep("audit3", tolower(ComDD$Rus2015), value = T)
+
+auditVars <- grep("audit3", tolower(ComDD$Rus2015), value = T)[-1]
+
+## Merge all common and selected columns ----------
+allVars <- c(ComVars, alderVars, kjonnVars, auditVars)
 length(allVars)
 
 dd <- vector("list", filnr)
@@ -101,7 +103,7 @@ for (i in seq_len(filnr)){
   dd[[i]][, year := yr]
 }
 
-DT <- data.table::rbindlist(dd, use.names = TRUE, ignore.attr=TRUE)
+DT <- data.table::rbindlist(dd, use.names = TRUE, ignore.attr=TRUE, fill = TRUE)
 ## spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
 ## fwrite(DT, file.path(spth, "data_2012_2024.csv"))
 ## saveRDS(DT, file.path(spth, "data_2012_2024.rds"))
