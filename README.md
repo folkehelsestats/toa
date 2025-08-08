@@ -36,3 +36,13 @@ Denne undersøkelsen sendes til kommunene, i henhold til §7-3  i alkoholforskri
 
 #### Salgs- og skjenketider
 - Kvalitetssikring av salgs og skjenketider, om det er endringer kan man søke opp kommunens alkoholpolitiske handlingsplan evt. se om det har vært mediesaker om endringer i salgs- eller skjenketider.
+
+## Taxfree-omsetning
+Taxfree-omsetningen fås i 2024 fra Travel Retain Norway (TRN) og Airport Retain Norway (ARN). TRN har omsetningen på taxfree på de største flyplassene, mens ARN har fra de mindre flyplassene.
+
+### Relevante endringer over tid:
+- Endring i vareførselreglene: https://www.regjeringen.no/no/aktuelt/endring-i-vareforselsreglene/id2952575/ / https://lovdata.no/dokument/LTI/forskrift/2022-12-20-2346. 
+
+### TRN
+
+### ARN
