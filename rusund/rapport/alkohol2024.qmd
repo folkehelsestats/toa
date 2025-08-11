@@ -23,9 +23,13 @@ Analyser om alkohol
 #| echo: false
 #| warning: false
 
+if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
+library("here")
+
+source(file.path(here::here(), "rusund/setup.R"))
+source(file.path(here::here(), "rusund/functions/fun-call.R"))
+
 ## Data 2024
-pth <- "~/Git-hdir/toa/rusund"
-source(file.path(pth, "rus-draft.R"))
 
 ## Data 2012 - 2024
 spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
