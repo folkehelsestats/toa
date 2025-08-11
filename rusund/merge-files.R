@@ -28,15 +28,42 @@ DD[["Rus2024"]] <- readRDS(file.path(fil2024, "Rusundersøkelsen", "Rusus 2024",
 
 filnr <- length(DD)
 
-## Comman column names ------------------
+## Column names ------------------
 ComDD <- vector("list", filnr)
 for (i in seq_len(filnr)){
   ComDD[[i]] <- names(DD[[i]])
 }
 
+ComDDx <- data.table::copy(ComDD) #original columnames
+lapply(DD, function(x) setnames(x, tolower(names(x))))
+
 names(ComDD) <- names(DD)
 filNames <- names(DD)
 
+## Enhet drukket -------------
+lapply(ComDD, function(x) grep("type1b_", x, value = T)) # Øl ukenlig
+lapply(ComDD, function(x) grep("type1c_", x, value = T)) # Øl månedlig
+
+beerVar1 <- c("type1b_1", "type1b_2")
+beerVar2 <- c("type1c_1", "type1c_2")
+setnames(DD[["Rus2012"]], c("type1b_12012", "type1b_32012"), beerVar1, skip_absent = T)
+setnames(DD[["Rus2012"]], c("type1c_12012", "type1c_32012"), beerVar2, skip_absent = T)
+setnames(DD[["Rus2013"]], c("type1b_1", "type1b_3"), beerVar1, skip_absent = T)
+
+
+lapply(ComDD, function(x) grep("type2b_", x, value = T)) # Vin ukenlig
+lapply(ComDD, function(x) grep("type2c_", x, value = T)) # Vin månedlig
+
+lapply(ComDD, function(x) grep("type3b_", x, value = T)) # Sprit ukenlig
+lapply(ComDD, function(x) grep("type3c_", x, value = T)) # Sprit månedlig
+
+lapply(ComDD, function(x) grep("type4b_", x, value = T)) # Rusbrus ukenlig
+lapply(ComDD, function(x) grep("type4c_", x, value = T)) # Rusbrus månedlig
+
+
+
+
+## Comman column names ------------------
 varFelles <- Reduce(intersect, lapply(ComDD, tolower))
 ## dput(varFelles)
 ComVars <-
