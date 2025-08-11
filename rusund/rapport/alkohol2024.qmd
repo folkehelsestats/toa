@@ -28,12 +28,14 @@ library("here")
 
 source(file.path(here::here(), "rusund/setup.R"))
 source(file.path(here::here(), "rusund/functions/fun-call.R"))
+dataPath <- "O:\\Prosjekt\\Rusdata"
 
 ## Data 2024
+DT <- readRDS(file.path(dataPath, "Rusundersøkelsen", "Rusus 2024","rus2024.rds"))
+dt <- as.data.table(DT)
 
 ## Data 2012 - 2024
-spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
-DD <- readRDS(file.path(spth, "data_2012_2024.rds"))
+DD <- readRDS(file.path(dataPath, "Rusundersøkelsen", "Rusus historiske data", "data_2012_2024.rds"))
 
 ## Gir norsk tekster i highchart
 options(highcharter.lang = list(
