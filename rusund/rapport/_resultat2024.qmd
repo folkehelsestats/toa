@@ -114,6 +114,8 @@ gt::gt(alkofreq)
 
 :::
 
+
+
 ## Andel som har drukket 6+ enheter siste 4 uker 
 - En alkoholenhet tilsvarer 0,33 l øl, 1,5 dl vin eller en 4 cl brennevin.
 - Andel som har drukket 6+ enheter ved samme anledning minst en gang 4 ukene 
