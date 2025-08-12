@@ -1,6 +1,6 @@
 *******************************************************************************
 	* Denne fila er opprettet 5/8-2025
-	* Fila bygger på daniels/FHIs fil
+	* Fila bygger på FHIs fil
 	* Fila legger til ARN-data for 2023 (q4) og 2024.
 	* Fila er opprettet av Bente Øvrebø, Hdir.
 	* Fila er under arbeid.
