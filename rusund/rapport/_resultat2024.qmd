@@ -1,14 +1,20 @@
-## Andel som har drukket siste år i 2024
-
-
-```{r}
+```{r setup-2024}
 #| echo: false
 #| warning: false
 
-dt[, alkosistaar := fcase(
-  Drukket1 == 8, NA_real_,
-  default = Drukket1
-)]
+cleanFile <- file.path("rusund", "cleaning", "rus2024", "rus-draft.R")
+## Datasettet DD blir laget her
+source(file.path(here::here(), cleanFile))
+```
+
+## Andel som har drukket siste år i 2024
+
+```{r cal2-druk}
+#| echo: false
+#| warning: false
+
+dt[, Drukket1 := as.integer(Drukket1)]
+dt[, alkosistaar := fifelse(Drukket1 == 8, NA,Drukket1)]
 
 codebook::var_label(dt$alkosistaar) <- "Alkohol siste 12 måneder"
 alksistaar_values <- c(
