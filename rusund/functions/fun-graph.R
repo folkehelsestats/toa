@@ -223,15 +223,15 @@ make_hist <- function(d, x, y, group, n,
       y = 0
     ) |>
     hc_exporting(
-      enabled = TRUE,
-      buttons = list(
-        contextButton = list(
-          menuItems = c(
-            "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG",
-            "downloadCSV", "downloadXLS"
-          )
-        )
-      )
+      enabled = TRUE
+    ##   buttons = list(
+    ##     contextButton = list(
+    ##       menuItems = c(
+    ##         "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG",
+    ##         "downloadCSV", "downloadXLS"
+    ##       )
+    ##     )
+    ##   )
     )
 
   # Add series manually for both line and column charts
