@@ -1,12 +1,12 @@
 ## Clean longitudinal data
 
-source("c:/Users/ykama/Git-hdir/toa/rusund/setup.R")
+## source("c:/Users/ykama/Git-hdir/toa/rusund/setup.R")
 
-spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
-DD <- readRDS(file.path(spth, "data_2012_2024.rds"))
+## spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
+## DD <- readRDS(file.path(spth, "data_2012_2024.rds"))
 
-pth <- "~/Git-hdir/toa/rusund"
-source(file.path(pth, "functions.R"))
+## pth <- "~/Git-hdir/toa/rusund"
+## source(file.path(pth, "functions.R"))
 
 
 DD[year == 2018, drukket1 := ifelse(drukket1 == 0, 2, drukket1)]
