@@ -1,10 +1,26 @@
+
 ```{r setup-hist}
 #| echo: false
 #| warning: false
+#| output: false
 
 cleanFile <- file.path("rusund", "cleaning", "history", "history-cleaning.R")
 ## Datasettet DD blir laget her
 source(file.path(here::here(), cleanFile))
+
+## Alders kategorier ---
+ageBreak <- c(16, 25, 35, 45, 55, 65, Inf)
+ageLab <- c("16-24", "25-34", "35-44", "45-54", "55-64", "65+")
+
+group_age(dt = DD, var = "alder", breaks = ageBreak,
+          labels = ageLab, new_var = "agecat",
+          right = FALSE, missing_values = c(999, 998))
+
+## Kjonn kodebook
+kjonnVal <- c("Menn" = 1, "Kvinner" = 2, "Alle" = 3)
+kjonnKB <- data.table(v1 = as.integer(kjonnVal),
+                      v2 = names(kjonnVal))
+
 ```
 
 ## Andel av alkoholbruk siste år 
@@ -24,10 +40,6 @@ drkX <- drk[alkosistaar == 1]
 
 drkDT <- data.table::rbindlist(list(drkAlleX, drkX), use.names = TRUE)
 drkDT[, kjonn := as.integer(kjonn)]
-
-kjonnVal <- c("Menn" = 1, "Kvinner" = 2, "Alle" = 3)
-kjonnKB <- data.table(v1 = as.integer(kjonnVal),
-                      v2 = names(kjonnVal))
 
 drkDT[, kjonn := as.numeric(kjonn)]
 drkDT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
@@ -92,13 +104,6 @@ gt::gt(drkDTT)
 #| warning: false
 #| output: false
 
-ageBreak <- c(16, 25, 35, 45, 55, 65, Inf)
-ageLab <- c("16-24", "25-34", "35-44", "45-54", "55-64", "65+")
-
-group_age(dt = DD, var = "alder", breaks = ageBreak,
-          labels = ageLab, new_var = "agecat",
-          right = FALSE, missing_values = c(999, 998))
-
 
 drukkMen <- proscat("year", "alkosistaar", d = DD[kjonn == 1], total = F, z = "agecat")
 drukkWom <- proscat("year", "alkosistaar", d = DD[kjonn == 2], total = F, z = "agecat")
@@ -150,6 +155,21 @@ drukkWom
 :::
 
 
+## Drikkefrevens siste 12 måneder
+
+- Av de som har konsumert alkohol i løpet av de siste 12 månedene ...
+- Avhold som aldri drukket
+
+```{r cal-drikfreq}
+#| echo: false
+#| warning: false
+
+DD[, drukket2rec := fifelse(drukket2 %in% 8:9, NA, drukket2)]
+drikkfreq <- proscat("year", "drukket2rec", d = DD, total = F)
+drikkfreqMen <- proscat("year", "drukket2rec", d = DD[kjonn == 1], total = F)
+drikkfreqWom <- proscat("year", "drukket2rec", d = DD[kjonn == 2], total = F)
+
+```
 ## Andel har drukket 6+ alkoholenheter ved en og samme anledning
 
 Tallene som blir presentert her er for de som har drukket 6+ alkoholenheter
@@ -157,11 +177,25 @@ ved en og samme anledning minst en gang i det siste året.
 
 ```{r cal-druk6}
 ## Omkoding
+## Nevner inkluderer de som ikke har drukket siste år også dvs. drukket1=2(Nei)
 DD[, drink6 := fcase(audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjeldenere
                      audit3 == 5, 0, #aldri
+                     drukket1 == 2, 0,
                      default = NA)]
 
-drk6 <- proscat(x = "year", y = "drink6", d = DD)
+drk6 <- proscat(x = "year", y = "drink6", d = DD, total = FALSE)
+drk6kjonn <- proscat(x = "year", y = "drink6", z = "kjonn", d = DD, total = FALSE)
+
+drk6[, kjonn := 3] #total
+
+drk6DT <- rbindlist(list(drk6[drink6==1], drk6kjonn[drink6==1,]), use.names = TRUE)
+setkey(drk6DT,year, kjonn, drink6)
+
+drk6DT[, kjonn := as.integer(kjonn)]
+
+drk6DT[, kjonn := as.numeric(kjonn)]
+drk6DT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
+setorder(drk6DT, year, kjonn)
 ```
 
 ::: {.panel-tabset}
@@ -169,10 +203,10 @@ drk6 <- proscat(x = "year", y = "drink6", d = DD)
 
 ```{r fig-druk6}
 
-make_hist(d = drk6, x = year, y = percentage, n = count,  group = drink6,
-          title = "Drukket 6+ enheter daglig eller ukenlig ved en og samme anledning siste år",
+make_hist(d = drk6DT, x = year, y = percentage, n = count,  group = kjonn2,
+          title = "Drukket 6+ enheter ved en og samme anledning siste år",
           subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
-          type = "line", yint = 5)
+          type = "line", yint = 5, dot_size = 6)
 ```
 
 ### Tabell
@@ -205,7 +239,7 @@ make_hist(d = drk6Men[drink6 == 1],
           n = count,
           title = "Drukket 6+ enheter ved en og samme anledning siste år",
           subtitle = "Menn, 2012-2024",
-          type = "line")
+          type = "line", dot_size = 6)
 ```
 ### Tabell
 
@@ -228,7 +262,7 @@ make_hist(d = drk6Wom[drink6 == 1],
           n = count,
           title = "Drukket 6+ enheter ved en og samme anledning siste år",
           subtitle = "Kvinner, 2012-2024",
-          type = "line")
+          type = "line", dot_size = 6)
 ```
 ### Tabell
 
