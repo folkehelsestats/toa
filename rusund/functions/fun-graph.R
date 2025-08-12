@@ -20,6 +20,8 @@
 #'   Should match the number of groups. Available symbols: "circle", "square", "diamond",
 #'   "triangle", "triangle-down". If NULL, uses different symbols for each group automatically.
 #'   Default is NULL.
+#' @param dot_size Numeric. Size (radius in pixels) of the markers/dots for line charts.
+#'   Only applies when type="line". Default is 4.
 #'
 #' @return A highchart object that can be displayed or further customized.
 #'
@@ -111,7 +113,8 @@ make_hist <- function(d, x, y, group, n,
                       yint = 10,
                       flip = FALSE,
                       type = "column",
-                      line_symbols = NULL) {
+                      line_symbols = NULL,
+                      dot_size = 4) {
 
   # Convert arguments to character strings for consistent handling
   x <- as.character(substitute(x))
@@ -179,10 +182,8 @@ make_hist <- function(d, x, y, group, n,
     }
   }
 
-  # Create the base chart
-  chart <- hchart(d, type, hcaes(x = !!x, y = !!y, group = !!group)) |>
-  ## chart <- hchart(d, type, hcaes(x = .data[[x_char]], y = .data[[y_char]], group = .data[[group_char]])) |>
-    hc_colors(hdir) |>
+  # Create the base chart using highchart() for both line and column
+  chart <- highchart() |>
     hc_chart(inverted = flip) |>
     hc_yAxis(
       title = list(text = " "),
@@ -233,11 +234,62 @@ make_hist <- function(d, x, y, group, n,
       )
     )
 
-  # Add plot options based on chart type
-  if (type == "column") {
-    chart <- chart |>
-      hc_plotOptions(
-        column = list(
+  # Add series manually for both line and column charts
+  group_levels <- unique(d[[group]])
+  for (i in seq_along(group_levels)) {
+    # Filter data for this specific group
+    group_data <- d[d[[group]] == group_levels[i], ]
+
+    if (type == "line") {
+      # Line chart with symbols
+      chart <- chart |>
+        hc_add_series(
+          data = group_data,
+          type = "line",
+          name = group_levels[i],
+          hcaes(x = !!x, y = !!y),
+          marker = list(
+            symbol = line_symbols[i],
+            enabled = TRUE,
+            radius = dot_size
+          ),
+          color = hdir[i],
+          lineWidth = 2,
+          states = list(
+            hover = list(
+              lineWidth = 3
+            )
+          ),
+          point = list(
+            events = list(
+              mouseOver = JS("function() {
+                var chart = this.series.chart;
+                var categoryIndex = this.x;
+                chart.xAxis[0].removePlotBand('hover-band');
+                chart.xAxis[0].addPlotBand({
+                  id: 'hover-band',
+                  from: categoryIndex - 0.4,
+                  to: categoryIndex + 0.4,
+                  color: 'rgba(204, 211, 255, 0.25)',
+                  zIndex: 0
+                });
+              }"),
+              mouseOut = JS("function() {
+                var chart = this.series.chart;
+                chart.xAxis[0].removePlotBand('hover-band');
+              }")
+            )
+          )
+        )
+    } else {
+      # Column chart
+      chart <- chart |>
+        hc_add_series(
+          data = group_data,
+          type = "column",
+          name = group_levels[i],
+          hcaes(x = !!x, y = !!y),
+          color = hdir[i],
           states = list(
             hover = list(brightness = 0.2)
           ),
@@ -262,75 +314,8 @@ make_hist <- function(d, x, y, group, n,
             )
           )
         )
-      )
-  } else if (type == "line") {
-    # Set up line-specific plot options with symbols
-    line_options <- list(
-      marker = list(
-        enabled = TRUE,
-        radius = 4
-      ),
-      lineWidth = 2,
-      states = list(
-        hover = list(
-          lineWidth = 3
-        )
-      ),
-      point = list(
-        events = list(
-          mouseOver = JS("function() {
-            var chart = this.series.chart;
-            var categoryIndex = this.x;
-            chart.xAxis[0].removePlotBand('hover-band');
-            chart.xAxis[0].addPlotBand({
-              id: 'hover-band',
-              from: categoryIndex - 0.4,
-              to: categoryIndex + 0.4,
-              color: 'rgba(204, 211, 255, 0.25)',
-              zIndex: 0
-            });
-          }"),
-          mouseOut = JS("function() {
-            var chart = this.series.chart;
-            chart.xAxis[0].removePlotBand('hover-band');
-          }")
-        )
-      )
-    )
-
-    chart <- chart |> hc_plotOptions(line = line_options)
-
-    # Apply different symbols to each series - ONLY for line charts
-    group_levels <- unique(d[[group]])
-    for (i in seq_along(group_levels)) {
-      # Filter data for this specific group
-      group_data <- d[d[[group]] == group_levels[i], ]
-
-      chart <- chart |>
-        hc_add_series(
-          data = group_data,
-          type = "line",
-          name = group_levels[i],
-          hcaes(x = !!x, y = !!y),
-          marker = list(
-            symbol = line_symbols[i],
-            enabled = TRUE,
-            radius = 4
-          ),
-          color = hdir[i]
-        )
     }
   }
 
   return(chart)
 }
-
-## If need to change font size for x-axis
-## hc_xAxis(
-##   title = list(text = " "),
-##   tickInterval = 1,
-##   labels = list(
-##     step = 1,
-##     style = list(fontSize = "10px")
-##   )
-## )
