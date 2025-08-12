@@ -3,6 +3,7 @@
 #| warning: false
 
 cleanFile <- file.path("rusund", "cleaning", "history", "history-cleaning.R")
+## Datasettet DD blir laget her
 source(file.path(here::here(), cleanFile))
 
 ```
@@ -63,18 +64,19 @@ alkoKB <- data.table(v1 = as.integer(alkoVal),
                      v2 = names(alkoVal))
 
 drkDTT[alkoKB, on = c(alkosistaar = "v1"), alko := i.v2]
-drkDT[, kjonn := as.numeric(kjonn)]
+drkDTT[, kjonn := as.numeric(kjonn)]
 drkDTT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
 
 cols <- c("alkosistaar", "sum", "kjonn")
 drkDT[, (cols) := NULL]
 
-colout <- c("alkoyr", "year", "count", "percentage") #Column order
+colout <- c("alko", "year", "count", "percentage") #Column order
 colns <- c(" ", "year", "Antall", "Andel") #Columns rename
-setcolorder(drkDT, colout)
-data.table::setnames(drkDT, colout, colns)
+setkey(drkDTT, year, alkosistaar, kjonn)
+setcolorder(drkDTT, colout)
+data.table::setnames(drkDTT, colout, colns)
 
-gt::gt(drkDT)
+gt::gt(drkDTT)
 
 ```
 :::
@@ -110,7 +112,9 @@ make_hist(d = drukkMen[alkosistaar == 1],
           group = agecat,
           n = count,
           title = "Alkoholbruk siste år bland menn i ulike aldersgrupper, 2012- 2024",
-          type = "line")
+          subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
+          type = "line",
+          dot_size = 6)
 
 ```
 ## Tabell
@@ -134,7 +138,8 @@ make_hist(d = drukkWom[alkosistaar == 1],
           n = count,
           title = "Alkoholbruk siste år bland kvinner i ulike aldersgrupper, 2012- 2024",
           subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
-          type = "line")
+          type = "line",
+          dot_size = 6)
 
 ```
 ## Tabell
