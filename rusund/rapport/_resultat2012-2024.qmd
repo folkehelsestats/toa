@@ -5,12 +5,6 @@
 #| echo: false
 #| warning: false
 
-DD[year == 2018, drukket1 := ifelse(drukket1 == 0, 2, drukket1)]
-DD[, alkosistaar := ifelse(drukket1 %in% 8:9, NA, drukket1)]
-
-DD[year %in% c(2022,2024), kjonn := fcase(kjonn == 1, 2, #Kvinne
-                                          kjonn == 0, 1)] #Mann
-
 alkosistaar_values <- c(
   "drukket alkohol siste 12 mnd" = 1,
   "ikke drukket alkohol siste 12 mnd" = 2

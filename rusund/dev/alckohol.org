@@ -1,0 +1,55 @@
+#+Title: Alkohol definisjon
+
+* Enhet
+En alkoholenhet tilsvarer:
+- 0,33 l øl
+- 1,5 dl vin
+- 4 cl brennevin
+
+* Ren alkohol
+- Øl med 4.5% alkohol 1/0.045 = 22.2 cl
+- Vin med 12% alkohol 1/0.12 = 8.33 cl
+- Brennevin med 40% alkohol 1/0.40 = 2.5 cl
+
+** Øl
+- For halvliter 0.5l
+- Alcohol By Volume (ABV) verdig ~4.5%
+- 0.5 * 0.045 = 0.0225 = 2.25 cl
+** Vin
+- En flaske 0.75l
+- ABV ~12%
+- 0.75*0.12 = 0.09 = 9 cl
+** Brennevin
+- En drink  4cl
+- ABV ~40%
+- 0.04*0.40 = 0.016 = 1.6 cl
+** Cider/Rusbrus
+- En flaske 0.5l
+- ABV ~4.5%
+- 0.5*0.045 = 0.0225 = 2.25 cl
+
+* Alkoholenhet kalkulator
+
+Enkle måte å beregne enheter til tilsvarende øl, vin eller sprit
+
+#+begin_src r
+
+alkohol_enhetskalkulator <- function(ren_alkohol_cl) {
+  # Alkoholmengde per enhet
+  ol_enhet <- 50 * 0.045     # 0,5 l øl med 4,5 %
+  vin_enhet <- 15 * 0.12     # 15 cl vin med 12 %
+  sprit_enhet <- 4 * 0.40    # 4 cl sprit med 40 %
+
+  # Beregning av antall enheter
+  ol_antall <- ren_alkohol_cl / ol_enhet
+  vin_antall <- ren_alkohol_cl / vin_enhet
+  sprit_antall <- ren_alkohol_cl / sprit_enhet
+
+  # Resultattabell
+  data.frame(
+    Drikke = c("Øl (0,5 l, 4,5%)", "Vin (15 cl, 12%)", "Sprit (4 cl, 40%)"),
+    Antall_enheter = round(c(ol_antall, vin_antall, sprit_antall), 2)
+  )
+}
+
+#+end_src

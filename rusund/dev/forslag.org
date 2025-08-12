@@ -1,0 +1,29 @@
+#+title: Forslag til rapporten
+
+* Trender fra 2012 (som for tobakk, men ved å bruke datafilene vi har):
+
+- Andel som har drukket siste år
+
+- Andel som har drukket 6+ enheter ved samme anledning minst en gang siste år
+
+- Gjennomsnittlig drikkefrekvens siste år
+
+- Gjennomsnitt for 6+ (usikker, er denne interessant?)
+
+- Gjennomsnittlig antall alkoholenheter siste 4 uker
+
+* Bruk i 2024:
+
+- Ren alkohol (i cl siste 4 uker) per drikkesort (øl, vin, brennevin, sider (slå sammen med øl?), totalt)
+
+- Målene over etter kjønn, alder (yngre, eldre) og utdanning (og sivilstand, inntekt, region, bosted etc?)
+
+- Drikkemønster: hverdag og helg (er dette interessant?)
+
+- Drikkefrekvens (ukentlig, månedlig, sjeldnere, ikke siste år etter kjønn)
+
+* Problemfylt alkoholbruk – AUDIT
+
+Beregne AUDIT og rapportere:
+
+Andel i 4 risikogrupper (ingen problem; enkle råd; rådgivning; spesialisthelsetjenesten) etter kjønn, alder, utdanning?

@@ -1,7 +1,7 @@
-## get dataset ie. dt
-pth <- "~/Git-hdir/toa/rusund"
-source(file.path(pth, "setup.R"))
-source(file.path(pth, "functions.R"))
+## ## get dataset ie. dt
+## pth <- "~/Git-hdir/toa/rusund"
+## source(file.path(pth, "setup.R"))
+## source(file.path(pth, "functions.R"))
 
 ## Data 2024
 mainpath <- "O:\\Prosjekt\\Rusdata"
