@@ -1,3 +1,12 @@
+```{r}
+#| echo: false
+#| warning: false
+
+cleanFile <- file.path("rusund", "cleaning", "history", "history-cleaning.R")
+source(file.path(here::here(), cleanFile))
+
+```
+
 
 ## Andel av alkoholbruk siste år 
 
@@ -5,21 +14,25 @@
 #| echo: false
 #| warning: false
 
-alkosistaar_values <- c(
-  "drukket alkohol siste 12 mnd" = 1,
-  "ikke drukket alkohol siste 12 mnd" = 2
-)
+drkAlle <- proscat("year", "alkosistaar", d = DD, total = FALSE)
+drk <- proscat("year", "alkosistaar", z = "kjonn", d = DD, total = FALSE)
 
+## Bare de som svarte Ja
+drkAlle[, kjonn := 3] #totalt
+drkAlleX <- drkAlle[alkosistaar == 1]
+                      
+drkX <- drk[alkosistaar == 1]
 
-alkDD <- split_gender(d = DD, x = "year", y = "alkosistaar", select = 1)
+drkDT <- data.table::rbindlist(list(drkAlleX, drkX), use.names = TRUE)
+drkDT[, kjonn := as.integer(kjonn)]
 
-alkoDT <- alkDD$d1 
-alkoDTx <- alkDD$d2 
+kjonnVal <- c("Menn" = 1, "Kvinner" = 2, "Alle" = 3)
+kjonnKB <- data.table(v1 = as.integer(kjonnVal),
+                      v2 = names(kjonnVal))
 
-alAllkb <- data.table(v1 = as.integer(alkosistaar_values),
-                      v2 = names(alkosistaar_values))
-
-alkoDT[alAllkb, on = c(alkosistaar = "v1"), alkoyr := i.v2]
+drkDT[, kjonn := as.numeric(kjonn)]
+drkDT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
+setorder(drkDT, year, kjonn)
 
 ```
 
@@ -27,29 +40,41 @@ alkoDT[alAllkb, on = c(alkosistaar = "v1"), alkoyr := i.v2]
 ## Figur
 ```{r}
 
-make_hist(d = alkoDTx,
+make_hist(d = drkDT,
           x = year,
           y = percentage,
-          group = pop,
+          group = kjonn2,
           n = count,
           title = "Alkoholbruk siste 12 måneder 2012-2024",
           subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
           type = "line",
+          dot_size = 6,
           flip = FALSE)
 ```
 
 ## Tabell
 
 ```{r}
-cols <- c("alkosistaar", "sum")
-alkoDT[, (cols) := NULL]
+
+drkDTT <- data.table::rbindlist(list(drkAlle, drk), use.names = TRUE)
+
+alkoVal <- c("Drukket" = 1, "Ikke drukket" = 2)
+alkoKB <- data.table(v1 = as.integer(alkoVal),
+                     v2 = names(alkoVal))
+
+drkDTT[alkoKB, on = c(alkosistaar = "v1"), alko := i.v2]
+drkDT[, kjonn := as.numeric(kjonn)]
+drkDTT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
+
+cols <- c("alkosistaar", "sum", "kjonn")
+drkDT[, (cols) := NULL]
 
 colout <- c("alkoyr", "year", "count", "percentage") #Column order
 colns <- c(" ", "year", "Antall", "Andel") #Columns rename
-setcolorder(alkoDT, colout)
-data.table::setnames(alkoDT, colout, colns)
+setcolorder(drkDT, colout)
+data.table::setnames(drkDT, colout, colns)
 
-gt::gt(alkoDT)
+gt::gt(drkDT)
 
 ```
 :::
