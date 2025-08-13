@@ -50,7 +50,7 @@ drkMin <- drkAlle[alkosistaar == 1, min(percentage, na.rm = TRUE)]
 ```
 
 Andelen som rapporterte å ha konsumert alkohol i løpet av de siste 12 månedene
-har vært relativt stabil i perioden 2012 til 2024, og har ligget mellom `r round(drkMin, digits = 0)`%
+  har vært relativt stabil i perioden 2012 til 2024, og har ligget mellom `r round(drkMin, digits = 0)`%
 og `r round(drkMax, digits = 0)`%, tilsvarende omtrent 8 av 10 personer.
 
 ::: {.panel-tabset}
@@ -95,15 +95,12 @@ data.table::setnames(drkDTT, colout, colns)
 gt::gt(drkDTT)
 ```
 :::
-
-
 <!-- Alkoholbruk siste år bland menn i ulike aldersgrupper, 2012-2024 -->
 
 ```{r cal-bruk-age}
 #| echo: false
 #| warning: false
 #| output: false
-
 
 drukkMen <- proscat("year", "alkosistaar", d = DD[kjonn == 1], total = F, z = "agecat")
 drukkWom <- proscat("year", "alkosistaar", d = DD[kjonn == 2], total = F, z = "agecat")
@@ -112,6 +109,7 @@ drukkWom <- proscat("year", "alkosistaar", d = DD[kjonn == 2], total = F, z = "a
 ::: {.panel-tabset}
 
 ### Figur
+<!-- Menn drukket siste år -->
 ```{r fig-bruk-age-men}
 make_hist(d = drukkMen[alkosistaar == 1],
           x = year,
@@ -128,10 +126,9 @@ make_hist(d = drukkMen[alkosistaar == 1],
 ```{r tab-bruk-age-men}
 drukkMen
 ```
-
 :::
 
-<!-- For kvinner -->
+<!-- For kvinner drukket siste år -->
 
 ::: {.panel-tabset}
 
@@ -157,19 +154,101 @@ drukkWom
 
 ## Drikkefrevens siste 12 måneder
 
-- Av de som har konsumert alkohol i løpet av de siste 12 månedene ...
-- Avhold som aldri drukket
-
 ```{r cal-drikfreq}
 #| echo: false
 #| warning: false
 
-DD[, drukket2rec := fifelse(drukket2 %in% 8:9, NA, drukket2)]
+## Nevner inkluderer alle som også ikke har drukket dvs. drukket1=2
+DD[, drukket2rec := fcase(drukket1 == 2, 0,
+                        drukket2 %in% 8:9, NA,
+                        default = as.numeric(drukket2))]
+
 drikkfreq <- proscat("year", "drukket2rec", d = DD, total = F)
+drikkfreqKjonn <- proscat("year", "drukket2rec", z="kjonn", d = DD, total = F)
 drikkfreqMen <- proscat("year", "drukket2rec", d = DD[kjonn == 1], total = F)
 drikkfreqWom <- proscat("year", "drukket2rec", d = DD[kjonn == 2], total = F)
 
+drikkfreq[, kjonn := 3]
+drikkFDT <- rbindlist(list(drikkfreq, drikkfreqKjonn), use.names = TRUE)
+
+drikkFDT[, kjonn := as.numeric(kjonn)]
+drikkFDT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
+setorder(drikkFDT, year, kjonn)
+
 ```
+
+::: {.panel-tabset}
+
+### Daglig
+
+```{r dr-daglig}
+make_hist(d = drikkFDT[drukket2rec == 1],
+          x = year,
+          y = percentage,
+          group = kjonn2,
+          n = count,
+          title = "Alkoholbruk daglig siste 12 måneder 2012-2024",
+          subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
+          type = "line",
+          yint = 1,
+          dot_size = 6,
+          flip = FALSE)
+
+```
+
+### Ukenlig
+
+```{r dr-ukenlig}
+make_hist(d = drikkFDT[drukket2rec == 2],
+          x = year,
+          y = percentage,
+          group = kjonn2,
+          n = count,
+          title = "Alkoholbruk ukenlig siste 12 måneder 2012-2024",
+          subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
+          type = "line",
+          yint = 5,
+          dot_size = 6,
+          flip = FALSE)
+
+```
+
+### Månedlig
+
+```{r dr-manedlig}
+make_hist(d = drikkFDT[drukket2rec == 3],
+          x = year,
+          y = percentage,
+          group = kjonn2,
+          n = count,
+          title = "Alkoholbruk månedlig siste 12 måneder 2012-2024",
+          subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
+          type = "line",
+          yint = 5,
+          dot_size = 6,
+          flip = FALSE)
+
+```
+
+### Sjeldnere
+
+```{r dr-sjelden}
+make_hist(d = drikkFDT[drukket2rec == 4],
+          x = year,
+          y = percentage,
+          group = kjonn2,
+          n = count,
+          title = "Alkoholbruk sjeldnere enn månedlig siste 12 måneder 2012-2024",
+          subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
+          type = "line",
+          yint = 5,
+          dot_size = 6,
+          flip = FALSE)
+
+```
+:::
+
+
 ## Andel har drukket 6+ alkoholenheter ved en og samme anledning
 
 Tallene som blir presentert her er for de som har drukket 6+ alkoholenheter
