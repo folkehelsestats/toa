@@ -175,7 +175,28 @@ drikkFDT[, kjonn := as.numeric(kjonn)]
 drikkFDT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
 setorder(drikkFDT, year, kjonn)
 
+## Finn differanse
+setkey(drikkfreqMen, year, drukket2rec)
+setkey(drikkfreqWom, year, drukket2rec)
+
+drikkDiff <- merge(drikkfreqMen, drikkfreqWom, by = c("year", "drukket2rec"))
+drikkDiff[, diff := abs(percentage.x - percentage.y)]
+
+drk01 <- drikkDiff[drukket2rec == 1, min(diff, na.rm = TRUE)]
+drk02 <- drikkDiff[drukket2rec == 2, min(diff, na.rm = TRUE)]
+drk03 <- drikkDiff[drukket2rec == 3, min(diff, na.rm = TRUE)]
+drk04 <- drikkDiff[drukket2rec == 4, min(diff, na.rm = TRUE)]
+
 ```
+
+I perioden 2012–2024 har det vært små kjønnsforskjeller blant personer som
+rapporterer daglig eller månedlig alkoholkonsum, med gjennomsnitt forskjeller på
+henholdsvis `r drk01` prosent og `r drk03` prosent. I kontrast viser dataene
+tydelige og vedvarende forskjeller mellom kjønnene blant dem som drikker
+ukentlig eller sjeldnere enn månedlig, hvor gjennomsnitt forskjellene utgjør
+henholdsvis `r drk02` prosent og `r drk04` prosent. Disse forskjellene har vært
+stabile over tid, noe som indikerer et vedvarende mønster i drikkevaner mellom
+menn og kvinner.
 
 ::: {.panel-tabset}
 
@@ -350,3 +371,6 @@ drk6Wom
 ```
 :::
 
+## Alkoholenheter siste 4 uker
+
+{{< include _alkoenheter2012-2024.R >}}
