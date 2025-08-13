@@ -8,24 +8,26 @@
 ## pth <- "~/Git-hdir/toa/rusund"
 ## source(file.path(pth, "functions.R"))
 
-
+## Drukket siste 12 månedene
 DD[year == 2018, drukket1 := ifelse(drukket1 == 0, 2, drukket1)]
 DD[, alkosistaar := ifelse(drukket1 %in% 8:9, NA, drukket1)]
 
+## Kjønn
 DD[year %in% c(2022,2024), kjonn := fcase(kjonn == 1, 2, #Kvinne
                                           kjonn == 0, 1)] #Mann
 
 ## Exclude 2012 and 2013 since the answers are different for drukk2c than the others
+## The recoding for frequency differ from Elin og Ingeborg. This one is the way Ingeborg defines it.
 DD[!(year %in% 2012:2013), alkodager := fcase(
                              drukket2 == 1, 365,
                              drukket2 == 2 & drukk2a == 1, 234,
                              drukket2 == 2 & drukk2a == 2, 130,
-                             drukket2 == 2 & drukk2a == 3, 52,
-                             drukket2 == 3 & drukk2b == 1, 42,
+                             drukket2 == 2 & drukk2a == 3, 52, # differ
+                             drukket2 == 3 & drukk2b == 1, 42, #
                              drukket2 == 3 & drukk2b == 2, 30,
                              drukket2 == 3 & drukk2b == 3, 12,
-                             drukket2 == 4 & drukk2c == 1, 7.5,
-                             drukket2 == 4 & drukk2c == 2, 2.5,
+                             drukket2 == 4 & drukk2c == 1, 7.5, #
+                             drukket2 == 4 & drukk2c == 2, 2.5, #
                              drukket2 == 4 & drukk2c == 3, 1,
                              drukket2 == 9 |
                              drukk2a == 8 |
