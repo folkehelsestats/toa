@@ -141,6 +141,27 @@ make_hist <- function(d, x, y, group, n,
     subtitle <- "Kilde: Rusundersøkelse 2024"
   }
 
+  # Handle x-axis based on variable type
+  is_x_numeric <- is.numeric(d[[x]])
+
+  if (is_x_numeric) {
+    use_categories <- FALSE
+    x_axis_config <- list(
+      title = list(text = " "),
+      labels = list(step = 1)
+    )
+  } else {
+    x_levels <- unique(d[[x]])
+    d$x_index <- match(d[[x]], x_levels) - 1
+    use_categories <- TRUE
+    x_axis_config <- list(
+      title = list(text = " "),
+      categories = x_levels,
+      tickInterval = 1,
+      labels = list(step = 1)
+    )
+  }
+
   # Define color palettes
   if (gp == 2) {
     hdir <- c("rgba(49,101,117,1)", "rgba(138,41,77,1)")
@@ -191,11 +212,12 @@ make_hist <- function(d, x, y, group, n,
       tickInterval = yint
     ) |>
     hc_xAxis(
-      title = list(text = " "),
-      tickInterval = 1,
-      labels = list(
-        step = 1 # Show every level
-      )
+      x_axis_config
+      ## title = list(text = " "),
+      ## tickInterval = 1,
+      ## labels = list(
+      ##   step = 1 # Show every level
+      ## )
     ) |>
     hc_title(text = title) |>
     hc_subtitle(text = subtitle) |>
@@ -234,6 +256,12 @@ make_hist <- function(d, x, y, group, n,
     ##   )
     )
 
+  if (use_categories) {
+    mapping <- hcaes(x = x_index, y = !!y)
+  } else {
+    mapping <- hcaes(x = !!x, y = !!y)
+  }
+
   # Add series manually for both line and column charts
   group_levels <- unique(d[[group]])
   for (i in seq_along(group_levels)) {
@@ -247,7 +275,8 @@ make_hist <- function(d, x, y, group, n,
           data = group_data,
           type = "line",
           name = group_levels[i],
-          hcaes(x = !!x, y = !!y),
+          ## hcaes(x = !!x, y = !!y),
+          mapping,
           marker = list(
             symbol = line_symbols[i],
             enabled = TRUE,
@@ -288,7 +317,8 @@ make_hist <- function(d, x, y, group, n,
           data = group_data,
           type = "column",
           name = group_levels[i],
-          hcaes(x = !!x, y = !!y),
+          ## hcaes(x = !!x, y = !!y),
+          mapping,
           color = hdir[i],
           states = list(
             hover = list(brightness = 0.2)
