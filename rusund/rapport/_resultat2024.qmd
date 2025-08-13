@@ -14,7 +14,7 @@ source(file.path(here::here(), cleanFile))
 #| warning: false
 
 dt[, Drukket1 := as.integer(Drukket1)]
-dt[, alkosistaar := fifelse(Drukket1 == 8, NA,Drukket1)]
+dt[, alkosistaar := fifelse(Drukket1 == 8, NA, Drukket1)]
 
 codebook::var_label(dt$alkosistaar) <- "Alkohol siste 12 måneder"
 alksistaar_values <- c(
@@ -121,21 +121,23 @@ gt::gt(alkofreq)
 :::
 
 
-
 ## Andel som har drukket 6+ enheter siste 4 uker 
 - En alkoholenhet tilsvarer 0,33 l øl, 1,5 dl vin eller en 4 cl brennevin.
 - Andel som har drukket 6+ enheter ved samme anledning minst en gang 4 ukene 
 
 
 ```{r}
-dt[, alko6 := fifelse(totalenheter > 5, 1, 0)]
-dt[, kj := as.numeric(Kjonn)]
-kjAlko <- proscat("kj", "alko6")
+## Nevner inkluderer de som ikke har drukket siste år også dvs. drukket1=2(Nei)
+dt[, drink6 := fcase(Audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjeldenere
+                     Audit3 == 5, 0, #aldri
+                     Drukket1 == 2, 0,
+                     default = NA)]
 
-kjonnkb <- data.table(v1 = unique(kjAlko$kj), v2 = c("Menn", "Kvinner", "Totalt"))
-alkokb <- data.table(v1 = 0:1, v2 = c("Drukket 6+", "Drukket mindre enn 6+"))
-kjAlko[kjonnkb, on = c(kj = "v1"), gender := i.v2]
-kjAlko[alkokb, on = c(alko6 = "v1"), alko := i.v2]
+drk6_24 <- proscat(x = "kj", y = "drink6", d = dt, total = TRUE)
+kjonnkb <- data.table(v1 = 0:2, v2 = c("Menn", "Kvinner", "Totalt"))
+alkokb <- data.table(v1 = 0:1, v2 = c("Aldri", "Drukket 6+"))
+drk6_24[kjonnkb, on = c(kj = "v1"), gender := i.v2]
+drk6_24[alkokb, on = c(drink6 = "v1"), alko := i.v2]
 
 ```
 
@@ -143,7 +145,7 @@ kjAlko[alkokb, on = c(alko6 = "v1"), alko := i.v2]
 
 ## Figur
 ```{r}
-make_hist(d = kjAlko,
+make_hist(d = drk6_24,
           x = gender,
           y = percentage,
           group = alko,
@@ -153,15 +155,15 @@ make_hist(d = kjAlko,
 
 ## Tabell
 ```{r}
-cols <- c("kj", "alko6", "sum")
-kjAlko[, (cols) := NULL]
+cols <- c("kj", "drink6", "sum")
+drk6_24[, (cols) := NULL]
 
 colout <- c("alko", "gender", "count", "percentage")
 colns <- c(" ", "Kjønn", "Antall", "Andel")
-setcolorder(kjAlko, colout)
-data.table::setnames(kjAlko, colout, colns)
+setcolorder(drk6_24, colout)
+data.table::setnames(drk6_24, colout, colns)
 
-gt::gt(kjAlko)
+gt::gt(drk6_24)
 
 ```
 :::
