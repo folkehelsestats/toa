@@ -316,7 +316,7 @@ twoway ///
     xlabel(, angle(45)) ///
     legend(order(1 "Ankomst - Antall" 2 "Ankomst - nyAntall" 3 "Avgang - Antall" 4 "Avgang - nyAntall")) ///
 	xline(252 , lpattern(dash) lcolor(gs10))
-	r
+	
 	
 
 /* Snus er for lav (og på null etter 2023 i visse kvartaler) og feil i snus i Oslo 2023q2? */	 
@@ -341,6 +341,18 @@ twoway ///
     legend(order(1 "Ankomst - Antall" 2 "Ankomst - nyAntall" 3 "Avgang - Antall" 4 "Avgang - nyAntall")) ///
 	xline(252 , lpattern(dash) lcolor(gs10))
 
+/* Kun Snus i Oslo for å se 0-tallene i Q42022 + q3 og q4 i 2023
+	twoway ///
+ (line Antall Kvt if Utsalg=="Ankomst", lpattern(solid) lcolor(blue)) ///
+	(line nyAntall Kvt if Utsalg=="Ankomst", lpattern(solid) lcolor(green)) ///
+	(line Antall Kvt if Utsalg=="Avgang", lpattern(solid) lcolor(red)) ///
+	(line nyAntall Kvt if Utsalg=="Avgang", lpattern(solid) lcolor(orange)) ///
+	if Gruppe == "Snus" & Lufthavn == "Oslo", ///
+	 title("Snus") ///
+    xlabel(, angle(45)) ///
+    legend(order(1 "Ankomst - Antall" 2 "Ankomst - nyAntall" 3 "Avgang - Antall" 4 "Avgang - nyAntall")) ///
+	xline(252 , lpattern(dash) lcolor(gs10))
+*/
 
 /*tobakk er for høy etter 2019q2*/
 /*
@@ -365,6 +377,21 @@ twoway ///
 	xline(252 , lpattern(dash) lcolor(gs10))
 	
 
+
+	/*Kun tobakk i Oslo for å se 0-tallene fra og med q3 2023
+		
+		twoway ///
+	 (line Antall Kvt if Utsalg=="Ankomst", lpattern(solid) lcolor(blue)) ///
+		(line nyAntall Kvt if Utsalg=="Ankomst", lpattern(solid) lcolor(green)) ///
+		(line Antall Kvt if Utsalg=="Avgang", lpattern(solid) lcolor(red)) ///
+		(line nyAntall Kvt if Utsalg=="Avgang", lpattern(solid) lcolor(orange)) ///
+		if Gruppe == "Tobakk" & Lufthavn == "Oslo", ///
+		 title("Tobakk") ///
+		xlabel(, angle(45)) ///
+		legend(order(1 "Ankomst - Antall" 2 "Ankomst - nyAntall" 3 "Avgang - Antall" 4 "Avgang - nyAntall")) ///
+		xline(252 , lpattern(dash) lcolor(gs10))
+	*/
+		
 /* Sigarer er feilregistrert */
 twoway (line Antall Kvt if Utsalg=="Ankomst") ///
 	(line nyAntall Kvt if Utsalg=="Ankomst") ///
@@ -377,11 +404,54 @@ twoway (line Antall Kvt if Utsalg=="Ankomst") ///
     legend(order(1 "Ankomst - Antall" 2 "Ankomst - nyAntall" 3 "Avgang - Antall" 4 "Avgang - nyAntall")) ///
 	xline(252 , lpattern(dash) lcolor(gs10))
 
-*** BENTE, fortsett her!
 
-/* Datakvaliteten er bedre før 2Q2019, Snus/Tobakk, og Brennevin/Hetvin må 
+/* Tester å kun benytte "ny antall", da jeg tror det i større grad er i kg og mer sammenlignbart.
+twoway ///
+	(line nyAntall Kvt if Utsalg=="Ankomst") ///
+	(line nyAntall Kvt if Utsalg=="Avgang") /// 
+   	if Gruppe == "Sigarer", ///
+    title("Sigarer") ///
+	by(Lufthavn, yrescale) ///
+    xlabel(, angle(45)) ///
+    legend(order(1 "Ankomst - nyAntall" 2 "Avgang - nyAntall")) ///
+	xline(252 , lpattern(dash) lcolor(gs10))
+	
+* Og kun i Oslo:
+twoway ///
+	(line nyAntall Kvt if Utsalg=="Ankomst") ///
+	(line nyAntall Kvt if Utsalg=="Avgang") /// 
+   	if Gruppe == "Sigarer" & Lufthavn == "Oslo", ///
+    title("Sigarer") ///
+    xlabel(, angle(45)) ///
+    legend(order(1 "Ankomst - nyAntall" 2 "Avgang - nyAntall")) ///
+	xline(252 , lpattern(dash) lcolor(gs10))
+	*/
+	
+	
+	
+/* Datakvaliteten er bedre før / endret fra 2Q2019, Snus/Tobakk, og Brennevin/Hetvin må 
    deles opp på nytt etter 2Q2019 */
-  
+   /*
+gen snustobakk = .
+replace snustobakk = nyAntall if Gruppe == "Snus" & Kvt >= yq(2019,3)
+replace snustobakk = nyAntall if Gruppe == "Tobakk" & Kvt >= yq(2019,3)
+
+gen snustob_y = .
+replace snustob_y = 1 if Gruppe == "Snus"
+replace snustob_y = 1 if Gruppe == "Tobakk"
+
+twoway ///
+	(line nyAntall Kvt if Utsalg=="Ankomst", lpattern(solid) lcolor(green)) ///
+	(line nyAntall Kvt if Utsalg=="Avgang", lpattern(solid) lcolor(orange)) ///
+	if snustob_y == 1, ///
+	by(Lufthavn, yrescale) ///
+    title("Snus&tobakk") ///
+    xlabel(, angle(45)) ///
+    legend(order(1 "Ankomst - Antall" 2 "Ankomst - nyAntall" 3 "Avgang - Antall" 4 "Avgang - nyAntall")) ///
+	xline(252 , lpattern(dash) lcolor(gs10))
+
+*/
+
   /* MÅ SJEKKE OM DETTE GJELDER ALLE ÅR ETTER2019*/
 replace Antall = nyAntall if Antall ==.
 replace Gruppe = "SnusTobakk" if Gruppe == "Snus" & Kvt >= yq(2019,3)
@@ -394,9 +464,43 @@ collapse (sum) Antall, by(Lufthavn Utsalg Kvt Gruppe)
 
 save "TRN2010-2024.dta", replace  
 
+/* Kladd for å se på grafer etter sammenslåing av snus og tobakk og brennevin og hetvin.
+replace nyAntall = . if Kvt < yq(2019,3)
+replace Antall = . if Kvt >= yq(2019,3)
 
+twoway ///
+ (line Antall Kvt if Utsalg=="Ankomst", lpattern(solid) lcolor(blue)) ///
+	(line nyAntall Kvt if Utsalg=="Ankomst", lpattern(solid) lcolor(green)) ///
+	(line Antall Kvt if Utsalg=="Avgang", lpattern(solid) lcolor(red)) ///
+	(line nyAntall Kvt if Utsalg=="Avgang", lpattern(solid) lcolor(orange)) ///
+	if Gruppe == "SnusTobakk", ///
+    title("Snus & Tobakk") ///
+	by(Lufthavn, yrescale) ///
+    xlabel(, angle(45)) ///
+  legend(order(1 "Ankomst - Antall" 2 "Ankomst - nyAntall" 3 "Avgang - Antall" 4 "Avgang - nyAntall")) ///
+	xline(252 , lpattern(dash) lcolor(gs10))
 
-
+twoway ///
+	(line nyAntall Kvt if Utsalg=="Ankomst") ///
+	(line nyAntall Kvt if Utsalg=="Avgang") /// 
+   	if Gruppe == "SnusTobakk" & Lufthavn == "Oslo", ///
+    title("Snus og tobakk") ///
+    xlabel(, angle(45)) ///
+    legend(order(1 "Ankomst - nyAntall" 2 "Avgang - nyAntall")) ///
+	xline(252 , lpattern(dash) lcolor(gs10))
+	
+	
+	
+twoway ///
+	(line nyAntall Kvt if Utsalg=="Ankomst") ///
+	(line nyAntall Kvt if Utsalg=="Avgang") /// 
+   	if Gruppe == "BrennevinHetvin" & Lufthavn == "Oslo", ///
+    title("Brennevin og hetvin") ///
+    xlabel(, angle(45)) ///
+    legend(order(1 "Ankomst - nyAntall" 2 "Avgang - nyAntall")) ///
+	xline(252 , lpattern(dash) lcolor(gs10))
+	*/
+	
 * Filen slutter her
 
 /* Kode bruk for å se på omsetning av sigaretter
