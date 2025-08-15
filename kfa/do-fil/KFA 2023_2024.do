@@ -533,7 +533,7 @@ list utvalg_kommune utvalg_kommunenummer tot_skjenk23 if tot_skjenk23 >=100
 	* Manglende levering av omsetningsoppgave innen kommunens frist
 	summarize q2_11a_1_21_resp
 	return list
-	* Manglende betaling av bevillingsgebyr innen kommunens frist* Annen type overtredelser
+	* Manglende betaling av bevillingsgebyr innen kommunens frist
 	summarize q2_11a_1_22_resp
 	return list
 	* Andre typer overtredelser:
@@ -556,30 +556,13 @@ list utvalg_kommune utvalg_kommunenummer tot_skjenk23 if tot_skjenk23 >=100
 	return list
 
 	
-	/*
-/* Dette med antall liter må vurderes og sjekkes nærmere om det skal med
-
-Antall liter solgt og skjenket av alkoholholdig drikk*/
-	* Liter solgt øl og rusbrus rapportert: 
-	summarize q3_1_1_resp
-	return list
-	
-	* Liter skjenket av øl/rusbrus:
-	summarize q3_1_2_resp
-	return list
-	* Liter skjenket av vin:
-	summarize q3_1_3_resp
-	return list
-	* Liter skjenket av brennevin:
-	summarize q3_1_4_resp
-	return list
-	*/
-
 /* Antall nye salgsbevillinger*/
 	* Innvilget:
+	tabulate q1_13a_1_resp // fordeling av antall innvilget
 	summarize q1_13a_1_resp
 	return list
 	* Avslått: 
+	tabulate q1_13a_2_resp
 	summarize q1_13a_2_resp
 	return list
 	* Begrunnelse for avslag:
@@ -597,16 +580,13 @@ Antall liter solgt og skjenket av alkoholholdig drikk*/
 	
 /* Antall nye skjenkesteder*/
 	* Innvilget: 
+	tabulate q2_8a_1_resp
 	summarize q2_8a_1_resp
 	return list
 	* Avslått: 
+	tabulate q2_8a_2_resp 
 	summarize q2_8a_2_resp
 	return list
-	
-	*
-	tab q2_8a_1_resp // innvilget 
-	tab q2_8a_2_resp // avslått
-
 	
 	* Begrunnelse for avslag:
 		* Vandelskrev
@@ -666,37 +646,4 @@ Antall liter solgt og skjenket av alkoholholdig drikk*/
 	tabulate vilkaar if q2_5 == 1
 
 
-
-
-*Ubrukelig/kladd kode under?
-
-/*
-egen salgsbevilling = rowtotal (q1_1_1_resp q1_1_2_resp q1_1_3_resp q1_1_4_resp q1_1_5_resp)
-total salgsbevilling 
-
-
-/*Antall salgsbevillinger gruppert*/
-gen q1_1_gr = q1_1
-recode q1_1_gr (1=1) (2=2)(3=3)(4=4)(5=5)(6/10=6)(11/20=7)(21/30=8)(30/447=9)(.=.)
-tab q1_1_gr
-
-	
-/*Skjenkebevillinger andre steder?*/
-tab q2_2
-
-/*Antall skjenkebevillinger type - Alders og sykehjem - Transportmidler - Idrettsarenaer - Kantiner - Turiskhytter - Kultur - Frisør - Annet*/
-tab1 q2_2_1_1_resp q2_2_1_2_resp q2_2_1_3_resp q2_2_1_4_resp q2_2_1_5_resp q2_2_1_6_resp q2_2_1_7_resp q2_2_1_8_resp
-
-/*Dersom annet, hvilke*/
-tab q2_2_1_open
-
-/*Hvor mange skjenkebevillinger for en enkelt anledning og/eller ambulerende skjenkebevillinger ble det gitt i 2023?*/
-tab q2_3
-
-gen q2_3_gr = q2_3
-recode q2_3_gr (0=0)(1/10=1)(11/20=2)(21/30=3)(31/40=4)(41/50=5)(51/60=6)(61/70=7)(71/80=8)(81/1833=9)(.=.)
-
-tab q2_3_gr
-
-
-	
+* Filen slutter her.
