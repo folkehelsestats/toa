@@ -4,7 +4,7 @@
 ** Fil som presenterer tall til Tall om alkohol
 ** Data om 2023, innsamlet i 2024
 * Opprettet av Bente Øvrebø, 23/5-25
-	* Filen er under arbeid
+	* Filen anses som ferdig.
 	
 ******************************************************************************* 
 /* Benytter kommuneinndeling for 2023 fra SSB hentet via norgeo ved bruk av Rstudio*/
