@@ -371,6 +371,10 @@ gen År = year(dofq(Kvt))
 replace Antall = Antall/100 if År == 2020
 replace Antall = Antall/100 if År == 2021
 
+/*OBS OBS vurder å gjøre dette for 2023 også:
+replace Antall = Antall/100 if År == 2023
+*/
+
 /* Leveranse disse årene skiller ikke på tobakk - kun oppgitt all tobakk samlet, som det er usikkert om er oppgitt i kg, stykk eller en blanding. Det inkluderer sannsynligvis cigarer, sigaretter, snus, tobakk og sigarettpapir. Daniel valgte å droppe denne variebelen. Gjør det nå, må da estimeres. Alternativt kan man muligens bruke denne variabelen til å estimere undergrupper basert på 2024-data. */
 
 drop Mengde* 
