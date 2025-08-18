@@ -162,21 +162,46 @@ make_hist <- function(d, x, y, group, n,
     )
   }
 
+
+  ## Extended custom palette with good contrast for up to 7 groups
+  colors01 <- c(
+    "#2E7D7B",  # Dark teal (original)
+    "#8A2952",  # Purple (original)
+    "#5CB3CC",  # Light blue (original)
+    "#CC8A33",  # Orange (original)
+    "#4A7C59",  # Forest green (new - similar to teal but distinguishable)
+    "#B8336A",  # Rose/pink (new - similar to purple but lighter)
+    "#7A4F01"   # Dark brown (new - earthy tone that complements orange)
+  )
+
+  ## Lighter
+  colors02 <- c(
+    "#00796B",  # Dark teal (improved - brighter for contrast)
+    "#9C27B0",  # Purple (improved - more vibrant)
+    "#03A9F4",  # Light blue (improved - stronger contrast)
+    "#FF9800",  # Orange (improved - brighter and clearer)
+    "#388E3C",  # Forest green (improved - more saturated)
+    "#E91E63",  # Rose/pink (improved - vivid and readable)
+    "#795548"   # Dark brown (improved - softer and more legible)
+  )
+
+  ## Darker
+  colors03 <- c(
+    "#005B55",  # Dark teal (darker version)
+    "#5E1B3A",  # Purple (darker version)
+    "#2A7A8F",  # Light blue (darker version)
+    "#A65F00",  # Orange (darker version)
+    "#2E5E3F",  # Forest green (darker version)
+    "#8A1E4A",  # Rose/pink (darker version)
+    "#5C3B00"   # Dark brown (darker version)
+  )
+
   # Define color palettes
   if (gp == 2) {
     hdir <- c("rgba(49,101,117,1)", "rgba(138,41,77,1)")
   } else if (gp <= 7) {
     # Extended custom palette with good contrast for up to 7 groups
-    custom_colors <- c(
-      "#2E7D7B",  # Dark teal (original)
-      "#8A2952",  # Purple (original)
-      "#5CB3CC",  # Light blue (original)
-      "#CC8A33",  # Orange (original)
-      "#4A7C59",  # Forest green (new - similar to teal but distinguishable)
-      "#B8336A",  # Rose/pink (new - similar to purple but lighter)
-      "#7A4F01"   # Dark brown (new - earthy tone that complements orange)
-    )
-    hdir <- custom_colors[1:gp]
+    hdir <- colors03[1:gp]
   } else {
     hdir <- viridis(gp, option = "D")  # Fallback to viridis for many groups
   }
