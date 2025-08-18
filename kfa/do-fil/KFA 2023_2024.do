@@ -4,10 +4,10 @@
 ** Fil som presenterer tall til Tall om alkohol
 ** Data om 2023, innsamlet i 2024
 * Opprettet av Bente Øvrebø, 23/5-25
-	* Filen er under arbeid
+	* Filen anses som ferdig.
 	
 ******************************************************************************* 
-/* Benytter kommuneinndeling for 2023 fra SSB hentet via norgeo*/
+/* Benytter kommuneinndeling for 2023 fra SSB hentet via norgeo ved bruk av Rstudio*/
 
 	/* Laster inn kommuneinndeling i 2023 fra SSB og rensker*/
 clear all
@@ -210,7 +210,7 @@ replace andre = q1_1_5_resp_2020 if missing(andre)
 	tab s_9
 
 /* Oppretter grupper med antall kommuner med grupperinger av antall salgsbevillinger */
-tab tot_salg23 // Viser spredningen for inntrykk. 80& har under 16 bevillinger.
+tab tot_salg23 // Viser spredningen for inntrykk. 80% har under 16 bevillinger.
 
 	* Vurdere å endre til over 30, siden det er så få med antall salgsbevillinger over 30
 gen salgsbevillingsgruppe = .
@@ -246,7 +246,9 @@ tabulate salgsbevilling
 	local total_skjenkebevilling = r(sum)
 	display "`total_skjenkebevilling'"
 		
-		
+	/* Hvilke kommuner har 0 skjenkebevillinger*/
+	list name2023 utvalg_kommune if tot_skjenk23 ==0
+	
 	/*Lager varibaler for type skjenkebevilling, etter alkoholgruppe, med impurte tall for kommuner med missing fra tidligere år:*/
 	
 	*Gr1:
@@ -276,6 +278,7 @@ tabulate salgsbevilling
 	tab tot_skjenk23 // stor forskjell i antall skjenkebevillinger per kommune.
 	
 gen skjenkebevillingsgruppe = .
+replace skjenkebevillingsgruppe = 0 if tot_skjenk23 == 0
 replace skjenkebevillingsgruppe = 1 if tot_skjenk23 >= 1 & tot_skjenk23 <= 5
 replace skjenkebevillingsgruppe = 2 if tot_skjenk23 >= 6 & tot_skjenk23 <= 10
 replace skjenkebevillingsgruppe = 3 if tot_skjenk23 >= 11 & tot_skjenk23 <= 20
@@ -283,76 +286,20 @@ replace skjenkebevillingsgruppe = 4 if tot_skjenk23 >= 21 & tot_skjenk23 <= 30
 replace skjenkebevillingsgruppe = 5 if tot_skjenk23 >= 31 & tot_skjenk23 <= 50
 replace skjenkebevillingsgruppe = 6 if tot_skjenk23 > 50
 
-/*label define bevgrp 1 "1–5" 2 "6–10" 3 "11–20" 4 "21–30" 5 "31–50" 6 "Over 50"*/
+/*label define bevgrp 0 "0" 1 "1–5" 2 "6–10" 3 "11–20" 4 "21–30" 5 "31–50" 6 "Over 50"*/
 label values skjenkebevillingsgruppe bevgrp
 
 tabulate skjenkebevillingsgruppe
-list utvalg_kommune utvalg_kommunenummer if tot_skjenk23 >=100
-		
-	/* Usikker på om dette trengs nå:
-	* Antall kommuner etter antall skjenkebevillingskategorier 
-	tab q2_1 // for å se min og max antall før omkoding.
+list utvalg_kommune utvalg_kommunenummer tot_skjenk23 if tot_skjenk23 >=100
 
-	gen q2_1_gr = q2_1
-	recode q2_1_gr (0=0)(1/2=1)(3/5=2)(6/10=3)(11/20=4)(21/30=5)(31/40=6)(41/50=7)(51/1374=8)(.=.)
-
-	tab q2_1_gr // Gir tabell med kategorier med antall skjenkebevilling og antall kommuner (med %)
-	*/
-	
-	/* Tatt ut etter diskusjon
-	* Antall kommuner med ulike typer bevilling og antall bevilling:
-	* Gr 1:
-	tab gr1
-	display 356-327
-	
-	* Gr 1 og 2:
-	tab gr12
-	display 356-154
-	
-	* Gr 1,2 og 3:
-	tab gr123 
-	display 356-8
-	
-	
-/* Antall skjenkebevilling etter alkohol drikk type*/
-	/*Gr 1*/
-	summarize gr1
-	return list
-		* r(sum) gir total antall skjenkebevillinger etter gr 1
-	local skjenkebevilling_gr1 = r(sum)
-	display "`skjenkebevilling_gr1'"
-		
-
-	/*Gr 1 og 2*/
-	summarize gr12
-	return list
-		* r(sum) gir total antall skjenkebevillinger etter gr 1 og 2
-	local skjenkebevilling_gr2 = r(sum)
-	display "`skjenkebevilling_gr2'"
-		
-	
-	/*Gr 1, 2 og 3*/
-	summarize gr123
-	return list
-		* r(sum) gir total antall skjenkebevillinger etter gr 1, 2 og 3
-	local skjenkebevilling_gr3 = r(sum)
-	display "`skjenkebevilling_gr3'"
-		
-		
-
-/* Antall kommuner med skjenkebevilling på andre steder*/
-	tabulate q2_2, mi
-	*/
-	
-	
 	
 /* Salgstider */
 
 	* Tot salgsbevilling i 2023 (ikke imputert fra tidligere år)
 	total q1_1
 	
-	*Maksimaltid hverdager øl/rusbrus - lørdager øl/rusbrus
-	tab1 q1_3a_1 q1_3a_2, mi
+	*Maksimaltid hverdager øl/rusbrus - lørdager øl/rusbrus (kun de som har svart)
+	tab1 q1_3a_1 q1_3a_2
 
 	*For hvor mange av salgsbevillingene gjaldt maksimaltiden der samtlige besvart
 	total q1_1 if q1_3b == 1
@@ -369,9 +316,24 @@ list utvalg_kommune utvalg_kommunenummer if tot_skjenk23 >=100
 /* Skjenketider*/
 
 /*Maksimaltid skjenking øl/rusbrus/vin og brennevin*/
-	tab1 q2_6a q2_7a
+	tab1 q2_6a q2_7a 
 
 	codebook q2_6a
+	
+	* Tot skjenksbevilling i 2023 (ikke imputert fra tidligere år)
+	total q2_1
+	
+	*For hvor mange av skjenkesbevillingene gjaldt maksimaltiden der samtlige besvart?*/
+	codebook q2_6b
+	total q2_1 if  q2_6b == 1
+	
+	/* Antall skjenkebevillinger til maksimaltid om det ikke gjelder alle*/
+	total q2_6b_n2
+	
+	
+	display 5576+1263
+	
+	display (6839/8190)*100
 	
 		
 	/* Salgs og skjenketil for utvalgte kommuner, vedleggstabell */
@@ -571,7 +533,7 @@ list utvalg_kommune utvalg_kommunenummer if tot_skjenk23 >=100
 	* Manglende levering av omsetningsoppgave innen kommunens frist
 	summarize q2_11a_1_21_resp
 	return list
-	* Manglende betaling av bevillingsgebyr innen kommunens frist* Annen type overtredelser
+	* Manglende betaling av bevillingsgebyr innen kommunens frist
 	summarize q2_11a_1_22_resp
 	return list
 	* Andre typer overtredelser:
@@ -594,30 +556,13 @@ list utvalg_kommune utvalg_kommunenummer if tot_skjenk23 >=100
 	return list
 
 	
-	/*
-/* Dette med antall liter må vurderes og sjekkes nærmere om det skal med
-
-Antall liter solgt og skjenket av alkoholholdig drikk*/
-	* Liter solgt øl og rusbrus rapportert: 
-	summarize q3_1_1_resp
-	return list
-	
-	* Liter skjenket av øl/rusbrus:
-	summarize q3_1_2_resp
-	return list
-	* Liter skjenket av vin:
-	summarize q3_1_3_resp
-	return list
-	* Liter skjenket av brennevin:
-	summarize q3_1_4_resp
-	return list
-	*/
-
 /* Antall nye salgsbevillinger*/
 	* Innvilget:
+	tabulate q1_13a_1_resp // fordeling av antall innvilget
 	summarize q1_13a_1_resp
 	return list
 	* Avslått: 
+	tabulate q1_13a_2_resp
 	summarize q1_13a_2_resp
 	return list
 	* Begrunnelse for avslag:
@@ -635,16 +580,13 @@ Antall liter solgt og skjenket av alkoholholdig drikk*/
 	
 /* Antall nye skjenkesteder*/
 	* Innvilget: 
+	tabulate q2_8a_1_resp
 	summarize q2_8a_1_resp
 	return list
 	* Avslått: 
+	tabulate q2_8a_2_resp 
 	summarize q2_8a_2_resp
 	return list
-	
-	*
-	tab q2_8a_1_resp // innvilget 
-	tab q2_8a_2_resp // avslått
-
 	
 	* Begrunnelse for avslag:
 		* Vandelskrev
@@ -704,37 +646,4 @@ Antall liter solgt og skjenket av alkoholholdig drikk*/
 	tabulate vilkaar if q2_5 == 1
 
 
-
-
-*Ubrukelig/kladd kode under?
-
-/*
-egen salgsbevilling = rowtotal (q1_1_1_resp q1_1_2_resp q1_1_3_resp q1_1_4_resp q1_1_5_resp)
-total salgsbevilling 
-
-
-/*Antall salgsbevillinger gruppert*/
-gen q1_1_gr = q1_1
-recode q1_1_gr (1=1) (2=2)(3=3)(4=4)(5=5)(6/10=6)(11/20=7)(21/30=8)(30/447=9)(.=.)
-tab q1_1_gr
-
-	
-/*Skjenkebevillinger andre steder?*/
-tab q2_2
-
-/*Antall skjenkebevillinger type - Alders og sykehjem - Transportmidler - Idrettsarenaer - Kantiner - Turiskhytter - Kultur - Frisør - Annet*/
-tab1 q2_2_1_1_resp q2_2_1_2_resp q2_2_1_3_resp q2_2_1_4_resp q2_2_1_5_resp q2_2_1_6_resp q2_2_1_7_resp q2_2_1_8_resp
-
-/*Dersom annet, hvilke*/
-tab q2_2_1_open
-
-/*Hvor mange skjenkebevillinger for en enkelt anledning og/eller ambulerende skjenkebevillinger ble det gitt i 2023?*/
-tab q2_3
-
-gen q2_3_gr = q2_3
-recode q2_3_gr (0=0)(1/10=1)(11/20=2)(21/30=3)(31/40=4)(41/50=5)(51/60=6)(61/70=7)(71/80=8)(81/1833=9)(.=.)
-
-tab q2_3_gr
-
-
-	
+* Filen slutter her.
