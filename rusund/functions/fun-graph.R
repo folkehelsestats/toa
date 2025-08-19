@@ -201,7 +201,7 @@ make_hist <- function(d, x, y, group, n,
     hdir <- c("rgba(49,101,117,1)", "rgba(138,41,77,1)")
   } else if (gp <= 7) {
     # Extended custom palette with good contrast for up to 7 groups
-    hdir <- colors03[1:gp]
+    hdir <- hdir_color[1:gp]
   } else {
     hdir <- viridis(gp, option = "D")  # Fallback to viridis for many groups
   }
