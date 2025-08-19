@@ -10,7 +10,7 @@ source(file.path(here::here(), cleanFile))
 
 ## Alders kategorier ---
 ageBreak <- c(16, 25, 35, 45, 55, 65, Inf)
-ageLab <- c("16-24", "25-34", "35-44", "45-54", "55-64", "65+")
+ageLab <- c("16-24", "25-34", "35-44", "45-54", "55-64", "65-79")
 
 group_age(dt = DD, var = "alder", breaks = ageBreak,
           labels = ageLab, new_var = "agecat",
@@ -29,8 +29,8 @@ kjonnKB <- data.table(v1 = as.integer(kjonnVal),
 #| echo: false
 #| warning: false
 
-drkAlle <- proscat("year", "alkosistaar", d = DD, total = FALSE)
-drk <- proscat("year", "alkosistaar", z = "kjonn", d = DD, total = FALSE)
+drkAlle <- proscat_weighted("year", "alkosistaar", d = DD, weight = "nyvekt2", total = FALSE)
+drk <- proscat_weighted("year", "alkosistaar", z = "kjonn", d = DD, weight = "nyvekt2",total = FALSE)
 
 ## Bare de som svarte Ja
 drkAlle[, kjonn := 3] #totalt
@@ -102,8 +102,8 @@ gt::gt(drkDTT)
 #| warning: false
 #| output: false
 
-drukkMen <- proscat("year", "alkosistaar", d = DD[kjonn == 1], total = F, z = "agecat")
-drukkWom <- proscat("year", "alkosistaar", d = DD[kjonn == 2], total = F, z = "agecat")
+drukkMen <- proscat_weighted("year", "alkosistaar", d = DD[kjonn == 1], weight = "nyvekt2", total = F, z = "agecat")
+drukkWom <- proscat_weighted("year", "alkosistaar", d = DD[kjonn == 2], weight = "nyvekt2", total = F, z = "agecat")
 ```
 
 ::: {.panel-tabset}
@@ -163,10 +163,10 @@ DD[, drukket2rec := fcase(drukket1 == 2, 0,
                         drukket2 %in% 8:9, NA,
                         default = as.numeric(drukket2))]
 
-drikkfreq <- proscat("year", "drukket2rec", d = DD, total = F)
-drikkfreqKjonn <- proscat("year", "drukket2rec", z="kjonn", d = DD, total = F)
-drikkfreqMen <- proscat("year", "drukket2rec", d = DD[kjonn == 1], total = F)
-drikkfreqWom <- proscat("year", "drukket2rec", d = DD[kjonn == 2], total = F)
+drikkfreq <- proscat_weighted("year", "drukket2rec", d = DD, weight = "nyvekt2", total = F)
+drikkfreqKjonn <- proscat_weighted("year", "drukket2rec", z="kjonn", d = DD, weight = "nyvekt2", total = F)
+drikkfreqMen <- proscat_weighted("year", "drukket2rec", d = DD[kjonn == 1], weight = "nyvekt2", total = F)
+drikkfreqWom <- proscat_weighted("year", "drukket2rec", d = DD[kjonn == 2], weight = "nyvekt2", total = F)
 
 drikkfreq[, kjonn := 3]
 drikkFDT <- rbindlist(list(drikkfreq, drikkfreqKjonn), use.names = TRUE)
@@ -283,8 +283,13 @@ DD[, drink6 := fcase(audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjeldene
                      drukket1 == 2, 0,
                      default = NA)]
 
-drk6 <- proscat(x = "year", y = "drink6", d = DD, total = FALSE)
-drk6kjonn <- proscat(x = "year", y = "drink6", z = "kjonn", d = DD, total = FALSE)
+## DD[, drink66 := fcase(audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjeldenere
+##                      audit3 == 5, 0, #aldri
+##                      drukket1 == 2, 0,
+##                      default = 0)]
+
+drk6 <- proscat_weighted(x = "year", y = "drink6", d = DD, weight = "nyvekt2", total = FALSE)
+drk6kjonn <- proscat_weighted(x = "year", y = "drink6", z = "kjonn", d = DD, weight = "nyvekt2", total = FALSE)
 
 drk6[, kjonn := 3] #total
 
@@ -324,8 +329,8 @@ gt::gt(drk6)
 #| warning: false
 #| output: false
 
-drk6Men <- proscat("year", "drink6", d = DD[kjonn == 1], total = F, z = "agecat")
-drk6Wom <- proscat("year", "drink6", d = DD[kjonn == 2], total = F, z = "agecat")
+drk6Men <- proscat_weighted("year", "drink6", d = DD[kjonn == 1], total = F, weight = "nyvekt2", z = "agecat")
+drk6Wom <- proscat_weighted("year", "drink6", d = DD[kjonn == 2], total = F, weight = "nyvekt2", z = "agecat")
 ```
 
 ::: {.panel-tabset}
@@ -373,4 +378,4 @@ drk6Wom
 
 ## Alkoholenheter siste 4 uker
 
-{{< include _alkoenheter2012-2024.R >}}
+<!-- {{< include _alkoenheter2012-2024.R >}} -->
