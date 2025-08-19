@@ -211,9 +211,10 @@ make_hist(d = drikkFDT[drukket2rec == 1],
           title = "Alkoholbruk daglig siste 12 måneder 2012-2024",
           subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
           type = "line",
-          yint = 1,
-          dot_size = 6,
-          flip = FALSE)
+          yint = 5,
+          dot_size = 4,
+          flip = FALSE,
+          ylim = c(0, 40))
 
 ```
 
@@ -229,8 +230,9 @@ make_hist(d = drikkFDT[drukket2rec == 2],
           subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
           type = "line",
           yint = 5,
-          dot_size = 6,
-          flip = FALSE)
+          dot_size = 4,
+          flip = FALSE,
+          ylim = c(0, 40))
 
 ```
 
@@ -246,8 +248,9 @@ make_hist(d = drikkFDT[drukket2rec == 3],
           subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
           type = "line",
           yint = 5,
-          dot_size = 6,
-          flip = FALSE)
+          dot_size = 4,
+          flip = FALSE,
+          ylim = c(0, 40))
 
 ```
 
@@ -263,8 +266,9 @@ make_hist(d = drikkFDT[drukket2rec == 4],
           subtitle = "Kilde: Rusundersøkelse 2012-2014 ",
           type = "line",
           yint = 5,
-          dot_size = 6,
-          flip = FALSE)
+          dot_size = 4,
+          flip = FALSE,
+          ylim = c(0, 40))
 
 ```
 :::
