@@ -40,6 +40,29 @@ lapply(DD, function(x) setnames(x, tolower(names(x))))
 names(ComDD) <- names(DD)
 filNames <- names(DD)
 
+## Convert to data.table --------
+for (i in seq_len(filnr))
+  setDT(DD[[i]])
+
+## Vekting ----------
+(vekt <- lapply(ComDD, function(x) grep("vekt", x, value = T)))
+
+## dd <- DD[["Rus2012"]]
+## dd[, .(sum_nyvekt_2 = sum(nyvekt_2),
+##        sum_vekt_1 = sum(vekt_1numeric),
+##        sum_vekt_2 = sum(vekt_2numeric))]
+
+## dd[, .(mean_nyvekt_2 = mean(nyvekt_2),
+##        mean_vekt_1 = mean(vekt_1numeric),
+##        mean_vekt_2 = mean(vekt_2numeric))]
+
+dtHis <- paste0("Rus", 2012:2015)
+for (i in dtHis)
+  setnames(DD[[i]], "nyvekt_2", "nyvekt2", skip_absent = T)
+
+DD$Rus2024[, nyvekt2 := vekt/mean(vekt, na.rm = T)]
+
+
 ## Enhet drukket -------------
 lapply(ComDD, function(x) grep("type1b_", x, value = T)) # Øl ukenlig
 lapply(ComDD, function(x) grep("type1c_", x, value = T)) # Øl månedlig
@@ -49,10 +72,18 @@ beerVar2 <- c("type1c_1", "type1c_2")
 setnames(DD[["Rus2012"]], c("type1b_12012", "type1b_32012"), beerVar1, skip_absent = T)
 setnames(DD[["Rus2012"]], c("type1c_12012", "type1c_32012"), beerVar2, skip_absent = T)
 setnames(DD[["Rus2013"]], c("type1b_1", "type1b_3"), beerVar1, skip_absent = T)
+DD[["Rus2020"]][, (beerVar1) := NULL] #empty column
+DD[["Rus2020"]][, (beerVar2) := NULL] #empty column
+setnames(DD[["Rus2020"]], c("type1b_11_a", "type1b_21_a"), beerVar1, skip_absent = T)
+setnames(DD[["Rus2020"]], c("type1c_11_a", "type1c_21_a"), beerVar2, skip_absent = T)
 
 
 lapply(ComDD, function(x) grep("type2b_", x, value = T)) # Vin ukenlig
 lapply(ComDD, function(x) grep("type2c_", x, value = T)) # Vin månedlig
+vinVar1 <- c("type2b_1", "type2b_2")
+vinVar2 <- c("type2c_1", "type2c_2")
+DD[["Rus2020"]][, (vinVar1) := NULL]
+setnames(DD[["Rus2020"]], c("type2b_11_a", "type2b_21_a"), vinVar1, skip_absent = T)
 
 lapply(ComDD, function(x) grep("type3b_", x, value = T)) # Sprit ukenlig
 lapply(ComDD, function(x) grep("type3c_", x, value = T)) # Sprit månedlig
@@ -64,23 +95,30 @@ lapply(ComDD, function(x) grep("type4c_", x, value = T)) # Rusbrus månedlig
 
 
 ## Comman column names ------------------
-varFelles <- Reduce(intersect, lapply(ComDD, tolower))
+
+nameDD <- vector("list", filnr)
+for (i in seq_len(filnr)){
+  nameDD[[i]] <- names(DD[[i]])
+}
+
+names(nameDD) <- names(DD)
+
+varFelles <- Reduce(intersect, lapply(nameDD, tolower))
 ## dput(varFelles)
 ComVars <-
-c("helse", "drukket1", "drukket2", "drukk2a", "drukk2b", "drukk2c",
-"drukket3", "type1", "type2", "type3", "type4", "type1a", "typ1a_uk",
-"typ1a_mn", "type1b_1", "type1b_2", "type1c_1", "type2a", "typ2a_uk",
-"typ2a_mn", "type2b_a", "type2b_b", "type2b_1", "type2b_2", "type2c_a",
-"type2c_b", "type2c_1", "type2c_2", "type3a", "typ3a_uk", "typ3a_mn",
-"type3b_a", "type3b_b", "type3b_1", "type3b_2", "type3c_a", "type3c_b",
-"type3c_1", "type3c_2", "type4a", "typ4a_uk", "typ4a_mn", "type4b_a",
-"type4b_b", "type4b_1", "type4b_2", "type4c_a", "type4c_b", "type4c_2",
-"audit2", "audit3", "can1", "can2", "can3", "can4", "can5", "can6",
-"can7_a", "can7_b", "can7_c", "can7_e", "can7sps", "can8", "can8sps",
-"can9", "can10", "can11", "can13", "can14", "ans1", "ans2_a",
-"ans2_b", "ans2_c", "ans2_d", "ans2_e", "ans2_f", "ans2_g", "ans2_h",
-"landsdel", "sentralitet", "yrkstat2", "siv", "sivstat", "antpers",
-"antbarn1", "antbarn2")
+c("nyvekt2", "helse", "drukket1", "drukket2", "drukk2a", "drukk2b",
+"drukk2c", "drukket3", "type1", "type2", "type3", "type4", "type1a",
+"typ1a_uk", "typ1a_mn", "type2a", "typ2a_uk", "typ2a_mn", "type2b_a",
+"type2b_b", "type2c_a", "type2c_b", "type2c_1", "type2c_2", "type3a",
+"typ3a_uk", "typ3a_mn", "type3b_a", "type3b_b", "type3b_1", "type3b_2",
+"type3c_a", "type3c_b", "type3c_1", "type3c_2", "type4a", "typ4a_uk",
+"typ4a_mn", "type4b_a", "type4b_b", "type4b_1", "type4b_2", "type4c_a",
+"type4c_b", "type4c_2", "audit2", "audit3", "can1", "can2", "can3",
+"can4", "can5", "can6", "can7_a", "can7_b", "can7_c", "can7_e",
+"can7sps", "can8", "can8sps", "can9", "can10", "can11", "can13",
+"can14", "ans1", "ans2_a", "ans2_b", "ans2_c", "ans2_d", "ans2_e",
+"ans2_f", "ans2_g", "ans2_h", "landsdel", "sentralitet", "yrkstat2",
+"siv", "sivstat", "antpers", "antbarn1", "antbarn2")
 
 
 ## Find which vectors contain selected variable and show matches
