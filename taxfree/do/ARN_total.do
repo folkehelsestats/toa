@@ -1,7 +1,7 @@
 *******************************************************************************
 	* Denne fila er opprettet 5/8-2025
 	* Fila bygger på FHIs fil
-	* Fila legger til ARN-data for 2023 (q4) og 2024.
+	* Fila legger til ARN-data for 2023 (q4).
 	* Fila er opprettet av Bente Øvrebø, Hdir.
 	* Fila er under arbeid.
 
@@ -359,7 +359,7 @@ label var Gruppe "Gruppe"
 drop if Gruppe==""
 drop Varegruppe*  
 
-drop Antall
+drop Antall*
 destring Mengde2, ignore("-") replace
 rename Mengde2 Antall
 replace Antall = Mengde if Gruppe == "Vin"
@@ -371,8 +371,8 @@ gen År = year(dofq(Kvt))
 replace Antall = Antall/100 if År == 2020
 replace Antall = Antall/100 if År == 2021
 
-/*OBS OBS vurder å gjøre dette for 2023 også:
-replace Antall = Antall/100 if År == 2023
+/*OBS OBS vurder å gjøre dette for hva med 2022? Ser ut som om det blir feil å dele 2022-tall på 100
+2023.
 */
 
 /* Leveranse disse årene skiller ikke på tobakk - kun oppgitt all tobakk samlet, som det er usikkert om er oppgitt i kg, stykk eller en blanding. Det inkluderer sannsynligvis cigarer, sigaretter, snus, tobakk og sigarettpapir. Daniel valgte å droppe denne variebelen. Gjør det nå, må da estimeres. Alternativt kan man muligens bruke denne variabelen til å estimere undergrupper basert på 2024-data. */
@@ -417,14 +417,22 @@ save "ARN2010-2024.dta", replace
 
 /*
 
-/* Sjekker figurer ved å se på totalt salg for flyplasser med både ankomst og avgangssalg*/
+/ Sjekker figurer ved å se på totalt salg for flyplasser med både ankomst og avgangssalg*/
 preserve
 collapse (sum) Antall, by(Lufthavn Gruppe Kvt)
 separate Antall, by(Gruppe) generate(Antall_)
 twoway line Antall_1 Kvt if Lufthavn == "Torp" // Brennevin
 twoway (line Antall Kvt if Lufthavn == "Torp" ), by(Gruppe, yrescale) // Alle varegrupper, kun Torp
-restore
+twoway (line Antall Kvt if Lufthavn == "Bodø"), by(Gruppe, yrescale) // Bodø
+twoway (line Antall Kvt if Lufthavn == "Evenes"), by(Gruppe, yrescale) // 
+twoway (line Antall Kvt if Lufthavn == "Haugesund"), by(Gruppe, yrescale) // 
+twoway (line Antall Kvt if Lufthavn == "Kristiansand"), by(Gruppe, yrescale) // 
+twoway (line Antall Kvt if Lufthavn == "Kristiansund"), by(Gruppe, yrescale) // 
+twoway (line Antall Kvt if Lufthavn == "Molde"), by(Gruppe, yrescale) // 
+twoway (line Antall Kvt if Lufthavn == "Tromsø"), by(Gruppe, yrescale) // 
+twoway (line Antall Kvt if Lufthavn == "Ålesund"), by(Gruppe, yrescale) // 
 
+restore
 
 */
 
