@@ -11,8 +11,11 @@
 #' @param n Unquoted variable name. The count variable to display in tooltips (raw numbers).
 #' @param title Character string. Main title for the chart.
 #' @param subtitle Character string, optional. Subtitle for the chart. If NULL,
-#'   defaults to "Kilde: Rusundersøkelse 2024". Default is NULL.
+#'   defaults to "Kilde: RusundersÃ¸kelse 2024". Default is NULL.
 #' @param yint Numeric. Interval for y-axis tick marks. Default is 10.
+#' @param ylim Numeric vector of length 2, optional. Sets fixed y-axis limits as c(min, max).
+#'   If NULL (default), y-axis limits are determined automatically by the data.
+#'   Example: c(0, 70) sets y-axis from 0 to 70.
 #' @param flip Logical. Whether to flip the chart orientation (horizontal bars).
 #'   Default is FALSE.
 #' @param type Character string. Chart type, either "column" or "line". Default is "column".
@@ -83,21 +86,29 @@
 #' make_hist(survey_data, age_group, percentage, gender, count,
 #'           title = "Survey Results by Age and Gender")
 #'
-#' # Line chart with custom symbols
+#' # Chart with fixed y-axis scale
+#' make_hist(survey_data, age_group, percentage, gender, count,
+#'           title = "Fixed Y-axis Scale",
+#'           ylim = c(0, 70))
+#'
+#' # Line chart with custom symbols and fixed scale
 #' make_hist(survey_data, age_group, percentage, gender, count,
 #'           title = "Trend Analysis",
 #'           type = "line",
+#'           ylim = c(0, 100),
 #'           line_symbols = c("circle", "square", "diamond"))
 #'
-#' # Horizontal bar chart
+#' # Horizontal bar chart with fixed scale
 #' make_hist(survey_data, age_group, percentage, gender, count,
 #'           title = "Horizontal View",
-#'           flip = TRUE)
+#'           flip = TRUE,
+#'           ylim = c(0, 50))
 #'
-#' # Custom y-axis intervals
+#' # Custom y-axis intervals with fixed scale
 #' make_hist(survey_data, age_group, percentage, gender, count,
 #'           title = "Fine-grained Y-axis",
-#'           yint = 5)
+#'           yint = 5,
+#'           ylim = c(0, 60))
 #' }
 #'
 #' @seealso
@@ -111,6 +122,7 @@ make_hist <- function(d, x, y, group, n,
                       title,
                       subtitle = NULL,
                       yint = 10,
+                      ylim = NULL,
                       flip = FALSE,
                       type = "column",
                       line_symbols = NULL,
@@ -133,12 +145,22 @@ make_hist <- function(d, x, y, group, n,
     stop("'type' must be either 'column' or 'line'")
   }
 
+  # Validate ylim parameter
+  if (!is.null(ylim)) {
+    if (!is.numeric(ylim) || length(ylim) != 2) {
+      stop("'ylim' must be a numeric vector of length 2, e.g., c(0, 100)")
+    }
+    if (ylim[1] >= ylim[2]) {
+      stop("'ylim' first value must be less than second value, e.g., c(0, 100)")
+    }
+  }
+
   # Get number of groups and set up colors
   gp <- length(unique(d[[group]]))
 
   # Set default subtitle
   if (is.null(subtitle)) {
-    subtitle <- "Kilde: Rusundersøkelse 2024"
+    subtitle <- "Kilde: RusundersÃ¸kelse 2024"
   }
 
   # Handle x-axis based on variable type
@@ -161,7 +183,6 @@ make_hist <- function(d, x, y, group, n,
       labels = list(step = 1)
     )
   }
-
 
   ## Extended custom palette with good contrast for up to 7 groups
   colors01 <- c(
@@ -196,12 +217,19 @@ make_hist <- function(d, x, y, group, n,
     "#5C3B00"   # Dark brown (darker version)
   )
 
+  ## Hdir colors
+  colors04 <- c("#025169", "#0069E8",
+                "#7C145C", "#047FA4",
+                "#C68803", "#38A389",
+                "#6996CE", "#366558",
+                "#BF78DE", "#767676")
+
   # Define color palettes
   if (gp == 2) {
     hdir <- c("rgba(49,101,117,1)", "rgba(138,41,77,1)")
   } else if (gp <= 7) {
     # Extended custom palette with good contrast for up to 7 groups
-    hdir <- hdir_color[1:gp]
+    hdir <- colors04[1:gp]  # Fixed: was hdir_color, should be colors01
   } else {
     hdir <- viridis(gp, option = "D")  # Fallback to viridis for many groups
   }
@@ -230,20 +258,45 @@ make_hist <- function(d, x, y, group, n,
 
   # Create the base chart using highchart() for both line and column
   chart <- highchart() |>
-    hc_chart(inverted = flip) |>
-    hc_yAxis(
-      title = list(text = " "),
-      labels = list(format = "{value}%"),
-      tickInterval = yint
-    ) |>
-    hc_xAxis(
-      x_axis_config
-      ## title = list(text = " "),
-      ## tickInterval = 1,
-      ## labels = list(
-      ##   step = 1 # Show every level
-      ## )
-    ) |>
+    hc_chart(inverted = flip)
+
+  # Configure y-axis - handle ylim conditionally
+  if (!is.null(ylim)) {
+    chart <- chart |>
+      hc_yAxis(
+        title = list(text = " "),
+        labels = list(format = "{value}%"),
+        tickInterval = yint,
+        min = ylim[1],
+        max = ylim[2]
+      )
+  } else {
+    chart <- chart |>
+      hc_yAxis(
+        title = list(text = " "),
+        labels = list(format = "{value}%"),
+        tickInterval = yint
+      )
+  }
+
+  # Configure x-axis
+  if (use_categories) {
+    chart <- chart |>
+      hc_xAxis(
+        title = list(text = " "),
+        categories = unique(d[[x]]),
+        tickInterval = 1,
+        labels = list(step = 1)
+      )
+  } else {
+    chart <- chart |>
+      hc_xAxis(
+        title = list(text = " "),
+        labels = list(step = 1)
+      )
+  }
+
+  chart <- chart |>
     hc_title(text = title) |>
     hc_subtitle(text = subtitle) |>
     hc_credits(
@@ -269,17 +322,7 @@ make_hist <- function(d, x, y, group, n,
       x = 50,
       y = 0
     ) |>
-    hc_exporting(
-      enabled = TRUE
-    ##   buttons = list(
-    ##     contextButton = list(
-    ##       menuItems = c(
-    ##         "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG",
-    ##         "downloadCSV", "downloadXLS"
-    ##       )
-    ##     )
-    ##   )
-    )
+    hc_exporting(enabled = TRUE)
 
   if (use_categories) {
     mapping <- hcaes(x = x_index, y = !!y)
@@ -300,7 +343,6 @@ make_hist <- function(d, x, y, group, n,
           data = group_data,
           type = "line",
           name = group_levels[i],
-          ## hcaes(x = !!x, y = !!y),
           mapping,
           marker = list(
             symbol = line_symbols[i],
@@ -342,7 +384,6 @@ make_hist <- function(d, x, y, group, n,
           data = group_data,
           type = "column",
           name = group_levels[i],
-          ## hcaes(x = !!x, y = !!y),
           mapping,
           color = hdir[i],
           states = list(
