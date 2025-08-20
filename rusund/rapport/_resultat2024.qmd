@@ -5,6 +5,18 @@
 cleanFile <- file.path("rusund", "cleaning", "rus2024", "rus-draft.R")
 ## Datasettet DD blir laget her
 source(file.path(here::here(), cleanFile))
+
+## Global objects for 2024 skal være her
+## ------------------------------------
+## Vekting
+dt[, nyvekt2 := VEKT/mean(VEKT, na.rm = T)]
+vekt <- "VEKT" #use global object for weighting
+
+## Gender values
+kjonn_values <- c("Menn" = 0, "Kvinner" = 1, "Totalt" = 2)
+kjonnkb <- data.table(v1 = as.integer(kjonn_values),
+                      v2 = names(kjonn_values))
+
 ```
 
 ## Andel som har drukket siste år i 2024
@@ -13,32 +25,14 @@ source(file.path(here::here(), cleanFile))
 #| echo: false
 #| warning: false
 
-dt[, Drukket1 := as.integer(Drukket1)]
-dt[, alkosistaar := fifelse(Drukket1 == 8, NA, Drukket1)]
-
-codebook::var_label(dt$alkosistaar) <- "Alkohol siste 12 måneder"
-alksistaar_values <- c(
-  "drukket alkohol siste 12 mnd" = 1,
-  "ikke drukket alkohol siste 12 mnd" = 2
-)
-
-dt[, kj := as.numeric(Kjonn)]
-alko <- proscat("kj", "alkosistaar")
-
-kjonnkb <- data.table(v1 = unique(alko$kj), v2 = c("Menn", "Kvinner", "Totalt"))
-alkkb <- data.table(v1 = as.integer(alksistaar_values),
-                    v2 = names(alksistaar_values))
-
-alko[kjonnkb, on = c(kj = "v1"), gender := i.v2]
-alko[alkkb, on = c(alkosistaar ="v1"), alkoyr := i.v2]
-
+source("analysis2024/drukket-year.R")
 ```
 
 ::: {.panel-tabset}
 
 ## Figur
 
-```{r}
+```{r cal2-druk-fig}
 make_hist(d = alko,
           x = gender,
           y = percentage,
@@ -49,14 +43,14 @@ make_hist(d = alko,
 
 ## Tabell
 
-```{r}
-cols <- c("kj", "alkosistaar", "sum")
+```{r cal2-druk-tab}
+cols <- c("kj", "alkosistaar", "sum", "weighted_count")
 alko[, (cols) := NULL]
 
 colout <- c("alkoyr", "gender", "count", "percentage")
 colns <- c(" ", "Kjønn", "Antall", "Andel")
 setcolorder(alko, colout)
-data.table::setnames(alko, colout, colns)
+data.table::setnames(alko, colout, colns, skip_absent = TRUE)
 
 gt::gt(alko)
 
@@ -64,34 +58,19 @@ gt::gt(alko)
 :::
 
 
-
 ## Drikkefrekvens siste år
 
-```{r}
+```{r cal2-drikk-freq}
+#| echo: false
+#| warning: false
 
-alkofrekvens_values <- c(
-    "aldri drukket" = 0,
-    "ikke drukket siste år" = 1,
-    "drukket sjeldnere enn månedlig siste 12 mnd" = 2,
-    "drukket månedlig siste 12 mnd" = 3,
-    "drukket ukentlig siste 12 mnd" = 4,
-    "drukket daglig siste 12 mnd" = 5
-)
-
-dt[, kj := as.numeric(Kjonn)]
-alkofreq <- proscat("kj", "alkofrekvens")
-
-afKB <- data.table(v1 = as.integer(alkofrekvens_values),
-                   v2 = names(alkofrekvens_values))
-
-alkofreq[kjonnkb, on = c(kj = "v1"), gender := i.v2]
-alkofreq[afKB, on = c(alkofrekvens = "v1"), alkof := i.v2]
+source("analysis2024/drikk-frekvens.R")
 ```
 
 ::: {.panel-tabset}
 ## Figur
 
-```{r}
+```{r cal2-drikk-freq-fig}
 alkofreq[, alkofrekvens := as.numeric(alkofrekvens)]
 
 make_hist(d = alkofreq,
@@ -105,7 +84,7 @@ make_hist(d = alkofreq,
 
 ## Tabell
 
-```{r}
+```{r cal2-drikk-freq-tab}
 cols <- c("kj", "alkofrekvens", "sum")
 alkofreq[, (cols) := NULL]
 
@@ -126,25 +105,18 @@ gt::gt(alkofreq)
 - Andel som har drukket 6+ enheter ved samme anledning minst en gang 4 ukene 
 
 
-```{r}
-## Nevner inkluderer de som ikke har drukket siste år også dvs. drukket1=2(Nei)
-dt[, drink6 := fcase(Audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjeldenere
-                     Audit3 == 5, 0, #aldri
-                     Drukket1 == 2, 0,
-                     default = NA)]
+```{r cal2-druk6}
+#| echo: false
+#| warning: false
 
-drk6_24 <- proscat(x = "kj", y = "drink6", d = dt, total = TRUE)
-kjonnkb <- data.table(v1 = 0:2, v2 = c("Menn", "Kvinner", "Totalt"))
-alkokb <- data.table(v1 = 0:1, v2 = c("Aldri", "Drukket 6+"))
-drk6_24[kjonnkb, on = c(kj = "v1"), gender := i.v2]
-drk6_24[alkokb, on = c(drink6 = "v1"), alko := i.v2]
+source("analysis2024/drikk6.R")
 
 ```
 
 ::: {.panel-tabset}
 
 ## Figur
-```{r}
+```{r cal2-druk6-fig}
 make_hist(d = drk6_24,
           x = gender,
           y = percentage,
@@ -154,7 +126,7 @@ make_hist(d = drk6_24,
 ```
 
 ## Tabell
-```{r}
+```{r cal2-druk6-tab}
 cols <- c("kj", "drink6", "sum")
 drk6_24[, (cols) := NULL]
 
