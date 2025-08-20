@@ -160,7 +160,7 @@ make_hist <- function(d, x, y, group, n,
 
   # Set default subtitle
   if (is.null(subtitle)) {
-    subtitle <- "Kilde: RusundersÃ¸kelse 2024"
+    subtitle <- "Kilde: Rusundersøkelse 2024"
   }
 
   # Handle x-axis based on variable type
