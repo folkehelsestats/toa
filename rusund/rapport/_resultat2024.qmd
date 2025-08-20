@@ -85,7 +85,7 @@ make_hist(d = alkofreq,
 ## Tabell
 
 ```{r cal2-drikk-freq-tab}
-cols <- c("kj", "alkofrekvens", "sum")
+cols <- c("kj", "alkofrekvens", "sum", "weighted_count")
 alkofreq[, (cols) := NULL]
 
 colout <- c("alkof", "gender", "count", "percentage")
@@ -100,9 +100,7 @@ gt::gt(alkofreq)
 :::
 
 
-## Andel som har drukket 6+ enheter siste 4 uker 
-- En alkoholenhet tilsvarer 0,33 l øl, 1,5 dl vin eller en 4 cl brennevin.
-- Andel som har drukket 6+ enheter ved samme anledning minst en gang 4 ukene 
+## Andel som har drukket 6+ alkoholenheter ved en og samme anledning siste år
 
 
 ```{r cal2-druk6}
@@ -122,12 +120,12 @@ make_hist(d = drk6_24,
           y = percentage,
           group = alko,
           n = count,
-          title = "Andel drukket 6+ enheter siste 4 uker")
+          title = "Andel drukket 6+ enheter en og samme anledning siste år")
 ```
 
 ## Tabell
 ```{r cal2-druk6-tab}
-cols <- c("kj", "drink6", "sum")
+cols <- c("kj", "drink6", "sum", "weighted_count")
 drk6_24[, (cols) := NULL]
 
 colout <- c("alko", "gender", "count", "percentage")
