@@ -612,7 +612,8 @@ dt[, totalcl := alkoclol + alkoclvin + alkoclbrennevin + alkoclrusbrus]
 
 ## Alternativ beregning med alkoholenheter
 dt[, alkoclol02 := olenheter*1.485] #øl 33cl 4.5%
-dt[, alkoclvin02 := vinenheter*1.8] #vin 15cl 12%
+## dt[, alkoclvin02 := vinenheter*1.8] #vin 15cl 12%
+dt[, alkoclvin02 := vinenheter*1.4] #vin 12cl 12%
 dt[, alkoclbrennevin02 := brennevinenheter*1.6] #brennevin 4cl 40%
 dt[, alkoclrusbrus02 := rusbrusenheter*1.485] #rusbrus/cider 33cl 4.5%
 
