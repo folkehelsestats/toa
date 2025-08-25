@@ -14,11 +14,14 @@ En alkoholenhet tilsvarer:
 ** Øl
 - For halvliter 0.5l
 - Alcohol By Volume (ABV) verdig ~4.5%
-- 0.5 * 0.045 = 0.0225 = 2.25 cl
+- 0.5 * 0.045 = 0.0225 l = 2.25 cl
+- 18.6 cl ren alkohol = (18.6/0.045)/50cl
 ** Vin
 - En flaske 0.75l
 - ABV ~12%
 - 0.75*0.12 = 0.09 = 9 cl
+- 9.8 cl ren alkohol = (9.8/0.12)/15 cl = 5.4 glass
+- 9.8 cl ren alkohol = (9.8/0.12)/12 cl = 6.8 glass
 ** Brennevin
 - En drink  4cl
 - ABV ~40%

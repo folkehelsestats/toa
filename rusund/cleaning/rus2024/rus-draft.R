@@ -602,8 +602,8 @@ dt[, totalenheterWin := DescTools::Winsorize(totalenheter,
 ## enheter. Nåværende løsning: alle enheter telles med. Mulig annen løsning:
 ## basere seg på winsorized enheter)
 
-dt[, alkoclol := olhalvlitere*2.25] #øl
-dt[, alkoclvin := allevinflasker*9] #vin
+dt[, alkoclol := olhalvlitere*2.25] #øl 50cl 4.5%
+dt[, alkoclvin := allevinflasker*9] #vin 75cl 12%
 dt[, alkoclbrennevin := brennevinenheter*1.6] #brennevin
 dt[, alkoclrusbrus := rusbrushalvlitere*2.25] #rusbrus/cider
 
