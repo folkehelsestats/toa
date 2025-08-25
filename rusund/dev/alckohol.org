@@ -6,7 +6,7 @@ En alkoholenhet tilsvarer:
 - 1,5 dl vin
 - 4 cl brennevin
 
-* Ren alkohol
+* En cl ren alkohol
 - Øl med 4.5% alkohol 1/0.045 = 22.2 cl
 - Vin med 12% alkohol 1/0.12 = 8.33 cl
 - Brennevin med 40% alkohol 1/0.40 = 2.5 cl
@@ -19,9 +19,9 @@ En alkoholenhet tilsvarer:
 ** Vin
 - En flaske 0.75l - 6 enheter
 - ABV ~12%
-- 0.75*0.12 = 0.09 = 9 cl
+- 0.75*0.12 = 0.09l = 9 cl
 - 9.8 cl ren alkohol = (9.8/0.12)/15 cl = 5.4 glass
-- 9.8 cl ren alkohol = (9.8/0.12)/12 cl = 6.8 glass
+- 9.8 cl ren alkohol = (9.8/0.12)/12.5 cl = 6.5 glass
 ** Brennevin
 - En drink 4cl
 - En flaske 17.5 enheter (18 enheter i SSB notat)
@@ -41,18 +41,20 @@ Enkle måte å beregne enheter til tilsvarende øl, vin eller sprit
 alkohol_enhetskalkulator <- function(ren_alkohol_cl) {
   # Alkoholmengde per enhet
   ol_enhet <- 50 * 0.045     # 0,5 l øl med 4,5 %
-  vin_enhet <- 15 * 0.12     # 15 cl vin med 12 %
+  vin_enhet12 <- 12.5 * 0.12     # 12.5 cl vin med 12 %
+  vin_enhet15 <- 15 * 0.12     # 15 cl vin med 12 %
   sprit_enhet <- 4 * 0.40    # 4 cl sprit med 40 %
 
   # Beregning av antall enheter
   ol_antall <- ren_alkohol_cl / ol_enhet
-  vin_antall <- ren_alkohol_cl / vin_enhet
+  vin_antall12 <- ren_alkohol_cl / vin_enhet12
+  vin_antall15 <- ren_alkohol_cl / vin_enhet15
   sprit_antall <- ren_alkohol_cl / sprit_enhet
 
   # Resultattabell
   data.frame(
-    Drikke = c("Øl (0,5 l, 4,5%)", "Vin (15 cl, 12%)", "Sprit (4 cl, 40%)"),
-    Antall_enheter = round(c(ol_antall, vin_antall, sprit_antall), 2)
+    Drikke = c("Øl (50 cl, 4,5%)", "Vin (12.5 cl, 12%)", "Vin (15 cl, 12%)","Sprit (4 cl, 40%)"),
+    Antall_enheter = round(c(ol_antall, vin_antall12, vin_antall15, sprit_antall), 2)
   )
 }
 
