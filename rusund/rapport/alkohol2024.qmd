@@ -52,21 +52,9 @@ options(highcharter.lang = list(
 
 {{< include _resultat2012-2024.qmd >}}
 
-# Demografisk oversikt
+# Oversikt for 2024
 
 Ulike aspekter ved alkoholbruk, som drikkefrekvens, volum og drikkemønster, varierer mellom ulike befolkningsgrupper, som for eksempel kjønns- og aldersgrupper.
 
 {{< include _resultat2024.qmd >}}
 
-## Gjennomsnittlig antall alkoholenheter siste 4 uker
-
-
-
-# Drikkermønster i befolkningen
-- Frekvens
-- Kvantitet
-- Type alkohol
-- Mønstre overtid
-
-
-# Ren alkohol per drikker sort
