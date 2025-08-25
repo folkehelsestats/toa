@@ -4,14 +4,15 @@
 #| echo: false
 #| warning: false
 
-source("analysis2024/setup2024.R")
+pth2024 <- file.path(here::here(), "rusund", "rapport")
+source(file.path(pth2024, "analysis2024/setup2024.R"))
 ```
 
 ```{r cal2-druk}
 #| echo: false
 #| warning: false
 
-source("analysis2024/drukket-year.R")
+source(file.path(pth2024, "analysis2024/drukket-year.R"))
 ```
 
 ::: {.panel-tabset}
@@ -39,7 +40,6 @@ setcolorder(alko, colout)
 data.table::setnames(alko, colout, colns, skip_absent = TRUE)
 
 gt::gt(alko)
-
 ```
 :::
 
@@ -80,7 +80,6 @@ setcolorder(alkofreq, colout)
 data.table::setnames(alkofreq, colout, colns)
 
 gt::gt(alkofreq)
-
 ```
 
 :::
@@ -119,9 +118,21 @@ setcolorder(drk6_24, colout)
 data.table::setnames(drk6_24, colout, colns)
 
 gt::gt(drk6_24)
-
 ```
 :::
 
 
 ## Hvor mye og hva drikker vi?
+
+
+```{r cal2-drikk-enhet}
+#| echo: false
+#| warning: false
+
+source("analysis2024/drikk-enheter.R")
+```
+
+- Må sjekke med FHI om de bruker 1.5 dl eller 1.2 dl for en vin enhent. I 2023 rapporten brukes 1.5dl
+- Ekstreme verdier eg. `r max(dt$halvliteroluke, na.rm=T)` halvliter øl per uke
+
+
