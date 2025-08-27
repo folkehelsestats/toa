@@ -36,6 +36,7 @@ dt[, halvlitertot := fcase(
 # en flasker øl er en alkoholenhet
 # en halvliter øl er 1,5 alkoholenhet
 dt[, olenheter := (flaskeroluke + 1.5 * halvliteroluke) * 4 + flaskeroltot + 1.5 * halvlitertot]
+dt[, olhalvlitere := (flaskeroluke / 1.5 + halvliteroluke) * 4 + flaskeroltot / 1.5 + halvlitertot]
 
 ## --- Vin ---
 dt[, vinglassuke := fcase(
@@ -73,6 +74,7 @@ dt[, vinflaskertot := fcase(
 
 ## var_label(dt$vinflaskertot) <- "Antall flasker vin totalt siste 4 uker"
 
+## 1.5dl glass vin er 1.2 alkohol enhet
 dt[, vinenheter := (1.2 * vinglassuke + 6 * vinflaskeruke) * 4 + 1.2 * vinglasstot + 6 * vinflaskertot]
 
 ## -- Brennevin --
@@ -103,8 +105,8 @@ dt[, brennevinflaskertot := fcase(
        default = Type3c_2
      )]
 
+## en flaske brnnevinn er 17.5 enheter, mens SSB notat 18 enheter
 dt[, brennevinenheter := (brennevinglassuke + 17.5 * brennevinflaskeruke) * 4 + brennevinglasstot + 17.5 * brennevinflaskertot]
-## dt[, brennevinenheter2 := fcoalesce((brennevinglassuke + 18 * brennevinflaskeruke) * 4, 0) + fcoalesce(brennevinglasstot, 0) + fcoalesce(18 * brennevinflaskertot, 0)]
 
 ## -- Rusbrus --
 dt[, rusbrussmaflaskeruke := fcase(
@@ -135,11 +137,11 @@ dt[, rusbrusenheter := (rusbrussmaflaskeruke + 1.5 * rusbrushalvliteruke) * 4 +
      rusbrussmaflasketot + 1.5 * rusbrushalvlitertot]
 
 
-## Beregning med alkoholenheter
+## Beregning med ren alkohol cl
 ## ----------------------------
 dt[, alkoclol02 := olenheter*1.485] #øl 33cl 4.5%
 ## dt[, alkoclvin02 := vinenheter*1.8] #vin 15cl 12%
-dt[, alkoclvin02 := vinenheter*1.4] #vin 12cl 12%
+dt[, alkoclvin02 := vinenheter*1.5] #vin 12.5cl 12%
 dt[, alkoclbrennevin02 := brennevinenheter*1.6] #brennevin 4cl 40%
 dt[, alkoclrusbrus02 := rusbrusenheter*1.485] #rusbrus/cider 33cl 4.5%
 
