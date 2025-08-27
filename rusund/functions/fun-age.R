@@ -14,7 +14,7 @@
 #' @param new_var Character string, optional. Name of the new categorical variable
 #'   to be created. If NULL, defaults to "{var}_group". Default is NULL.
 #' @param right Logical. Should intervals be closed on the right (and open on the left)
-#'   or vice versa? Default is TRUE.
+#'   or vice versa? Default is FALSE.
 #' @param include.lowest Logical. Should the lowest break point be included in the
 #'   first interval? Default is TRUE.
 #' @param validate Logical. Should input validation be performed? Default is TRUE.
@@ -112,7 +112,7 @@
 group_age <- function(dt, var, breaks,
                       labels = NULL,
                       new_var = NULL,
-                      right = TRUE,
+                      right = FALSE,
                       include.lowest = TRUE,
                       validate = TRUE,
                       copy = FALSE,
