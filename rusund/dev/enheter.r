@@ -8,7 +8,7 @@ source(file.path(pth, "rus-draft.R"))
 
 
 ## Regner alkohol enhet fra ren alkohol
-alkohol_enhetskalkulator <- function(ren_alkohol_cl) {
+alcohol_unit <- function(ren_alkohol_cl) {
   # Alkoholmengde per enhet
   ol_enhet <- 50 * 0.045     # 0,5 l øl med 4,5 %
   vin_enhet12 <- 12.5 * 0.12     # 12.5 cl vin med 12 %
@@ -28,4 +28,4 @@ alkohol_enhetskalkulator <- function(ren_alkohol_cl) {
   )
 }
 
-alkohol_enhetskalkulator(9)
+alcohol_unit(9)
