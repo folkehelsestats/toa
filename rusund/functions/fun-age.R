@@ -295,7 +295,10 @@ group_age_standard <- function(dt, var, type = "standard", new_var = NULL,
     working = list(
       breaks = c(0, 18, 65, Inf),
       labels = c("<18", "18-64", "65+")
-    )
+    ),
+    unodc = list(
+      breaks = c(16, 19, 25, 35, 65),
+      labels = c("16-18", "19-24", "25-34", "35-64"))
   )
 
   if (!type %in% names(age_configs)) {
