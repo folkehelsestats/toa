@@ -19,7 +19,7 @@
 #'   first interval? Default is TRUE.
 #' @param validate Logical. Should input validation be performed? Default is TRUE.
 #' @param copy Logical. Should a copy of the data.table be returned instead of
-#'   modifying in place? Default is FALSE.
+#'   modifying in place? If TRUE then object name should have different name. Default is FALSE.
 #' @param missing_values Numeric vector, optional. Values that should be treated
 #'   as missing (e.g., survey codes like 999 for "don't know", 998 for "no answer").
 #'   These values will be converted to NA before categorization. Default is NULL.
