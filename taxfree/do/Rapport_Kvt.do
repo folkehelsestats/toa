@@ -1,8 +1,21 @@
+*******************************************************************************
+
+	** Fil opprettet for å få tall i rapport om omsetning taxfree.
+	** Filen tar utgangspunkt i do-fil fra FHI.
+	** Denne filen er opprettet 21/8-2025 av Bente Øvrebø, Hdir.
+	** Filen er ikke ferdig.
+
+*******************************************************************************
+
+
 clear all
 
+cd "O:\Prosjekt\Rusdata\Omsetning\"
+
+
 /* Per kvt til tabell */  
-cd "C:\Users\dabe\Folkehelseinstituttet\Omsetningsstatistikk - Lukkede dokumenter\"
-use "Taxfree\Tax-Free 2022.dta", replace 
+/* Per nå har fila under data til og med 2023 - må fikse*/
+use "Taxfree_originalfiler\Tax-Free 2024.dta", replace 
 
 collapse (sum) Antall Utland, by(Kvt Gruppe Utsalg)
 reshape wide Antall Utland, i(Gruppe Kvt) j(Utsalg) string

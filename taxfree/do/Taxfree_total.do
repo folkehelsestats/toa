@@ -22,7 +22,6 @@ append using "Airport Retail Norway\ARN2010-2024.dta"
 append using "Travel Retail Norway\TRN2010-2024.dta"
 compress
 
-drop Vekt
 
 /* Fjern "trailing blanks" */
 replace Utsalg = rtrim(Utsalg)
@@ -63,13 +62,22 @@ replace Merke = "TRN" if Lufthavn=="Oslo"
 replace Merke = "TRN" if Lufthavn=="Bergen" 
 replace Merke = "TRN" if Lufthavn=="Stavanger" 
 replace Merke = "TRN" if Lufthavn=="Trondheim" 
-replace Merke = "TRN" if Lufthavn=="Kristiansand" 
+replace Merke = "TRN" if Lufthavn=="Kristiansand" // til Q22022
 replace Merke = "ARN" if Lufthavn=="Rygge" 
 replace Merke = "ARN" if Lufthavn=="Torp" 
 
 /* Merke er ikke fullstendig satt siste årene. Usikkert på om dette er viktig?*/
-*replace Merke = "ARN" if Lufthavn=="Haugesund" & Kvt >= yq(2019,2)
-*replace Merke = "ARN" if Lufthavn == "Kristiansand" & Kvt >= yq(2023,1)
+
+*Fra Q12023 får vi data fra ARN for: Torp, Bodø, Evenes, Krstiansand, Molde, Tromsø, Ålesund, Haugesund, Kristiansund
+replace Merke = "ARN" if Lufthavn=="Bodø"& Kvt >= yq(2023,1)
+replace Merke = "ARN" if Lufthavn=="Evenes" & Kvt >= yq(2023,1)
+replace Merke = "ARN" if Lufthavn=="Molde" & Kvt >= yq(2023,1)
+replace Merke = "ARN" if Lufthavn=="Haugesund" & Kvt >= yq(2019,2)
+replace Merke = "ARN" if Lufthavn == "Kristiansand" & Kvt >= yq(2023,1)
+replace Merke = "ARN" if Lufthavn=="Tromsø"& Kvt >= yq(2023,1)
+replace Merke = "ARN" if Lufthavn=="Ålesund"& Kvt >= yq(2023,1)
+replace Merke = "ARN" if Lufthavn=="Kristiansund"& Kvt >= yq(2023,1)
+
 
 label var Merke "Merke"
 
@@ -83,6 +91,44 @@ twoway (line Antall Kvt if Lufthavn == "Torp", sort) ///
 	   (line Antall Kvt if Lufthavn == "Rygge", sort) ///
 	    if Utsalg == "Totalt", ///
 	    by(Gruppe, yrescale) ylabel(#2)
+
+twoway (line Antall Kvt if Lufthavn == "Oslo", sort) ///
+	    if Utsalg == "Totalt", ///
+	    by(Gruppe, yrescale) ylabel(#2)
+		
+twoway (line Antall Kvt if Lufthavn == "Bergen", sort) ///
+	    if Utsalg == "Totalt", ///
+	    by(Gruppe, yrescale) ylabel(#2)
+		
+twoway (line Antall Kvt if Lufthavn == "Bergen", sort) ///
+	    if Utsalg == "Totalt", ///
+	    by(Gruppe, yrescale) ylabel(#2)
+
+twoway (line Antall Kvt if Lufthavn == "Trondheim", sort) ///
+	    if Utsalg == "Totalt", ///
+	    by(Gruppe, yrescale) ylabel(#2)
+		
+reshape wide
+*/
+
+/* Sjekker noen av de større flyplassene. Kategori-utfordringer siste år.
+reshape long
+twoway (line Antall Kvt if Lufthavn == "Oslo", sort) ///
+	    if Utsalg == "Totalt", ///
+	    by(Gruppe, yrescale) ylabel(#2)
+		
+twoway (line Antall Kvt if Lufthavn == "Bergen", sort) ///
+	    if Utsalg == "Totalt", ///
+	    by(Gruppe, yrescale) ylabel(#2)
+		
+twoway (line Antall Kvt if Lufthavn == "Bergen", sort) ///
+	    if Utsalg == "Totalt", ///
+	    by(Gruppe, yrescale) ylabel(#2)
+
+twoway (line Antall Kvt if Lufthavn == "Trondheim", sort) ///
+	    if Utsalg == "Totalt", ///
+	    by(Gruppe, yrescale) ylabel(#2)
+		
 reshape wide
 */
 		
@@ -128,13 +174,23 @@ replace AntallSnusTobakk = AntallSnus + AntallTobakk ///
 replace AntallBrennevinHetvin = AntallBrennevin + AntallHetvin ///
 	if AntallBrennevin !=. & AntallHetvin !=.   
 
-/
+/*
 twoway (line AntallSnus Kvt, sort cmissing(n)) ///
 	   (line AntallTobakk Kvt, sort cmissing(n)) ///
 	   (line AntallSnusTobakk Kvt, sort cmissing(n)) ///
 	   if Utsalg=="Totalt", xline(201) xline(208) xline(212) ///
 	   xline(214) xline(215) ///
 	   ylabel(#2) by(Lufthavn, yrescale note(""))
+* AntallSnusTobakk ser ukunstig lav ut for Bergen, Oslo, Stavanger, ila 2023. Her må det være noe feil. For 2023 og 2024 skal vi få oppdaterte filer fra TRN. 
+* Mangler tall i noen år (i perioden 2020-2023) for noen flyplasser: Bodø, Evenes, Kristiansund, Kristiansand, Haugesund, Molde, Torp, Tromsø, Ålesund.
+
+twoway (line AntallSnus Kvt, sort cmissing(n)) ///
+	   (line AntallTobakk Kvt, sort cmissing(n)) ///
+	   (line AntallSnusTobakk Kvt, sort cmissing(n)) ///
+	   if Utsalg=="Totalt" & Lufthavn=="Oslo", xline(201) xline(208) xline(212) ///
+	   xline(214) xline(215) ///
+	   ylabel(#2) by(Lufthavn, yrescale note(""))
+	  
 
 twoway (line AntallSnus Kvt, sort cmissing(n)) ///
 	   (line AntallTobakk Kvt, sort cmissing(n)) ///
@@ -142,7 +198,8 @@ twoway (line AntallSnus Kvt, sort cmissing(n)) ///
 	   if Utsalg=="Totalt" & Lufthavn == "Haugesund", xline(201) xline(208) xline(212) ///
 	   xline(214) xline(215) ///
 	   ylabel(#2) by(Lufthavn, yrescale note(""))
-	   
+*Noe er feil i data 2025 fra Haugesund. Er det en annen enhet disse årene som avviker?
+	
 twoway (line AntallBrennevin Kvt, sort cmissing(n)) ///
 	   (line AntallHetvin Kvt, sort cmissing(n)) ///
 	   (line AntallBrennevinHetvin Kvt, sort cmissing(n)) ///
@@ -150,7 +207,6 @@ twoway (line AntallBrennevin Kvt, sort cmissing(n)) ///
 
 twoway (line AntallBrennevin Kvt, sort cmissing(n)) ///
 	   (line AntallHetvin Kvt, sort cmissing(n)) ///
-	   (line AntallBrennevinHetvin Kvt, sort cmissing(n)) ///
 	   if Utsalg=="Totalt" & Lufthavn == "Oslo", ylabel(#2) by(Lufthavn, yrescale note(""))
 	   */
 
@@ -182,7 +238,8 @@ egen Lufthavn2 = group(Lufthavn)
 regress AndelSnus t t2 i.k i.Lufthavn2 if Utsalg == "Totalt"
 predict EstAndel, xb
 
-/*
+/* 
+*observert versus predikert andel snus
 twoway (scatter AndelSnus Kvt, sort cmissing(n)) ///
 	   (line EstAndel Kvt, sort cmissing(n)) ///
 	   if Utsalg=="Totalt", xline(208) xline(215) ///
@@ -216,6 +273,8 @@ replace AntallTobakk = AntallSnusTobakk-AntallSnus ///
 	if AntallTobakk ==. & Utsalg == "Avgang" & Merke == "TRN" & Kvt >= yq(2019,3)
 drop EstAndel AndelSnus AntallSnusTobakk
 
+	/*Denne koden for å estimere andel og predikere brennevin og hetvin skiller seg fra den fra tobakk. */
+	
 regress AndelBrennevin i.k i.Lufthavn2 if Utsalg == "Ankomst"
 predict EstAndelBrennevin, xb
 replace AntallBrennevin = AntallBrennevinHetvin*EstAndelBrennevin ///
@@ -231,6 +290,8 @@ drop EstAndelBrennevin
 replace AntallHetvin = AntallBrennevinHetvin - AntallBrennevin ///
 	if AntallHetvin == . & AntallBrennevinHetvin != .
 drop AndelBrennevin AntallBrennevinHetvin  k t t2 Lufthavn2
+
+
 
 /*
 
@@ -323,7 +384,7 @@ drop Lufthavn
 decode id, gen(Lufthavn)
 label var Lufthavn "Lufthavn"
 drop id Merke
-
+/*
 gen Merke = "Avinor" 
 replace Merke = "TRN" if Lufthavn=="Oslo"
 replace Merke = "TRN" if Lufthavn=="Bergen" 
@@ -333,6 +394,7 @@ replace Merke = "TRN" if Lufthavn=="Kristiansand"
 replace Merke = "ARN" if Lufthavn=="Rygge" 
 replace Merke = "ARN" if Lufthavn=="Torp" 
 label var Merke "Merke"
+*/
 
 reshape long
 reshape long Antall, i(Kvt Lufthavn Utsalg) j(Gruppe) string
@@ -345,8 +407,6 @@ drop if _merge!=3
 reshape long Antall SSB AvinorTorp, i(Kvt Lufthavn Gruppe) j(Utsalg) string
 drop _merge
 
-/* Fjern 2024 */
-drop if Kvt >= yq(2024,1)
 
 /* Tromsø 2012 Q1 har vor lave passasjerer i SSBs statistikk */
 gen Utland = SSB 
@@ -426,10 +486,12 @@ label var Gruppe "Gruppe"
 /* Estimer totalomsetningen, hvis det mangler. Tidstrend og kvartal */ 
 gen NyKvote1 = 0
 gen NyKvote2 = 0
-replace NyKvote1 = 1 if (Kvt>=yq(2014,3))
-replace NyKvote2 = 1 if (Kvt>=yq(2023,1))
-label var NyKvote1 "Endring kvoteregler 1"
-label var NyKvote2 "Endring kvoteregler 2"
+
+replace NyKvote1 = 1 if (Kvt>=yq(2014,3) & Kvt < yq(2022,1)) // innføring byttevote mer vin og øl i stedet for tobakk, fjernes jan 2022.
+replace NyKvote2 = 1 if (Kvt>=yq(2023,1)) // halverring av tobakkskvote
+label var NyKvote1 "Endring kvoteregler1 byttekvote"
+label var NyKvote2 "Endring kvoteregler2 halvvering tobakkskvote"
+
 
 gen AntPas = AntallTotalt/UtlandTotalt
 sort Lufthavn Gruppe Kvt
@@ -562,5 +624,5 @@ drop if Lufthavn=="Fagernes" & Kvt >= yq(2016,1)
 drop if Lufthavn=="Lakselv" & Kvt >= yq(2014,1)
 drop if Kvt >= yq(2024,1)
 
-save "Tax-Free 2023.dta", replace
+save "Tax-Free 2024.dta", replace
 
