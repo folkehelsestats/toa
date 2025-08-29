@@ -1,6 +1,8 @@
+
 clear all
 
-cd "C:\Users\dabe\Folkehelseinstituttet\Omsetningsstatistikk - Lukkede dokumenter\Taxfree"
+cd "O:\Prosjekt\Rusdata\Omsetning\Taxfree_originalfiler\"
+
 
 /* Hent inn terminalpassasjerer fra Avinor, passasjertallene er inkl. 
    barn. Totalt for både ankomst og avgang, inkl. transfer. Deretter koble med 
@@ -33,9 +35,15 @@ drop U
 label var Utsalg "Utsalg"
 
 merge 1:m Kvt Lufthavn Utsalg  ///
-	using "Passasjerer\Passasjerer SSB 2010 -2023.dta", nogenerate 
+	using "Passasjerer\Passasjerer SSB 2010 -2024.dta", nogenerate 
 rename AntallTotalt SSB
 label var SSB "Passasjerer SSB"
+
+/* Dette er lagt inn i fila over. Slett kode?
+merge 1:m Kvt Lufthavn Utsalg  ///
+	using "Passasjerer\Passasjerer SSB 2024.dta", nogenerate 
+*/
+
 drop Antall*
 compress
 
