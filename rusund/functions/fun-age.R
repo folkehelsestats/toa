@@ -297,7 +297,7 @@ group_age_standard <- function(dt, var, type = "standard", new_var = NULL,
       labels = c("<18", "18-64", "65+")
     ),
     unodc = list(
-      breaks = c(16, 19, 25, 35, 65),
+      breaks = c(16, 18, 25, 35, 65),
       labels = c("16-18", "19-24", "25-34", "35-64"))
   )
 
