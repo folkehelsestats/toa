@@ -6,6 +6,7 @@
 
 pth2024 <- file.path(here::here(), "rusund", "rapport")
 source(file.path(pth2024, "analysis2024/setup2024.R"))
+
 ```
 
 ```{r cal2-druk}
@@ -124,15 +125,50 @@ gt::gt(drk6_24)
 
 ## Hvor mye og hva drikker vi?
 
+Beregningen av alkohol typer drukket siste 4 uker.
 
 ```{r cal2-drikk-enhet}
 #| echo: false
 #| warning: false
 
-source("analysis2024/drikk-enheter.R")
+source(file.path(pth2024,"analysis2024/drikk-enheter.R"))
 ```
 
-- Må sjekke med FHI om de bruker 1.5 dl eller 1.2 dl for en vin enhent. I 2023 rapporten brukes 1.5dl
 - Ekstreme verdier eg. `r max(dt$halvliteroluke, na.rm=T)` halvliter øl per uke
 
+### Øl halvliter
 
+```{r cal2-drikk-enhet-tab}
+#| echo: false
+#| warning: false
+
+## 0.5l øl 2.25 cl ren alkohol 
+
+kjonncl <- dt[, round(mean(olcl, na.rm = T)/2.25, digits = 1), keyby = kjonn]
+aldercl <- dt[, mean(olcl, na.rm = T)/2.25, keyby = agecat]
+alderKjcl <- dt[, mean(olcl, na.rm = T)/2.25, keyby = .(kjonn, agecat)]
+
+aldercl[, kjonn := 2]
+tabcl <- data.table::rbindlist(list(aldercl, alderKjcl), use.names = TRUE, ignore.attr = T)
+tabcl[, halvliter := round(V1, 1)][, V1 := NULL]
+
+```
+
+Gjennomsnittlig ølkonsum i en fire uke periode i 2024 var `r kjonncl[kjonn == 0, V1]`
+halvlitere blant menn og `r kjonncl[kjonn == 1, V1]` blant kvinner.
+
+```{r cal2-drikk-enhet-fig}
+
+tabcl[kjonnkb, on = c(kjonn = "v1"), gender := i.v2]
+tabcl[, kjonn := NULL]
+data.table::setcolorder(tabcl, c("gender", "agecat", "halvliter"))
+gt::gt(tabcl)
+
+## make_hist(d=tabcl,
+##           x="agecat",
+##           y="halvliter",
+##           group = "gender",
+##           n = halvliter,
+##           title = "Havlitere siste 4 uker")
+
+```
