@@ -1,4 +1,4 @@
-## Alkohol enheter
+## Ren alkohol
 ## --------------
 
 ## -- ØL ---
@@ -16,7 +16,6 @@ dt[, halvliteroluke := fcase(
   default = Type1b_2
 )]
 
-
 ## Drikker sjeldnere enn ukenlig dvs. totalt ila. siste fire uker
 ## OBS! Maks verdi her er 100. Skal den slettes?
 dt[, flaskeroltot := fcase(
@@ -25,7 +24,6 @@ dt[, flaskeroltot := fcase(
        default = Type1c_1
      )]
 
-
 ## OBS! Maks verdi her er 100. Skal den slettes?
 dt[, halvlitertot := fcase(
        as.integer(Type1c_2) %in% c(99998, 99999), NA_real_,
@@ -33,20 +31,18 @@ dt[, halvlitertot := fcase(
        default = Type1c_2
      )]
 
-# en flasker øl er en alkoholenhet
-# en halvliter øl er 1,5 alkoholenhet
-dt[, olenheter := (flaskeroluke + 1.5 * halvliteroluke) * 4 + flaskeroltot + 1.5 * halvlitertot]
-dt[, olhalvlitere := (flaskeroluke / 1.5 + halvliteroluke) * 4 + flaskeroltot / 1.5 + halvlitertot]
+## ren alkohol cl
+dt[, olcl := (flaskeroluke * 1.485 + halvliteroluke * 2.25) * 4 + flaskeroltot * 1.485 + halvlitertot * 2.25]
 
 ## --- Vin ---
+## "Gjennomsnitt antall glass vin ukenlig siste 4 uker"
 dt[, vinglassuke := fcase(
        as.integer(Type2b_1) %in% c(99998, 99999), NA_real_,
        is.na(Type2b_1), 0,
        default = Type2b_1
      )]
 
-## var_label(dt$vinglassuke) <- "Gjennomsnitt antall glass vin ukenlig siste 4 uker"
-
+## "Gjennomsnitt antall flaske vin ukenlig siste 4 uker"
 ## OBS! Maks verdi er 28. Skal den slettes?
 dt[, vinflaskeruke := fcase(
        as.integer(Type2b_2) %in% c(99998, 99999), NA_real_,
@@ -54,17 +50,14 @@ dt[, vinflaskeruke := fcase(
        default = Type2b_2
      )]
 
-## var_label(dt$vinflaskeruke) <- "Gjennomsnitt antall flaske vin ukenlig siste 4 uker"
-
-
+##"Antall glass vin totalt siste 4 uker"
 dt[, vinglasstot := fcase(
        as.integer(Type2c_1) %in% c(99998, 99999), NA_real_,
        is.na(Type2c_1), 0,
        default = Type2c_1
      )]
 
-## var_label(dt$vinglasstot) <- "Antall glass vin totalt siste 4 uker"
-
+##"Antall flasker vin totalt siste 4 uker"
 ## OBS! Maks verdi er 10. Skal den slettes?
 dt[, vinflaskertot := fcase(
        as.integer(Type2c_2) %in% c(99998, 99999), NA_real_,
@@ -72,10 +65,8 @@ dt[, vinflaskertot := fcase(
        default = Type2c_2
      )]
 
-## var_label(dt$vinflaskertot) <- "Antall flasker vin totalt siste 4 uker"
-
-## 1.5dl glass vin er 1.2 alkohol enhet
-dt[, vinenheter := (1.2 * vinglassuke + 6 * vinflaskeruke) * 4 + 1.2 * vinglasstot + 6 * vinflaskertot]
+## delt med ren alkohol. Et glass vin er 1.5dl dvs. 1.8cl ren alkohol
+dt[, vincl := (vinglassuke * 1.8 + vinflaskeruke * 9) * 4 + (vinglasstot * 1.8) + (vinflaskertot * 9)]
 
 ## -- Brennevin --
 dt[, brennevinglassuke := fcase(
@@ -84,13 +75,11 @@ dt[, brennevinglassuke := fcase(
        default = Type3b_1
      )]
 
-
 dt[, brennevinflaskeruke := fcase(
        as.integer(Type3b_2) %in% c(99998, 99999), NA_real_,
        is.na(Type3b_2), 0,
        default = Type3b_2
      )]
-
 
 dt[, brennevinglasstot := fcase(
        as.integer(Type3c_1) %in% c(99998, 99999), NA_real_,
@@ -98,18 +87,17 @@ dt[, brennevinglasstot := fcase(
        default = Type3c_1
      )]
 
-
 dt[, brennevinflaskertot := fcase(
        as.integer(Type3c_2) %in% c(99998, 99999), NA_real_,
        is.na(Type3c_2), 0,
        default = Type3c_2
      )]
 
-## en flaske brnnevinn er 17.5 enheter, mens SSB notat 18 enheter
-dt[, brennevinenheter := (brennevinglassuke + 17.5 * brennevinflaskeruke) * 4 + brennevinglasstot + 17.5 * brennevinflaskertot]
+## En flaske brennevin er 0.7l (Notat fra SSB spørreskjema 2024)
+dt[, brenncl := (brennevinglassuke * 1.6 + brennevinflaskeruke * 28)*4 + brennevinglasstot * 1.6 + brennevinflaskertot * 28]
 
 ## -- Rusbrus --
-dt[, rusbrussmaflaskeruke := fcase(
+dt[, rusbrussflaskeruke := fcase(
        as.integer(Type4b_1) %in% c(99998, 99999), NA_real_,
        is.na(Type4b_1), 0,
        default = Type4b_1
@@ -121,7 +109,7 @@ dt[, rusbrushalvliteruke := fcase(
        default = Type4b_2
      )]
 
-dt[, rusbrussmaflasketot := fcase(
+dt[, rusbrussflaskertot := fcase(
        as.integer(Type4c_1) %in% c(99998, 99999), NA_real_,
        is.na(Type4c_1), 0,
        default = Type4c_1
@@ -133,17 +121,10 @@ dt[, rusbrushalvlitertot := fcase(
        default = Type4c_2
      )]
 
-dt[, rusbrusenheter := (rusbrussmaflaskeruke + 1.5 * rusbrushalvliteruke) * 4 +
-     rusbrussmaflasketot + 1.5 * rusbrushalvlitertot]
+dt[, rusbruscl := (rusbrussflaskeruke * 1.485 + rusbrushalvliteruke * 2.25) * 4 +
+       rusbrussflaskertot * 1.485 + rusbrushalvlitertot * 2.25]
 
-
-## Beregning med ren alkohol cl
-## ----------------------------
-dt[, alkoclol02 := olenheter*1.485] #øl 33cl 4.5%
-## dt[, alkoclvin02 := vinenheter*1.8] #vin 15cl 12%
-dt[, alkoclvin02 := vinenheter*1.5] #vin 12.5cl 12%
-dt[, alkoclbrennevin02 := brennevinenheter*1.6] #brennevin 4cl 40%
-dt[, alkoclrusbrus02 := rusbrusenheter*1.485] #rusbrus/cider 33cl 4.5%
 
 ## Total mengde ren alkohol siste fire uker
-dt[, totalcl02 := alkoclol02 + alkoclvin02 + alkoclbrennevin02 + alkoclrusbrus02]
+## ---------------------------------------
+dt[, totalcl := olcl + vincl + brenncl + rusbruscl]
