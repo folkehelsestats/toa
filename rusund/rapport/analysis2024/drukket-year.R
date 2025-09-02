@@ -1,7 +1,7 @@
 ## Andel som har drukket siste år i 2024
 ## -------------------------------------
-dt[, Drukket1 := as.integer(Drukket1)]
-dt[, alkosistaar := fifelse(Drukket1 == 8, NA, Drukket1)]
+dt[, drukket1 := as.integer(drukket1)]
+dt[, alkosistaar := fifelse(drukket1 == 8, NA, drukket1)]
 
 ## Var values
 alksistaar_values <- c(
@@ -9,7 +9,7 @@ alksistaar_values <- c(
   "ikke drukket alkohol siste 12 mnd" = 2
 )
 
-dt[, kj := as.numeric(Kjonn)]
+dt[, kj := as.numeric(kjonn)]
 alko <- proscat_weighted(x = "kj", y = "alkosistaar", weight = vekt)
 
 alkkb <- data.table(v1 = as.integer(alksistaar_values),

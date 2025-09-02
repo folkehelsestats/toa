@@ -1,15 +1,15 @@
 ## Drikkefrekvens siste år
 ## -----------------------
 
-dt[Drukket1 == 1, alkofrekvens := fcase(
-                    Drukket2 == 1, 5,
-                    Drukket2 == 2, 4,
-                    Drukket2 == 3, 3,
-                    Drukket2 == 4, 2
+dt[drukket1 == 1, alkofrekvens := fcase(
+                    drukket2 == 1, 5,
+                    drukket2 == 2, 4,
+                    drukket2 == 3, 3,
+                    drukket2 == 4, 2
                   )]
-dt[Drukket1 == 2, alkofrekvens := fcase(
-                    Drukk1b == 1, 1,
-                    Drukk1b == 2, 0
+dt[drukket1 == 2, alkofrekvens := fcase(
+                    drukk1b == 1, 1,
+                    drukk1b == 2, 0
                   )]
 
 alkofrekvens_values <- c(
@@ -21,7 +21,7 @@ alkofrekvens_values <- c(
     "drukket daglig siste 12 mnd" = 5
 )
 
-dt[, kj := as.numeric(Kjonn)]
+dt[, kj := as.numeric(kjonn)]
 alkofreq <- proscat_weighted("kj", "alkofrekvens", weight = vekt)
 
 afKB <- data.table(v1 = as.integer(alkofrekvens_values),

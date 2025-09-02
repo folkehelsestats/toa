@@ -2,9 +2,9 @@
 ## ---------------------------------
 
 ## Nevner inkluderer de som ikke har drukket siste år også dvs. drukket1=2(Nei)
-dt[, drink6 := fcase(Audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjeldenere
-                     Audit3 == 5, 0, #aldri
-                     Drukket1 == 2, 0,
+dt[, drink6 := fcase(audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjeldenere
+                     audit3 == 5, 0, #aldri
+                     drukket1 == 2, 0,
                      default = NA)]
 
 drk6_24 <- proscat_weighted(x = "kj", y = "drink6", d = dt, weight = vekt, total = TRUE)
