@@ -136,37 +136,151 @@ source(file.path(pth2024,"analysis2024/drikk-enheter.R"))
 
 - Ekstreme verdier eg. `r max(dt$halvliteroluke, na.rm=T)` halvliter øl per uke
 
-### Øl halvliter
+### Øl 
 
-```{r cal2-drikk-enhet-tab}
+```{r cal2-beer}
 #| echo: false
 #| warning: false
 
-## 0.5l øl 2.25 cl ren alkohol 
-
-kjonncl <- dt[, round(mean(olcl, na.rm = T)/2.25, digits = 1), keyby = kjonn]
-aldercl <- dt[, mean(olcl, na.rm = T)/2.25, keyby = agecat]
-alderKjcl <- dt[, mean(olcl, na.rm = T)/2.25, keyby = .(kjonn, agecat)]
-
-aldercl[, kjonn := 2]
-tabcl <- data.table::rbindlist(list(aldercl, alderKjcl), use.names = TRUE, ignore.attr = T)
-tabcl[, halvliter := round(V1, 1)][, V1 := NULL]
+# 0.5l øl 2.25 cl ren alkohol
+beer <- convert_cl(dt, "olcl", cl = 2.25, unit = "halvliter")
+kjonncl <- beer$gender
 
 ```
 
 Gjennomsnittlig ølkonsum i en fire uke periode i 2024 var `r kjonncl[kjonn == 0, V1]`
 halvlitere blant menn og `r kjonncl[kjonn == 1, V1]` blant kvinner.
 
-```{r cal2-drikk-enhet-fig}
+```{r cal2-beer-fig}
+#| echo: false
+#| warning: false
 
-tabcl[kjonnkb, on = c(kjonn = "v1"), gender := i.v2]
-tabcl[, kjonn := NULL]
-data.table::setcolorder(tabcl, c("gender", "agecat", "halvliter"))
-
-simple_hist(tabcl,
+simple_hist(beer$both,
             x = agecat,
             y = halvliter,
             group = gender,
             title = "Antall halvlitere øl drukket siste 4 uker")
 
+```
+
+### Vin
+
+```{r cal2-vin}
+#| echo: false
+#| warning: false
+
+# Et glass 1.5dl er 1.8 cl ren alkohol
+wine <- convert_cl(dt, "vincl", cl = 1.8, unit = "vinglass")
+
+```
+
+En enhet er 1.5dl vin. En gjennomsnitt antall glass vin drukket i siste fire uke var
+`r wine$gender[kjonn == 0, V1]` for menn og `r wine$gender[kjonn == 1, V1]` for kvinner.
+
+
+```{r cal2-vin-fig}
+#| echo: false
+#| warning: false
+
+simple_hist(wine$both,
+            x = agecat,
+            y = vinglass,
+            group = gender,
+            title = "Antall glass vin drukket siste 4 uker (1.5dl)")
+```
+
+### Brennevin
+
+```{r cal2-brennevin}
+#| echo: false
+#| warning: false
+
+# Et glass 4cl brennevin er 1.6cl ren alkohol
+brenn <- convert_cl(dt, "brenncl", cl = 1.6, unit = "glass")
+
+```
+
+Menn hadde `r brenn$gender[kjonn == 0, V1]` glass brennevin og kvinner hadde
+`r brenn$gender[kjonn == 1, V1]` i siste 4 uker.
+
+```{r cal2-brennevin-fig}
+#| echo: false
+#| warning: false
+
+simple_hist(brenn$both,
+            x = agecat,
+            y = glass,
+            group = gender,
+            title = "Antall glass av brennevin drukket siste 4 uker (4cl)")
+
+```
+
+### Rusbrus
+
+```{r cal2-rusbrus}
+#| echo: false
+#| warning: false
+
+## En flaske 0.33 L er 1.485 cl ren alkohol
+rusbrus <- convert_cl(dt, "rusbruscl", cl = 1.485, "flaske")
+rusbrus2 <- convert_cl(dt, "rusbruscl", cl = 1.2, "flaske")
+
+```
+
+En flaske rusbrus er vanligvis 0,275 liter, men FHI har brukt 0,33 liter som
+standard i sine tidligere beregninger. Når vi bruker 0,33 liter, er antall flasker for menn
+`r rusbrus$gender[kjonn == 0, V1]` og for kvinner `r rusbrus$gender[kjonn == 1, V1]`.
+Dersom vi i stedet bruker 0,275 liter, blir tallene henholdsvis
+`r rusbrus2$gender[kjonn == 0, V1]` for menn og `r rusbrus2$gender[kjonn == 1, V1]`
+for kvinner. Utfordringen er at tallene kan bli høyere dersom man runder opp til nærmeste
+hele flaske.
+
+
+```{r cal2-rusbrus-fig}
+#| echo: false
+#| warning: false
+
+simple_hist(rusbrus$both,
+            x = agecat,
+            y = flaske,
+            group = gender,
+            title = "Antall flaske rusbrus drukket siste 4 uker (0.33l)")
+
+```
+
+### Ren alkohol 
+
+```{r cal2-renalko}
+#| echo: false
+#| warning: false
+
+### Total ren alkohol
+genderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = kjonn]
+ageAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = agecat]
+ageGenderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = .(kjonn, agecat)]
+
+ageAlk[, kjonn := 2]
+tblAlk <- data.table::rbindlist(list(ageAlk, ageGenderAlk), use.names = TRUE, ignore.attr = TRUE)
+tblAlk[, Alkohol := round(V1, 1)][, V1 := NULL]
+
+## kjonnkb can be found in file setup2024.R
+tblAlk[kjonnkb, on = c(kjonn = "v1"), gender := i.v2]
+tblAlk[, kjonn := NULL]
+data.table::setcolorder(tblAlk, c("gender", "agecat", "Alkohol"))
+```
+
+Menn hadde konsumet `r genderAlk[kjonn == 0, V1]` cl ren alkohol og kvinner hadde
+`r genderAlk[kjonn == 1, V1]` cl i siste 4 uker.
+
+
+```{r cal2-renalko-fig}
+#| echo: false
+#| warning: false
+
+simple_hist(tblAlk,
+            x = agecat,
+            y = Alkohol,
+            yint = 5,
+            group = gender,
+            title = "Total mengde alkohol konsumet siste 4 uker (cl)")
 ```

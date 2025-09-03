@@ -52,7 +52,7 @@ options(highcharter.lang = list(
 
 {{< include _resultat2012-2024.qmd >}}
 
-# Oversikt for 2024
+# Data for 2024
 
 Ulike aspekter ved alkoholbruk, som drikkefrekvens, volum og drikkemønster, varierer mellom ulike befolkningsgrupper, som for eksempel kjønns- og aldersgrupper.
 
