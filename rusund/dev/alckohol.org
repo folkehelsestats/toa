@@ -1,10 +1,13 @@
 #+Title: Alkohol definisjon
 
 * Enhet
-En alkoholenhet tilsvarer:
-- 0,33 l øl
-- 1,5 dl vin
-- 4 cl brennevin
+- I Norge så er en enhet tilsvare 15ml ren alkohol.
+  - dvs. for vin med ABV 12% er det 0.15/0.12 = 1.25 cl
+
+- En alkoholenhet tilsvarer:
+    - 0,33 l øl
+    - 1,5 dl vin
+    - 4 cl brennevin
 
 * En cl ren alkohol
 - Øl med 4.5% alkohol 1/0.045 = 22.2 cl
