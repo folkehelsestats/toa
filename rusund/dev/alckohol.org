@@ -43,7 +43,12 @@ En alkoholenhet tilsvarer:
 
 ** Cider/Rusbrus
 - ABV ~4.5%
-- En flaske 0.5l
+*** Liten flaske
+- En liten flase 0.275 l
+- 27.5*0.045 = 1.2 cl
+- Tidligere analyser fra FHI brukte 0.33 l dvs. 1.485 cl ren alkohol
+*** En halvliter
+- En flaske 0.5 l
 - 0.5*0.045 = 0.0225 = 2.25 cl
 
 * Alkoholenhet kalkulator
