@@ -1,5 +1,6 @@
+# ---------------------------
 ## Analyser for 2024 dataene
-## --------------------------
+# --------------------------
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 library("here")
 
@@ -7,15 +8,14 @@ source(file.path(here::here(), "rusund/setup.R"))
 source(file.path(here::here(), "rusund/functions/fun-call.R"))
 dataPath <- "O:\\Prosjekt\\Rusdata"
 
-## Data 2024
 DT <- readRDS(file.path(dataPath, "Rusundersøkelsen", "Rusus 2024","rus2024.rds"))
 dt <- as.data.table(DT)
 
 pth2024 <- file.path(here::here(), "rusund", "rapport")
 source(file.path(pth2024, "analysis2024/setup2024.R"))
 
+# -------------
 ## Drukket year
-## -------------
 dt[, drukket1 := as.integer(drukket1)]
 dt[, alkosistaar := fifelse(drukket1 == 8, NA, drukket1)]
 
@@ -54,7 +54,7 @@ data.table::setnames(alko, colout, colns, skip_absent = TRUE)
 gt::gt(alko)
 
 ## Drikkefrekvens siste år
-## ------------------------
+# ------------------------
 dt[drukket1 == 1, alkofrekvens := fcase(
                     drukket2 == 1, 5,
                     drukket2 == 2, 4,
@@ -274,24 +274,67 @@ dt[, totalcl := olcl + vincl + brenncl + rusbruscl]
 
 ### Øl halvliter
 # 0.5l øl 2.25 cl ren alkohol
+beer <- convert_cl(dt, "olcl", cl = 2.25, unit = "halvliter")
 
-kjonncl <- dt[, round(mean(olcl, na.rm = T)/2.25, digits = 1), keyby = kjonn]
-aldercl <- dt[, mean(olcl, na.rm = T)/2.25, keyby = agecat]
-alderKjcl <- dt[, mean(olcl, na.rm = T)/2.25, keyby = .(kjonn, agecat)]
-
-aldercl[, kjonn := 2]
-tabcl <- data.table::rbindlist(list(aldercl, alderKjcl), use.names = TRUE, ignore.attr = T)
-tabcl[, halvliter := round(V1, 1)][, V1 := NULL]
-
-### Figur
-tabcl[kjonnkb, on = c(kjonn = "v1"), gender := i.v2]
-tabcl[, kjonn := NULL]
-data.table::setcolorder(tabcl, c("gender", "agecat", "halvliter"))
-
-simple_hist(tabcl,
+#### Figur
+simple_hist(beer$both,
             x = agecat,
             y = halvliter,
             group = gender,
             title = "Antall halvlitere øl drukket siste 4 uker")
 
+### Vin
+# Et glass 1.5dl er 1.8 cl ren alkohol
+wine <- convert_cl(dt, "vincl", cl = 1.8, unit = "vinglass")
 
+#### Figur
+simple_hist(wine$both,
+            x = agecat,
+            y = vinglass,
+            group = gender,
+            title = "Antall vinglass drukket siste 4 uker")
+
+### Brennevin
+# Et glass 4cl brennevin er 1.6cl ren alkohol
+brenn <- convert_cl(dt, "brenncl", cl = 1.6, unit = "glass")
+
+#### Figur
+simple_hist(brenn$both,
+            x = agecat,
+            y = glass,
+            group = gender,
+            title = "Antall glass av brennevin drukket siste 4 uker")
+
+### Rusbrus
+## En flaske 0.33 L er 1.485 cl ren alkohol
+rusbrus <- convert_cl(dt, "rusbruscl", cl = 1.485, "flaske")
+rusbrus2 <- convert_cl(dt, "rusbruscl", cl = 1.2, "flaske")
+
+#### Figur
+simple_hist(rusbrus$both,
+            x = agecat,
+            y = flaske,
+            group = gender,
+            title = "Antall flaske rusbrus drukket siste 4 uker")
+
+### Total ren alkohol
+genderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = kjonn]
+ageAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = agecat]
+ageGenderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = .(kjonn, agecat)]
+
+ageAlk[, kjonn := 2]
+tblAlk <- data.table::rbindlist(list(ageAlk, ageGenderAlk), use.names = TRUE, ignore.attr = TRUE)
+tblAlk[, Alkohol := round(V1, 1)][, V1 := NULL]
+
+## kjonnkb can be found in file setup2024.R
+tblAlk[kjonnkb, on = c(kjonn = "v1"), gender := i.v2]
+tblAlk[, kjonn := NULL]
+data.table::setcolorder(tblAlk, c("gender", "agecat", "Alkohol"))
+
+#### Figur
+simple_hist(tblAlk,
+            x = agecat,
+            y = Alkohol,
+            yint = 5,
+            group = gender,
+            title = "Total mengde alkohol konsumet siste 4 uker (cl)")
