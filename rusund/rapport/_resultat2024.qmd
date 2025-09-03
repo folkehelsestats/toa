@@ -162,13 +162,11 @@ halvlitere blant menn og `r kjonncl[kjonn == 1, V1]` blant kvinner.
 tabcl[kjonnkb, on = c(kjonn = "v1"), gender := i.v2]
 tabcl[, kjonn := NULL]
 data.table::setcolorder(tabcl, c("gender", "agecat", "halvliter"))
-gt::gt(tabcl)
 
-## make_hist(d=tabcl,
-##           x="agecat",
-##           y="halvliter",
-##           group = "gender",
-##           n = halvliter,
-##           title = "Havlitere siste 4 uker")
+simple_hist(tabcl,
+            x = agecat,
+            y = halvliter,
+            group = gender,
+            title = "Antall halvlitere øl drukket siste 4 uker")
 
 ```
