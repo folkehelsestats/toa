@@ -237,7 +237,7 @@ dt[, brennevinflaskertot := fcase(
        default = type3c_2
      )]
 
-## En flaske brennevin er 0.7l (Notat fra SSB spørreskjema 2024)
+# En flaske brennevin er 0.7l (Notat fra SSB spørreskjema 2024)
 dt[, brenncl := (brennevinglassuke * 1.6 + brennevinflaskeruke * 28)*4 +
        brennevinglasstot * 1.6 + brennevinflaskertot * 28]
 
@@ -269,7 +269,7 @@ dt[, rusbrushalvlitertot := fcase(
 dt[, rusbruscl := (rusbrussflaskeruke * 1.485 + rusbrushalvliteruke * 2.25) * 4 +
        rusbrussflaskertot * 1.485 + rusbrushalvlitertot * 2.25]
 
-## Total mengde ren alkohol siste fire uker
+### Total mengde ren alkohol siste fire uker
 dt[, totalcl := olcl + vincl + brenncl + rusbruscl]
 
 ### Øl halvliter
@@ -306,7 +306,7 @@ simple_hist(brenn$both,
             title = "Antall glass av brennevin drukket siste 4 uker")
 
 ### Rusbrus
-## En flaske 0.33 L er 1.485 cl ren alkohol
+# En flaske 0.33 L er 1.485 cl ren alkohol
 rusbrus <- convert_cl(dt, "rusbruscl", cl = 1.485, "flaske")
 rusbrus2 <- convert_cl(dt, "rusbruscl", cl = 1.2, "flaske")
 
@@ -326,7 +326,7 @@ ageAlk[, kjonn := 2]
 tblAlk <- data.table::rbindlist(list(ageAlk, ageGenderAlk), use.names = TRUE, ignore.attr = TRUE)
 tblAlk[, Alkohol := round(V1, 1)][, V1 := NULL]
 
-## kjonnkb can be found in file setup2024.R
+# kjonnkb can be found in file setup2024.R
 tblAlk[kjonnkb, on = c(kjonn = "v1"), gender := i.v2]
 tblAlk[, kjonn := NULL]
 data.table::setcolorder(tblAlk, c("gender", "agecat", "Alkohol"))
