@@ -9,7 +9,9 @@
 #' @param group Unquoted variable name. The grouping variable (e.g., gender).
 #' @param title Character string. Main title for the chart.
 #' @param subtitle Character string, optional. Subtitle for the chart.
-#'   If NULL, defaults to "Kilde: Rusundersøkelse 2024". Default is NULL.
+#'   If NULL, defaults to "Kilde: RusundersÃ¸kelse 2024". Default is NULL.
+#' @param xtitle Character string, optional. X-axis title. If NULL (default), no title is shown.
+#' @param ytitle Character string, optional. Y-axis title. If NULL (default), no title is shown.
 #' @param yint Numeric. Interval for y-axis tick marks. Default is 1.
 #' @param ylim Numeric vector of length 2, optional. Sets fixed y-axis limits as c(min, max).
 #'   If NULL (default), y-axis limits are determined automatically by the data.
@@ -33,11 +35,19 @@
 #'
 #' # Basic histogram
 #' simple_hist(dt, agecat, halvliter, gender,
-#'             title = "Alkoholkonsum etter alder og kjønn")
+#'             title = "Alkoholkonsum etter alder og kjÃ¸nn")
 #'
-#' # With custom y-axis limits
+#' # With custom axis titles
 #' simple_hist(dt, agecat, halvliter, gender,
-#'             title = "Alkoholkonsum etter alder og kjønn",
+#'             title = "Alkoholkonsum etter alder og kjÃ¸nn",
+#'             xtitle = "Aldersgruppe",
+#'             ytitle = "Halvliter per år")
+#'
+#' # With custom y-axis limits and titles
+#' simple_hist(dt, agecat, halvliter, gender,
+#'             title = "Alkoholkonsum etter alder og kjÃ¸nn",
+#'             xtitle = "Aldersgruppe",
+#'             ytitle = "Halvliter per år",
 #'             ylim = c(0, 12))
 #' }
 #'
@@ -45,6 +55,8 @@
 simple_hist <- function(d, x, y, group,
                        title,
                        subtitle = NULL,
+                       xtitle = NULL,
+                       ytitle = NULL,
                        yint = 1,
                        ylim = NULL,
                        flip = FALSE) {
@@ -76,6 +88,10 @@ simple_hist <- function(d, x, y, group,
     subtitle <- "Kilde: Rusundersøkelse 2024"
   }
 
+  # Set axis title text (empty string if NULL)
+  x_title_text <- if (is.null(xtitle)) " " else xtitle
+  y_title_text <- if (is.null(ytitle)) " " else ytitle
+
   # Get number of groups and set up colors
   gp <- length(unique(d[[group]]))
 
@@ -100,7 +116,7 @@ simple_hist <- function(d, x, y, group,
   if (!is.null(ylim)) {
     chart <- chart %>%
       hc_yAxis(
-        title = list(text = " "),
+        title = list(text = y_title_text),
         tickInterval = yint,
         min = ylim[1],
         max = ylim[2]
@@ -108,7 +124,7 @@ simple_hist <- function(d, x, y, group,
   } else {
     chart <- chart %>%
       hc_yAxis(
-        title = list(text = " "),
+        title = list(text = y_title_text),
         tickInterval = yint
       )
   }
@@ -116,7 +132,7 @@ simple_hist <- function(d, x, y, group,
   # Configure x-axis with categories
   chart <- chart %>%
     hc_xAxis(
-      title = list(text = " "),
+      title = list(text = x_title_text),
       categories = unique(d[[x]]),
       tickInterval = 1,
       labels = list(step = 1)
@@ -198,20 +214,3 @@ simple_hist <- function(d, x, y, group,
 
   return(chart)
 }
-
-# Example usage with your data structure:
-# library(highcharter)
-# library(data.table)
-#
-# # Your example data
-# dt <- data.table(
-#   agecat = factor(rep(c("16-24", "25-34", "35-44", "45-54", "55-64", "65-79"), 3)),
-#   halvliter = c(5.7, 6.9, 5.1, 5.5, 4.6, 3.8,  # Totalt
-#                 8.6, 11.4, 7.9, 9.1, 7.7, 5.7,  # Menn
-#                 2.7, 2.6, 2.0, 2.4, 1.5, 1.8),  # Kvinner
-#   gender = rep(c("Totalt", "Menn", "Kvinner"), each = 6)
-# )
-#
-# # Create the chart
-# simple_hist(dt, agecat, halvliter, gender,
-#             title = "Alkoholkonsum etter alder og kjønn (halvliter per år)")
