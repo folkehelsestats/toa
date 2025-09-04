@@ -632,9 +632,66 @@ alx <- paste0("AL", 2:5, 2:5)
 dt[, (alx) := lapply(.SD, function(x) fifelse(x %in% c(8,9), NA, x)), .SDcols = paste0("AL", 2:5)]
 
 
+
 ## gruppering av ukedag og helgedag (NB: Ingen svarte "mer enn 16 enheter" på
 ## ukedag i 2024. Dermed starter AL3 på 2. Dette kan endre seg til neste år)
+# Load data.table library
 
+# Create ukedager variable (recode AL2)
+dt[, ukedager := fcase(
+  AL2 %in% 1:3, 1L,  # drukket 2-4 ukedager
+  AL2 == 4, 2L,      # drukket 1 ukedag
+  AL2 == 5, 3L       # ikke drukket på ukedager
+)]
+
+# Create factor labels for ukedager
+dt[, ukedager := factor(ukedager,
+                       levels = 1:3,
+                       labels = c("drukket 2-4 ukedager",
+                                "drukket 1 ukedag",
+                                "ikke drukket på ukedager"))]
+
+# Create ukedagenheter variable (recode AL3)
+dt[, ukedagenheter := fcase(
+  AL3 %in% 2:3, 1L,  # drikker 6-15 enheter
+  AL3 %in% 4:5, 2L,  # drikker 3-5 enheter
+  AL3 %in% 6:7, 3L   # drikker 1-2 enheter
+)]
+
+# Create factor labels for ukedagenheter
+dt[, ukedagenheter := factor(ukedagenheter,
+                            levels = 1:3,
+                            labels = c("drikker 6-15 enheter",
+                                     "drikker 3-5 enheter",
+                                     "drikker 1-2 enheter"))]
+
+# Create helgedager variable (recode AL4)
+dt[, helgedager := fcase(
+  AL4 %in% 1:2, 1L,  # drukket 2-3 helgedager
+  AL4 == 3, 2L,      # drukket 1 helgedag
+  AL4 == 4, 3L       # ikke drukket på helgedager
+)]
+
+# Create factor labels for helgedager
+dt[, helgedager := factor(helgedager,
+                         levels = 1:3,
+                         labels = c("drukket 2-3 helgedager",
+                                  "drukket 1 helgedag",
+                                  "ikke drukket på helgedager"))]
+
+# Create helgeenheter variable (recode AL5)
+dt[, helgeenheter := fcase(
+  AL5 %in% 1:3, 1L,  # drikker 6 eller flere enheter
+  AL5 %in% 4:5, 2L,  # drikker 3-5 enheter
+  AL5 %in% 6:7, 3L   # drikker 1-2 enheter
+)]
+
+# Create factor labels for helgeenheter
+dt[, helgeenheter := factor(helgeenheter,
+                           levels = 1:3,
+                           labels = c("drikker 6 eller flere enheter",
+                                    "drikker 3-5 enheter",
+                                    "drikker 1-2 enheter"))]
 
 ## ------------------------
 ## AUDIT
