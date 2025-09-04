@@ -1,12 +1,12 @@
 #+Title: Alkohol definisjon
 
-* Enhet
+* En alkoholenhet
 - I Norge så er en enhet tilsvare 15ml (12 gram) ren alkohol.
-  - dvs. for vin med ABV 12% er det 0.15/0.12 = 1.25 cl
+  - dvs. for vin med ABV 12% er det 15/0.12 = 125 ml
 
 - En alkoholenhet tilsvarer:
-    - 0,33 l øl
-    - 1,5 dl vin
+     - 0,33 l øl
+     - 1,25 dl vin
     - 4 cl brennevin
 
 * En cl ren alkohol
@@ -16,7 +16,7 @@
 
 ** Øl
 - Alcohol By Volume (ABV) verdig ~4.5%
-*** En enhet 0.33
+*** En enhet 0.33l
 - 33 * 0.045 = 1.485 cl ren alkohol
 *** For halvliter 0.5l
 - 0.5 * 0.045 = 0.0225 l = 2.25 cl ren alkohol
@@ -26,15 +26,13 @@
 ** Vin
 - ABV ~12%
 *** Glass
-- Et glass med 1.5dl er 1.2 enhet dvs. 1.8cl / 1.5cl (siden en enhet er 1.5cl rent alkohol)
+- Et glass med 1.5dl vin
 - 15*0.12 = 1.8 cl rent alkohol
-- Et glass med 1.25dl (dvs. 15ml ren alkohol per enhet)
-- 12.5*0.12 = 1.5 cl rent alkohol
+- Det er 1.2 alkoholenhet dvs. 1.8 cl / 1.5 cl (siden en enhet er 15ml rent alkohol)
 *** Flaske
-- En flaske 0.75l - 6 enheter (SSB og FHI definisjon)
+- En flaske 0.75l
 - 0.75*0.12 = 0.09l = 9 cl ren alkohol
-- 9.8 cl ren alkohol = (9.8/0.12)/15 cl = 5.4 glass
-- 9.8 cl ren alkohol = (9.8/0.12)/12.5 cl = 6.5 glass
+- En flaske med 9 cl ren alkohol har 6 alkoholenheter dvs. 9 cl / 1.5 cl
 
 ** Brennevin
 - ABV ~40%
