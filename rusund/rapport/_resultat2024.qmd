@@ -125,8 +125,6 @@ gt::gt(drk6_24)
 
 ## Hvor mye og hva drikker vi?
 
-Beregningen av alkohol typer drukket siste 4 uker.
-
 ```{r cal2-drikk-enhet}
 #| echo: false
 #| warning: false
@@ -134,8 +132,9 @@ Beregningen av alkohol typer drukket siste 4 uker.
 source(file.path(pth2024,"analysis2024/drikk-enheter.R"))
 ```
 
-En alkoholenhet tilsvarer 15ml ren alkohol. Dette tilsvarer omtrent `r round(1.5/0.12, digits = 1)` cl for vin,
-`r round(1.5/0.045, digits = 1)` cl for øl og `r round(1.5/0.40, digits = 0)` cl for brennevin,
+En alkoholenhet er definert som 15ml (12.8g) ren alkohol. Dette tilsvarer
+omtrent `r round(1.5/0.12, digits = 1)` cl for vin, `r round(1.5/0.045, digits =
+1)` cl for øl og rusbrus, og `r round(1.5/0.40, digits = 0)` cl for brennevin,
 basert på henholdsvis 12%, 4,5% og 40% alkoholinnhold.
 
 ### Øl 
