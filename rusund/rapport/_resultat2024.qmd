@@ -134,7 +134,9 @@ Beregningen av alkohol typer drukket siste 4 uker.
 source(file.path(pth2024,"analysis2024/drikk-enheter.R"))
 ```
 
-- Ekstreme verdier eg. `r max(dt$halvliteroluke, na.rm=T)` halvliter øl per uke
+En alkoholenhet tilsvarer 15ml ren alkohol. Dette tilsvarer omtrent `r round(1.5/0.12, digits = 1)` cl for vin,
+`r round(1.5/0.045, digits = 1)` cl for øl og `r round(1.5/0.40, digits = 0)` cl for brennevin,
+basert på henholdsvis 12%, 4,5% og 40% alkoholinnhold.
 
 ### Øl 
 
@@ -169,22 +171,14 @@ simple_hist(beer$both,
 #| echo: false
 #| warning: false
 
-# Et glass 1.5dl er 1.8 cl ren alkohol
+# Et glass 1.5dl inneholder 1.8 cl ren alkohol dvs. 1.2 enheter pga. en enhet er 1.5cl ren alkohol
 wine <- convert_cl(dt, "vincl", cl = 1.8, unit = "vinglass")
 
-# Et glass 1.25dl er 1.5 cl ren alkohol
-wine2 <- convert_cl(dt, "vincl", cl = 1.5, unit = "vinglass")
 ```
 
-En enhet er 1.5dl vin. En gjennomsnitt antall glass vin drukket i siste fire uke var
+En enhet tilsvarer 1.25dl vin. Et gjennomsnitt antall vin enheter drukket i siste fire uker var
 `r wine$gender[kjonn == 0, V1]` for menn og `r wine$gender[kjonn == 1, V1]` for kvinner.
 
-En enhet er 1.25dl vin. En gjennomsnitt antall glass vin drukket i siste fire uke var
-`r wine2$gender[kjonn == 0, V1]` for menn og `r wine2$gender[kjonn == 1, V1]` for kvinner.
-
-::: {.panel-tabset}
-
-#### 1.5dl
 
 ```{r cal2-vin-fig}
 #| echo: false
@@ -194,24 +188,9 @@ simple_hist(wine$both,
             x = agecat,
             y = vinglass,
             group = gender,
-            title = "Antall glass vin drukket siste 4 uker (1.5dl)")
+            title = "Antall vin enheter drukket siste 4 uker (1.25dl)")
 ```
 
-#### 1.25dl
-
-```{r cal2-vin125}
-#| echo: false
-#| warning: false
-
-#### Figur
-simple_hist(wine2$both,
-            x = agecat,
-            y = vinglass,
-            group = gender,
-            title = "Antall vinglass drukket siste 4 uker (1.25dl)")
-
-```
-:::
 
 ### Brennevin
 
@@ -224,8 +203,8 @@ brenn <- convert_cl(dt, "brenncl", cl = 1.6, unit = "glass")
 
 ```
 
-Menn hadde `r brenn$gender[kjonn == 0, V1]` glass brennevin og kvinner hadde
-`r brenn$gender[kjonn == 1, V1]` i siste 4 uker.
+Menn hadde i gjennomsnitt `r brenn$gender[kjonn == 0, V1]` glass brennevin sammenlikne med kvinner som hadde
+`r brenn$gender[kjonn == 1, V1]` glass i siste 4 uker.
 
 ```{r cal2-brennevin-fig}
 #| echo: false
@@ -247,18 +226,10 @@ simple_hist(brenn$both,
 
 ## En flaske 0.33 L er 1.485 cl ren alkohol
 rusbrus <- convert_cl(dt, "rusbruscl", cl = 1.485, "flaske")
-rusbrus2 <- convert_cl(dt, "rusbruscl", cl = 1.2, "flaske")
-
 ```
 
-En flaske rusbrus er vanligvis 0,275 liter, men FHI har brukt 0,33 liter som
-standard i sine tidligere beregninger. Når vi bruker 0,33 liter, er antall flasker for menn
+Beregningen her er basert på at en flaske rusbrus er 0,33 liter. Gjennomsnittlig antall flasker for menn
 `r rusbrus$gender[kjonn == 0, V1]` og for kvinner `r rusbrus$gender[kjonn == 1, V1]`.
-Dersom vi i stedet bruker 0,275 liter, blir tallene henholdsvis
-`r rusbrus2$gender[kjonn == 0, V1]` for menn og `r rusbrus2$gender[kjonn == 1, V1]`
-for kvinner. Utfordringen er at tallene kan bli høyere dersom man runder opp til nærmeste
-hele flaske.
-
 
 ```{r cal2-rusbrus-fig}
 #| echo: false
@@ -278,7 +249,6 @@ simple_hist(rusbrus$both,
 #| echo: false
 #| warning: false
 
-### Total ren alkohol
 genderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = kjonn]
 ageAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = agecat]
 ageGenderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = .(kjonn, agecat)]
@@ -307,4 +277,47 @@ simple_hist(tblAlk,
             yint = 5,
             group = gender,
             title = "Total mengde alkohol konsumet siste 4 uker (cl)")
+```
+
+```{r cal2-rensort}
+#| echo: false
+#| warning: false
+
+drikksortcl <- dt[, .(ol = mean(olcl, na.rm = T),
+                      vin = mean(vincl, na.rm = T),
+                      brenn = mean(brenncl, na.rm = T),
+                      rusbrus = mean(rusbruscl, na.rm = T)),
+                  keyby = kjonn]
+
+drikksortcl[, 2:5 := lapply(.SD, round, 1), .SDcols = 2:5]
+drikksortcl[kjonnkb, on = c(kjonn = "v1"), gender := i.v2][, kjonn := NULL]
+drikkOld <- c("ol", "vin", "brenn", "rusbrus")
+drikkNew <-  c("Øl", "Vin", "Brennevin", "Rusbrus")
+data.table::setcolorder(drikksortcl, c("gender", drikkOld))
+data.table::setnames(drikksortcl, drikkOld, drikkNew)
+
+drikkTbl <- melt(drikksortcl,
+                 id.vars = "gender",
+                 measure.vars = c("Øl", "Vin", "Brennevin", "Rusbrus"))
+
+drikkTbl[, pros := round(value/sum(value)*100, digits = 1), keyby = .(gender)]
+```
+
+Kjønnsforskjeller i alkoholkonsum vises også i figuren nedenfor, der
+fordelingen per drikkesort basert på ren alkohol illustreres. Blant kvinner
+utgjorde vin `r drikkTbl[gender == "Kvinner" & variable == "Vin", pros]`% 
+av det totale alkoholkonsumet siste fire uker, mens øl utgjorde tilsvarende
+andel blant menn (`r drikkTbl[gender == "Menn" & variable == "Øl", pros]`%).
+
+```{r cal2-rensort-fig}
+#| echo: false
+#| warning: false
+
+make_hist(drikkTbl,
+          x = gender,
+          y = pros,
+          group = variable,
+          n = value,
+          yint = 10,
+          title = "Andel alkoholkonsum i centiliter ren alkohol siste 4 uker fordelt på drikkesort")
 ```

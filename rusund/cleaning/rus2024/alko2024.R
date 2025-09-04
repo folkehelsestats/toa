@@ -19,7 +19,7 @@ source(file.path(pth2024, "analysis2024/setup2024.R"))
 dt[, drukket1 := as.integer(drukket1)]
 dt[, alkosistaar := fifelse(drukket1 == 8, NA, drukket1)]
 
-## Var values
+# Var values
 alksistaar_values <- c(
   "drukket alkohol siste 12 mnd" = 1,
   "ikke drukket alkohol siste 12 mnd" = 2
@@ -208,7 +208,8 @@ dt[, vinflaskertot := fcase(
        default = type2c_2
      )]
 
-# delt med ren alkohol. Et glass vin er 1.5dl dvs. 1.8cl ren alkohol
+# Delt med ren alkohol. En enhent 15ml ren alkohol tilsvarer 1.25dl vin
+# 1.5dl vin (spørreskjema) tilsvarer 1.8 cl ren alkohol er 1.8/1.5 = 1.2 dl enhet
 dt[, vincl := (vinglassuke * 1.8 + vinflaskeruke * 9) * 4 +
        (vinglasstot * 1.8) + (vinflaskertot * 9)]
 
@@ -349,3 +350,31 @@ simple_hist(tblAlk,
             yint = 5,
             group = gender,
             title = "Total mengde alkohol konsumet siste 4 uker (cl)")
+
+### Ren alkohol per drikkesort
+drikksortcl <- dt[, .(ol = mean(olcl, na.rm = T),
+                      vin = mean(vincl, na.rm = T),
+                      brenn = mean(brenncl, na.rm = T),
+                      rusbrus = mean(rusbruscl, na.rm = T)),
+                  keyby = kjonn]
+
+drikksortcl[, 2:5 := lapply(.SD, round, 1), .SDcols = 2:5]
+drikksortcl[kjonnkb, on = c(kjonn = "v1"), gender := i.v2][, kjonn := NULL]
+drikkOld <- c("ol", "vin", "brenn", "rusbrus")
+drikkNew <-  c("Øl", "Vin", "Brennevin", "Rusbrus")
+data.table::setcolorder(drikksortcl, c("gender", drikkOld))
+data.table::setnames(drikksortcl, drikkOld, drikkNew)
+
+drikkTbl <- melt(drikksortcl,
+                 id.vars = "gender",
+                 measure.vars = c("Øl", "Vin", "Brennevin", "Rusbrus"))
+
+drikkTbl[, pros := round(value/sum(value)*100, digits = 1), keyby = .(gender)]
+
+make_hist(drikkTbl,
+          x = gender,
+          y = pros,
+          group = variable,
+          n = value,
+          yint = 10,
+          title = "Andel alkoholkonsum i centiliter ren alkohol siste 4 uker fordelt på drikkesort")
