@@ -172,11 +172,19 @@ simple_hist(beer$both,
 # Et glass 1.5dl er 1.8 cl ren alkohol
 wine <- convert_cl(dt, "vincl", cl = 1.8, unit = "vinglass")
 
+# Et glass 1.25dl er 1.5 cl ren alkohol
+wine2 <- convert_cl(dt, "vincl", cl = 1.5, unit = "vinglass")
 ```
 
 En enhet er 1.5dl vin. En gjennomsnitt antall glass vin drukket i siste fire uke var
 `r wine$gender[kjonn == 0, V1]` for menn og `r wine$gender[kjonn == 1, V1]` for kvinner.
 
+En enhet er 1.25dl vin. En gjennomsnitt antall glass vin drukket i siste fire uke var
+`r wine2$gender[kjonn == 0, V1]` for menn og `r wine2$gender[kjonn == 1, V1]` for kvinner.
+
+::: {.panel-tabset}
+
+#### 1.5dl
 
 ```{r cal2-vin-fig}
 #| echo: false
@@ -188,6 +196,22 @@ simple_hist(wine$both,
             group = gender,
             title = "Antall glass vin drukket siste 4 uker (1.5dl)")
 ```
+
+#### 1.25dl
+
+```{r cal2-vin125}
+#| echo: false
+#| warning: false
+
+#### Figur
+simple_hist(wine2$both,
+            x = agecat,
+            y = vinglass,
+            group = gender,
+            title = "Antall vinglass drukket siste 4 uker (1.25dl)")
+
+```
+:::
 
 ### Brennevin
 

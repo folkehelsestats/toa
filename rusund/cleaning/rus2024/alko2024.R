@@ -292,7 +292,18 @@ simple_hist(wine$both,
             x = agecat,
             y = vinglass,
             group = gender,
-            title = "Antall vinglass drukket siste 4 uker")
+            title = "Antall vinglass drukket siste 4 uker (1.5dl)")
+
+# Et glass 1.25dl er 1.5 cl ren alkohol
+wine2 <- convert_cl(dt, "vincl", cl = 1.5, unit = "vinglass")
+
+#### Figur
+simple_hist(wine2$both,
+            x = agecat,
+            y = vinglass,
+            group = gender,
+            title = "Antall vinglass drukket siste 4 uker (1.25dl)")
+
 
 ### Brennevin
 # Et glass 4cl brennevin er 1.6cl ren alkohol
@@ -303,7 +314,7 @@ simple_hist(brenn$both,
             x = agecat,
             y = glass,
             group = gender,
-            title = "Antall glass av brennevin drukket siste 4 uker")
+            title = "Antall glass av brennevin drukket siste 4 uker (4cl)")
 
 ### Rusbrus
 # En flaske 0.33 L er 1.485 cl ren alkohol
@@ -315,7 +326,7 @@ simple_hist(rusbrus$both,
             x = agecat,
             y = flaske,
             group = gender,
-            title = "Antall flaske rusbrus drukket siste 4 uker")
+            title = "Antall flaske rusbrus drukket siste 4 uker (0.33l)")
 
 ### Total ren alkohol
 genderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = kjonn]
