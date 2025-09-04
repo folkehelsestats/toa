@@ -48,7 +48,7 @@
 - ABV ~4.5%
 *** Liten flaske
 - En liten flase 0.275 l
-- 27.5*0.045 = 1.2 cl
+- 27.5*0.045 = 1.2 cl ren alkohol
 - Tidligere analyser fra FHI brukte 0.33 l dvs. 1.485 cl ren alkohol
 *** En halvliter
 - En flaske 0.5 l

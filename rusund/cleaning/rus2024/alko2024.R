@@ -267,6 +267,7 @@ dt[, rusbrushalvlitertot := fcase(
        default = type4c_2
      )]
 
+# rusbrusflasker 0.33l
 dt[, rusbruscl := (rusbrussflaskeruke * 1.485 + rusbrushalvliteruke * 2.25) * 4 +
        rusbrussflaskertot * 1.485 + rusbrushalvlitertot * 2.25]
 
@@ -318,7 +319,7 @@ simple_hist(brenn$both,
             title = "Antall glass av brennevin drukket siste 4 uker (4cl)")
 
 ### Rusbrus
-# En flaske 0.33 L er 1.485 cl ren alkohol
+# En flaske 0.33l er 1.485 cl ren alkohol
 rusbrus <- convert_cl(dt, "rusbruscl", cl = 1.485, "flaske")
 rusbrus2 <- convert_cl(dt, "rusbruscl", cl = 1.2, "flaske")
 
