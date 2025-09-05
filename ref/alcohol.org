@@ -25,9 +25,11 @@
 
 ** Vin
 - ABV ~12%
+  En enhet vin 1.5/0.12 = 12.5 cl
 *** Glass
 - Et glass med 1.5dl vin
 - 15*0.12 = 1.8 cl rent alkohol
+- Et glass 1.5dl inneholder 1.8 cl ren alkohol dvs. 1.2 enheter pga. en enhet er 1.5cl ren alkohol
 - Det er 1.2 alkoholenhet dvs. 1.8 cl / 1.5 cl (siden en enhet er 15ml rent alkohol)
 *** Flaske
 - En flaske 0.75l
