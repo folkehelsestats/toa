@@ -12,7 +12,7 @@ dt[, nyvekt2 := vekt/mean(vekt, na.rm = T)]
 vekt <- "vekt" #use global object for weighting
 
 ## Gender values
-kjonn_values <- c("Menn" = 0, "Kvinner" = 1, "Totalt" = 2)
+kjonn_values <- c("Menn" = 0, "Kvinner" = 1, "Alle" = 2)
 kjonnkb <- data.table(v1 = as.integer(kjonn_values),
                       v2 = names(kjonn_values))
 

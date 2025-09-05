@@ -276,36 +276,26 @@ dt[, totalcl := olcl + vincl + brenncl + rusbruscl]
 
 ### Øl halvliter
 # 0.5l øl 2.25 cl ren alkohol
-beer <- convert_cl(dt, "olcl", cl = 2.25, unit = "halvliter")
+# 33cl øl 1.485 cl ren alkohol
+beer <- convert_cl(dt, "olcl", cl = 1.485, unit = "enhet")
 
 #### Figur
 simple_hist(beer$both,
             x = agecat,
-            y = halvliter,
+            y = enhet,
             group = gender,
-            title = "Antall halvlitere øl drukket siste 4 uker")
+            title = "Antall øl enheter drukket siste 4 uker (33cl)")
 
 ### Vin
-# Et glass 1.5dl er 1.8 cl ren alkohol
-wine <- convert_cl(dt, "vincl", cl = 1.8, unit = "vinglass")
+# En enhet vin 12.5cl er 1.5 cl ren alkohol
+wine <- convert_cl(dt, "vincl", cl = 1.5, unit = "vinglass")
 
 #### Figur
 simple_hist(wine$both,
             x = agecat,
             y = vinglass,
             group = gender,
-            title = "Antall vinglass drukket siste 4 uker (1.5dl)")
-
-# Et glass 1.25dl er 1.5 cl ren alkohol
-wine2 <- convert_cl(dt, "vincl", cl = 1.5, unit = "vinglass")
-
-#### Figur
-simple_hist(wine2$both,
-            x = agecat,
-            y = vinglass,
-            group = gender,
-            title = "Antall vinglass drukket siste 4 uker (1.25dl)")
-
+            title = "Antall vin enheter drukket siste 4 uker (12.5cl)")
 
 ### Brennevin
 # Et glass 4cl brennevin er 1.6cl ren alkohol
@@ -316,19 +306,18 @@ simple_hist(brenn$both,
             x = agecat,
             y = glass,
             group = gender,
-            title = "Antall glass av brennevin drukket siste 4 uker (4cl)")
+            title = "Antall brennevin enheter drukket siste 4 uker (4cl)")
 
 ### Rusbrus
 # En flaske 0.33l er 1.485 cl ren alkohol
 rusbrus <- convert_cl(dt, "rusbruscl", cl = 1.485, "flaske")
-rusbrus2 <- convert_cl(dt, "rusbruscl", cl = 1.2, "flaske")
 
 #### Figur
 simple_hist(rusbrus$both,
             x = agecat,
             y = flaske,
             group = gender,
-            title = "Antall flaske rusbrus drukket siste 4 uker (0.33l)")
+            title = "Antall rusbrus enheter drukket siste 4 uker (33cl)")
 
 ### Total ren alkohol
 genderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = kjonn]
@@ -349,6 +338,7 @@ simple_hist(tblAlk,
             x = agecat,
             y = Alkohol,
             yint = 5,
+            ytitle = "Centiliter ren alkohol",
             group = gender,
             title = "Total mengde alkohol konsumet siste 4 uker (cl)")
 
