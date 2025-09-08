@@ -17,8 +17,6 @@ execute:
 **Publisert:** `r format(Sys.Date(), "%d. %B %Y")`
 
 
-Analyser om alkohol 
-
 ```{r setup}
 #| echo: false
 #| warning: false
