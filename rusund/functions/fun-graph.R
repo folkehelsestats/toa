@@ -16,6 +16,8 @@
 #' @param ylim Numeric vector of length 2, optional. Sets fixed y-axis limits as c(min, max).
 #'   If NULL (default), y-axis limits are determined automatically by the data.
 #'   Example: c(0, 70) sets y-axis from 0 to 70.
+#' @param xtitle Character string, optional. X-axis title. If NULL (default), no title is shown.
+#' @param ytitle Character string, optional. Y-axis title. If NULL (default), no title is shown.
 #' @param flip Logical. Whether to flip the chart orientation (horizontal bars).
 #'   Default is FALSE.
 #' @param type Character string. Chart type, either "column" or "line". Default is "column".
@@ -140,6 +142,8 @@ make_hist <- function(d, x, y, group, n,
                       subtitle = NULL,
                       yint = 10,
                       ylim = NULL,
+                      xtitle = NULL,
+                      ytitle = NULL,
                       flip = FALSE,
                       type = "column",
                       line_symbols = NULL,
@@ -181,7 +185,11 @@ make_hist <- function(d, x, y, group, n,
     subtitle <- "Kilde: Rusundersøkelse 2024"
   }
 
-  # Handle x-axis based on variable type
+  # Set axis title text (empty string if NULL)
+  x_title_text <- if (is.null(xtitle)) " " else xtitle
+  y_title_text <- if (is.null(ytitle)) " " else ytitle
+
+                                        # Handle x-axis based on variable type
   is_x_numeric <- is.numeric(d[[x]])
 
   if (is_x_numeric) {
@@ -246,7 +254,7 @@ make_hist <- function(d, x, y, group, n,
   if (!is.null(ylim)) {
     chart <- chart |>
       highcharter::hc_yAxis(
-        title = list(text = " "),
+        title = list(text = y_title_text),
         labels = list(format = "{value}%"),
         tickInterval = yint,
         min = ylim[1],
@@ -255,7 +263,7 @@ make_hist <- function(d, x, y, group, n,
   } else {
     chart <- chart |>
       highcharter::hc_yAxis(
-        title = list(text = " "),
+        title = list(text = y_title_text),
         labels = list(format = "{value}%"),
         tickInterval = yint
       )
@@ -265,7 +273,7 @@ make_hist <- function(d, x, y, group, n,
   if (use_categories) {
     chart <- chart |>
       highcharter::hc_xAxis(
-        title = list(text = " "),
+        title = list(text = x_title_text),
         categories = unique(d[[x]]),
         tickInterval = 1,
         labels = list(step = 1)
@@ -273,7 +281,7 @@ make_hist <- function(d, x, y, group, n,
   } else {
     chart <- chart |>
       highcharter::hc_xAxis(
-        title = list(text = " "),
+        title = list(text = x_title_text),
         labels = list(step = 1)
       )
   }
