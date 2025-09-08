@@ -324,7 +324,7 @@ make_hist(drikkTbl,
           title = "Andel alkoholkonsum i centiliter ren alkohol siste 4 uker fordelt på drikkesort")
 ```
 
-### Drikkemønster: Ukedager og helgedager
+## Drikkemønster: Ukedager og helgedager
 
 Respondenter som oppga å drikke alkohol månedlig eller oftere, ble stilt
 følgende spørsmål:
