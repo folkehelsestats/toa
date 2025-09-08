@@ -382,4 +382,6 @@ drk6Wom
 
 ## Alkoholenheter siste 4 uker
 
+- Resultat kommer..
+
 <!-- {{< include _alkoenheter2012-2024.R >}} -->
