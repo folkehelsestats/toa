@@ -382,6 +382,7 @@ for (x in ukeCols)
   set(dt, j = x, value = as.numeric(dt[[x]]))
 
 ukeDT <- proscat("ukedag", "helge", d = dt[!is.na(ukedag)], total = F)
+ukeDTx <- proscat("ukedag", "helge", z="kjonn", d = dt[!is.na(ukedag)], total = F)
 
 ukedagVals <- c("Alle 4 ukedagene" = 1,
                 "3 av 4 ukedager" = 2,
@@ -411,3 +412,7 @@ make_hist(ukeDT,
           xtitle = "Ukedager fra mandag til torsdag",
           n = count,
           title = "Drikker mønstre i ukedager og helgedager")
+
+# Hvor mange drikker i hverdager
+bb <- dt[!is.na(ukedag), .N, keyby = ukedag]
+bb[, tot :=  N/sum(N)*100]
