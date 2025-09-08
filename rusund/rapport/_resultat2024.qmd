@@ -316,9 +316,81 @@ andel blant menn (`r drikkTbl[gender == "Menn" & variable == "Øl", pros]`%).
 
 make_hist(drikkTbl,
           x = gender,
-          y = pros,
+    
+      y = pros,
           group = variable,
           n = value,
           yint = 10,
           title = "Andel alkoholkonsum i centiliter ren alkohol siste 4 uker fordelt på drikkesort")
+```
+
+### Drikkemønster: Ukedager og helgedager
+
+Respondenter som oppga å drikke alkohol månedlig eller oftere, ble stilt
+følgende spørsmål:
+
+ - Hvor mange av ukedagene (mandag til torsdag) drikker du vanligvis alkohol?
+ - Hvor mange av helgedagene (fredag til søndag) drikker du vanligvis alkohol?
+
+```{r cal2-dager}
+#| echo: false
+#| warning: false
+
+alx <- paste0("al", 2:5, 2:5)
+dt[, (alx) := lapply(.SD, function(x) fifelse(x %in% c(8,9), NA, x)), .SDcols = paste0("al", 2:5)]
+
+ukeCols <- c("ukedag", "ukedagenhet", "helge", "helgeenhet")
+data.table::setnames(dt, paste0("al", 2:5, 2:5), ukeCols)
+
+for (x in ukeCols)
+  set(dt, j = x, value = as.numeric(dt[[x]]))
+
+ukeDT <- proscat("ukedag", "helge", d = dt[!is.na(ukedag)], total = F)
+
+ukedagVals <- c("Alle 4 ukedagene" = 1,
+                "3 av 4 ukedager" = 2,
+                "2 av 4 ukedager" = 3,
+                "1 av 4 ukedager" = 4,
+                "Ingen av ukedagene" = 5)
+
+ukedagkb <- data.table(v1 = as.integer(ukedagVals),
+                       v2 = names(ukedagVals))
+
+
+helgeVals <- c("Alle 3 helgdagene" = 1,
+               "2 av 3 helgdager" = 2,
+               "1 av 3 helgdager" = 3,
+               "Ingen av helgdagene" = 4)
+
+helgekb <- data.table(v1 = as.integer(helgeVals),
+                      v2 = names(helgeVals))
+
+ukeDT[ukedagkb, on = c(ukedag = "v1"), ukedager := i.v2]
+ukeDT[helgekb, on = c(helge = "v1"), helger := i.v2]
+
+# Hvor mange drikker i hverdager
+bb <- dt[!is.na(ukedag), .N, keyby = ukedag]
+bb[, tot :=  N/sum(N)*100]
+```
+
+Analysen viser en tydelig korrelasjon mellom alkoholforbruk i ukedager og
+helgedager. Over 80 prosent av dem som rapporterer alkoholforbruk alle tre
+helgedagene (fredag til søndag), oppgir også at de drikker alkohol hver ukedag
+(mandag til torsdag). Videre viser dataene at mer enn halvparten av dem som
+drikker to dager i ukedagene, også drikker alkohol to av helgedagene. Til tross
+for dette, har de fleste (`r bb[ukedag == 5, round(tot, digits=1)]` prosent)
+svart at de ikke drikker alkohol på ukedagene fra mandag til torsdag.
+
+```{r cal2-dager-fig}
+#| echo: false
+#| warning: false
+
+make_hist(ukeDT,
+          x = ukedager,
+          y = percentage,
+          group = helger,
+          xtitle = "Ukedager fra mandag til torsdag",
+          n = count,
+          title = "Drikkemønster: Ukedager og helgedager")
+
 ```
