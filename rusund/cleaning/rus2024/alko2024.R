@@ -369,3 +369,45 @@ make_hist(drikkTbl,
           n = value,
           yint = 10,
           title = "Andel alkoholkonsum i centiliter ren alkohol siste 4 uker fordelt på drikkesort")
+
+# -----------------------
+## Hverdag og helg drink
+alx <- paste0("al", 2:5, 2:5)
+dt[, (alx) := lapply(.SD, function(x) fifelse(x %in% c(8,9), NA, x)), .SDcols = paste0("al", 2:5)]
+
+ukeCols <- c("ukedag", "ukedagenhet", "helge", "helgeenhet")
+data.table::setnames(dt, paste0("al", 2:5, 2:5), ukeCols)
+
+for (x in ukeCols)
+  set(dt, j = x, value = as.numeric(dt[[x]]))
+
+ukeDT <- proscat("ukedag", "helge", d = dt[!is.na(ukedag)], total = F)
+
+ukedagVals <- c("Alle 4 ukedagene" = 1,
+                "3 av 4 ukedager" = 2,
+                "2 av 4 ukedager" = 3,
+                "1 av 4 ukedager" = 4,
+                "Ingen av ukedagene" = 5)
+
+ukedagkb <- data.table(v1 = as.integer(ukedagVals),
+                       v2 = names(ukedagVals))
+
+
+helgeVals <- c("Alle 3 helgdagene" = 1,
+               "2 av 3 helgdager" = 2,
+               "1 av 3 helgdager" = 3,
+               "Ingen av helgdagene" = 4)
+
+helgekb <- data.table(v1 = as.integer(helgeVals),
+                      v2 = names(helgeVals))
+
+ukeDT[ukedagkb, on = c(ukedag = "v1"), ukedager := i.v2]
+ukeDT[helgekb, on = c(helge = "v1"), helger := i.v2]
+
+make_hist(ukeDT,
+          x = ukedager,
+          y = percentage,
+          group = helger,
+          xtitle = "Ukedager fra mandag til torsdag",
+          n = count,
+          title = "Drikker mønstre i ukedager og helgedager")
