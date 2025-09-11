@@ -25,7 +25,7 @@
 
 ** Vin
 - ABV ~12%
-  En enhet vin 1.5/0.12 = 12.5 cl
+  En enhet vin 1.5/0.12 = 12.5 cl. 1.5cl er en enhet 15ml ren alkohol.
 *** Glass
 - Et glass med 1.5dl vin
 - 15*0.12 = 1.8 cl rent alkohol
@@ -81,3 +81,19 @@ alcohol_unit <- function(ren_alkohol_cl) {
   )
 }
 #+end_src
+
+Alkohol unit
+
+#+begin_src R
+
+wine_unit <- function(abv, cl){
+  alc <- abv/100*cl
+  unit <- alc/1.5 #1.5 is 15ml pure alcohol per unit
+  paste0(round(unit, digits = 1), " unit")
+}
+
+wine_unit(abv = 11, cl = 20)
+#+end_src
+
+#+RESULTS:
+: 1.5 unit
