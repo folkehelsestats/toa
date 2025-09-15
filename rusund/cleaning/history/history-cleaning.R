@@ -3,22 +3,22 @@
 ## source("c:/Users/ykama/Git-hdir/toa/rusund/setup.R")
 
 ## spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
-## DD <- readRDS(file.path(spth, "data_2012_2024.rds"))
+## ddt <- readRDS(file.path(spth, "data_2012_2024.rds"))
 
 ## pth <- "~/Git-hdir/toa/rusund"
 ## source(file.path(pth, "functions.R"))
 
 ## Drukket siste 12 månedene
-DD[year == 2018, drukket1 := ifelse(drukket1 == 0, 2, drukket1)]
-DD[, alkosistaar := ifelse(drukket1 %in% 8:9, NA, drukket1)]
+ddt[year == 2018, drukket1 := ifelse(drukket1 == 0, 2, drukket1)]
+ddt[, alkosistaar := ifelse(drukket1 %in% 8:9, NA, drukket1)]
 
 ## Kjønn
-DD[year %in% c(2022,2024), kjonn := fcase(kjonn == 1, 2, #Kvinne
+ddt[year %in% c(2022,2024), kjonn := fcase(kjonn == 1, 2, #Kvinne
                                           kjonn == 0, 1)] #Mann
 
 ## Exclude 2012 and 2013 since the answers are different for drukk2c than the others
 ## The recoding for frequency differ from Elin og Ingeborg. This one is the way Ingeborg defines it.
-DD[!(year %in% 2012:2013), alkodager := fcase(
+ddt[!(year %in% 2012:2013), alkodager := fcase(
                              drukket2 == 1, 365,
                              drukket2 == 2 & drukk2a == 1, 234,
                              drukket2 == 2 & drukk2a == 2, 130,
@@ -38,7 +38,7 @@ DD[!(year %in% 2012:2013), alkodager := fcase(
                            )]
 
 ## Coding for 2012 to 2014 was opposite
-DD[year %in% 2012:2014,  audit3 := fcase(audit3 == 5, 1,
+ddt[year %in% 2012:2014,  audit3 := fcase(audit3 == 5, 1,
                                          audit3 == 4, 2,
                                          audit3 == 2, 4,
                                          audit3 == 1, 5,

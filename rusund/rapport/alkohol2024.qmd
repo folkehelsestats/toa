@@ -33,7 +33,7 @@ DT <- readRDS(file.path(dataPath, "Rusundersøkelsen", "Rusus 2024","rus2024.rds
 dt <- as.data.table(DT)
 
 ## Data 2012 - 2024
-DD <- readRDS(file.path(dataPath, "Rusundersøkelsen", "Rusus historiske data", "data_2012_2024.rds"))
+ddt <- readRDS(file.path(dataPath, "Rusundersøkelsen", "Rusus historiske data", "data_2012_2024.rds"))
 
 ## Gir norsk tekster i highchart
 options(highcharter.lang = list(
