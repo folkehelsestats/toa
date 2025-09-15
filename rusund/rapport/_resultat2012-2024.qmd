@@ -382,6 +382,67 @@ drk6Wom
 
 ## Alkoholenheter siste 4 uker
 
-- Resultat kommer..
+```{r cal-alko-enhet}
+#| echo: false
+#| warning: false
+#| output: false
+
+source("analysis2012_2024/drikke-enhet-1224.R")
+
+# Fit model by year and get adjusted mean for each year
+enhetTbl <- ddt[, {
+  model <- lm(totalcl ~ alder + kjonn, weights = nyvekt2, data = .SD)
+  em <- emmeans(model, ~ 1)
+  em_smry <- summary(em)
+  data.table(
+    adj_mean = em_smry$emmean,
+    SE = em_smry$SE,
+    lower_95CI = em_smry$lower.CL,
+    upper_95CI = em_smry$upper.CL,
+    adj_enhet = em_smry$emmean/1.5,
+    SE_enhet = em_smry$SE/1.5,
+    lower_enhet = em_smry$lower.CL/1.5,
+    upper_enhet = em_smry$upper.CL/1.5
+  )
+}, by = year]
+
+
+# Round enhet columns to 0 decimal place
+colnr <- ncol(enhetTbl)
+enhetTbl[, (6:colnr) := lapply(.SD, round, digits = 0), .SDcols = 6:colnr]
+enhetTbl[, .(year, adj_enhet, lower_enhet, upper_enhet)]
+
+```
+
+```{r fig-alko-enhet}
+#| echo: false
+#| warning: false
+
+list_data <- mapply(function(low, high) list(low = low, high = high),
+                         enhetTbl$lower_enhet, enhetTbl$upper_enhet,
+                         SIMPLIFY = FALSE)
+
+highchart() |>
+  hc_chart(type = "line") |>
+  hc_title(text = "Alkohol bruk siste 4 uker") |>
+  hc_xAxis(categories = enhetTbl$year) |>
+  hc_yAxis(
+    title = list(text = "Alkoholeneheter"),
+    min = 0 ) |>
+  hc_add_series(name = "Antall", data = enhetTbl$adj_enhet, type = "line") |>
+  hc_add_series(
+    name = "95% CI",
+    data = list_data,
+    type = "arearange",
+    linkedTo = ":previous",
+    color = hex_to_rgba("#7cb5ec", 0.3),
+    fillOpacity = 0.3
+  ) |>
+  hc_tooltip(shared = TRUE) |>
+  hc_exporting(enabled = TRUE)
+
+
+
+```
 
 <!-- {{< include _alkoenheter2012-2024.R >}} -->
