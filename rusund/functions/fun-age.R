@@ -264,6 +264,7 @@ group_age <- function(dt, var, breaks,
 #'   as missing (e.g., survey codes). These values will be converted to NA
 #'   before categorization. Default is NULL.
 #' @param copy Logical. Return a copy instead of modifying by reference?
+#' @param ... Other arguments in `group_age()`
 #'
 #' @return Modified data.table with age group variable added.
 #'
@@ -276,7 +277,7 @@ group_age <- function(dt, var, breaks,
 #'
 #' @export
 group_age_standard <- function(dt, var, type = "standard", new_var = NULL,
-                               copy = FALSE, missing_values = NULL) {
+                               copy = FALSE, missing_values = NULL, ...) {
 
   # Define standard age groupings
   age_configs <- list(
@@ -322,7 +323,7 @@ group_age_standard <- function(dt, var, type = "standard", new_var = NULL,
             labels = config$labels,
             new_var = new_var,
             copy = copy,
-            missing_values = missing_values)
+            missing_values = missing_values, ...)
 }
 
 ## Example
