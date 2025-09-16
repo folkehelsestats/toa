@@ -265,7 +265,8 @@ make_hist <- function(d, x, y, group, n,
       highcharter::hc_yAxis(
         title = list(text = y_title_text),
         labels = list(format = "{value}%"),
-        tickInterval = yint
+        tickInterval = yint,
+        min = 0
       )
   }
 
