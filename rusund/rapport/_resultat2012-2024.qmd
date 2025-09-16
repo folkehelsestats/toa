@@ -382,6 +382,12 @@ drk6Wom
 
 ## Alkoholenheter siste 4 uker
 
+Figuren nedenfor viser gjennomsnittlig alkoholbruk de siste fire ukene i
+perioden 2012 til 2024. Tallene er justert for forskjeller i kjønn og alder i
+befolkningen for å gjøre det sammenlignbare over tid. Det betyr at vi har tatt
+hensyn til hvordan sammensetningen av befolkningen har endret seg, slik at
+resultatene gir et mer rettferdig bilde av utviklingen.
+
 ```{r cal-alko-enhet}
 #| echo: false
 #| warning: false
