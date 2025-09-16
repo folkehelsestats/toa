@@ -409,7 +409,7 @@ enhetTbl <- ddt[, {
 
 # Round enhet columns to 0 decimal place
 colnr <- ncol(enhetTbl)
-enhetTbl[, (6:colnr) := lapply(.SD, round, digits = 0), .SDcols = 6:colnr]
+enhetTbl[, (6:colnr) := lapply(.SD, round, digits = 1), .SDcols = 6:colnr]
 enhetTbl[, .(year, adj_enhet, lower_enhet, upper_enhet)]
 
 ```
@@ -429,7 +429,7 @@ highchart() |>
   hc_yAxis(
     title = list(text = "Alkoholeneheter"),
     min = 0 ) |>
-  hc_add_series(name = "Antall", data = enhetTbl$adj_enhet, type = "line") |>
+  hc_add_series(name = "Antall enheter ", data = enhetTbl$adj_enhet, type = "line") |>
   hc_add_series(
     name = "95% CI",
     data = list_data,
@@ -440,9 +440,6 @@ highchart() |>
   ) |>
   hc_tooltip(shared = TRUE) |>
   hc_exporting(enabled = TRUE)
-
-
-
 ```
 
 <!-- {{< include _alkoenheter2012-2024.R >}} -->
