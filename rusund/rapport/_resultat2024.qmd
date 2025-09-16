@@ -219,7 +219,7 @@ simple_hist(brenn$both,
 
 ```
 
-### Rusbrus
+### Rusbrus og alkoholholdig cider
 
 ```{r cal2-rusbrus}
 #| echo: false
