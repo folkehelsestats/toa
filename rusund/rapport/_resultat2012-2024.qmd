@@ -433,7 +433,7 @@ list_data <- mapply(function(low, high) list(low = low, high = high),
 
 highchart() |>
   hc_chart(type = "line") |>
-  hc_title(text = "Alkohol bruk siste 4 uker") |>
+  hc_title(text = "Alkoholbruk siste 4 uker") |>
   hc_xAxis(categories = enhetTbl$year) |>
   hc_yAxis(
     title = list(text = "Alkoholeneheter"),
