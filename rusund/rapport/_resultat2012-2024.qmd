@@ -436,7 +436,7 @@ highchart() |>
   hc_title(text = "Alkoholbruk siste 4 uker") |>
   hc_xAxis(categories = enhetTbl$year) |>
   hc_yAxis(
-    title = list(text = "Alkoholeneheter"),
+    title = list(text = "Antall alkoholeneheter"),
     min = 0 ) |>
   hc_add_series(name = "Antall enheter ", data = enhetTbl$adj_enhet, type = "line") |>
   hc_add_series(
@@ -448,7 +448,8 @@ highchart() |>
     fillOpacity = 0.3
   ) |>
   hc_tooltip(shared = TRUE) |>
-  hc_exporting(enabled = TRUE)
+  hc_exporting(enabled = TRUE) |>
+  hc_legend(enabled = FALSE)
 ```
 
 <!-- {{< include _alkoenheter2012-2024.R >}} -->
