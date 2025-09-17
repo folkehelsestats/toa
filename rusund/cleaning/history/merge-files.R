@@ -60,7 +60,8 @@ dtHis <- paste0("Rus", 2012:2015)
 for (i in dtHis)
   setnames(DD[[i]], "nyvekt_2", "nyvekt2", skip_absent = T)
 
-DD$Rus2024[, nyvekt2 := vekt/mean(vekt, na.rm = T)]
+mean2024 <- DD$Rus2024[, mean(vekt, na.rm = T)]
+DD$Rus2024[, nyvekt2 := vekt/mean2024]
 
 
 ## Enhet drukket -------------
@@ -115,7 +116,7 @@ for (i in seq_len(filnr)){
 names(nameDD) <- names(DD)
 
 varFelles <- Reduce(intersect, lapply(nameDD, tolower))
-dput(varFelles)
+## dput(varFelles)
 
 ComVars <-
 c("nyvekt2", "helse", "drukket1", "drukket2", "drukk2a", "drukk2b",
