@@ -56,13 +56,13 @@ Det er /vil ikke svaret/ og /vet ikke/
 Tall som brukes til å bregne dette. Hvilken bør vi bruke. Begreningen kan ses [[https://github.com/folkehelsestats/toa/blob/2e1ecdd268e8568d4ed9275fde50a234f5a33a36/rusund/rus-draft.R#L601][her]]
 
 *** Svaret
-Bruk som Ingeborg gjør
+Se litt mer detaljene til [[https://github.com/folkehelsestats/toa/blob/main/ref/alcohol.org][denne]] forklaringen.
 
 * Vinglass
 Et vin glass regnes som 1 alkoholenhet i spørreskjema, men Ingeborg regnet det som 1.2 alkoholenhet. Se [[https://github.com/folkehelsestats/toa/blob/33410e7ee185f240ed52124b3f35029a583f98ab/do/toa.do#L261][koden]] eller [[file:~/Git-hdir/toa/do/toa.do::gen vinenheter= (1.2*vinglassuke + 6*vinflaskeruke)*4 + 1.2*vinglasstot + 6*vinflaskertot][(do fil)]]
 
 *** Svaret
-Selv om det står at en enhet for vin er 1.5 dl, så er det 1.2 dl som er riktig siden en flasker er 0.75l
+Selv om det står at en enhet for vin er 1.5 dl, så er det 1.2 dl som er riktig siden en flasker er 0.75l og en alkoholenhet er 15ml ren alkohol
 
 * AUDIT
 - I =do= file ie. =toa.do= blir =Audit2= til =Audit8= omkodet slik:
@@ -83,3 +83,10 @@ I =do= fil linje 432. Skal =Audit3_1= og =Audit3_2= brukes til å omkode =AUDIT3
 
 *** Svaret
 Se den nye omkodingen for =Audit3new=
+* Kontrollere nye data fra SSB for disse:
+Det er noen variabler i datasettet som ikke samsvar med spørreskjema og bør sjekkes når vi får nye datasettet bl.a:
+** Audit spørsmål
+- For =Audit9= finnes i spørreskjema, men i datasettet finnes det bare =Audit9a= og =Audit9b= itillegg til =audit9_a=, =audit9_b= og =audit9_c= og diss finnes ikke i spørreskjema dvs. for mange variabler som i spørreskjema.
+
+** Bruk av LSD siste 12 måneder
+- Det er flere variabler i datasettet dvs. =Ans7=, =Ans7_x= og =Ans7_y=, men det er bare et spørsmål i spørreskjema.
