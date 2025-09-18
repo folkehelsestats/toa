@@ -14,7 +14,7 @@ execute:
 ---
 
 
-**Publisert:** `r format(Sys.Date(), "%d. %B %Y")`
+**Sist oppdatert:** `r format(Sys.Date(), "%d. %B %Y")`
 
 **NB!** Resultatene som vises er midlertidige og kan endres. Vennligst ikke referer til disse før endelig publisering.
 
