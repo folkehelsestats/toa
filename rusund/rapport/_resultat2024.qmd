@@ -86,7 +86,7 @@ gt::gt(alkofreq)
 :::
 
 
-## Andel som har drukket 6+ alkoholenheter ved en og samme anledning siste år
+## Alkoholbruk 6 eller mer alkoholenheter ved en og samme anledning siste år
 
 
 ```{r cal2-druk6}
@@ -105,7 +105,7 @@ make_hist(d = drk6_24,
           y = percentage,
           group = alko,
           n = count,
-          title = "Andel drukket 6+ enheter en og samme anledning siste år")
+          title = "Andel drukket 6 eller mer alkoholenheter en og samme anledning siste år")
 ```
 
 ## Tabell

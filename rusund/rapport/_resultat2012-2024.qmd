@@ -274,9 +274,9 @@ make_hist(d = drikkFDT[drukket2rec == 4],
 :::
 
 
-## Andel har drukket 6+ alkoholenheter ved en og samme anledning
+## Alkoholbruk 6 eller mer alkoholenheter ved en og samme anledning
 
-Tallene som blir presentert her er for de som har drukket 6+ alkoholenheter
+Tallene som blir presentert her er for de som har drukket 6 eller mer alkoholenheter
 ved en og samme anledning minst en gang i det siste året.
 
 ```{r cal-druk6}
