@@ -3,12 +3,18 @@
 ## source(file.path(pth, "setup.R"))
 ## source(file.path(pth, "functions.R"))
 
+if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
+library("here")
+
+source(file.path(here::here(), "rusund/setup.R"))
+## source(file.path(here::here(), "rusund/functions/fun-call.R"))
+dataPath <- "O:\\Prosjekt\\Rusdata"
+
 ## Data 2024
-mainpath <- "O:\\Prosjekt\\Rusdata"
+DT <- readRDS(file.path(dataPath, "Rusundersøkelsen", "Rusus 2024","rus2024.rds"))
+dt <- as.data.table(DT)
 ## DT <- haven::read_dta(file.path("Rusundersøkelsen", "Rusus 2024", "nytt forsøk februar 25 rus24.dta"))
 ## saveRDS(DT, file.path("Rusundersøkelsen", "Rusus 2024","rus2024.rds"))
-DT <- readRDS(file.path(mainpath, "Rusundersøkelsen", "Rusus 2024","rus2024.rds"))
-dt <- as.data.table(DT)
 
 
 ## ----
@@ -701,6 +707,8 @@ dt[, helgeenheter := factor(helgeenheter,
 ## ukentlig, men er egentlig: aldri, sjeldnere enn mnd, mnd, ukentlig, daglig.
 ## For Audit 2 : mengdeangivelser som bør regnes om. Sjekk i originalfil)
 
+grep("Audit", names(dt), ignore.case = T, value = T)
+
 dt[, Audit1 := fcase(
   Drukk2a == 1 | Drukket2 == 1, 4,
   Drukk2a == 2, 3,
@@ -726,6 +734,7 @@ dt[, Audit2rec := fcase(
 ## (sjekke skillet mellom 3 og 4 poeng. Bare daglig gir 4, eller 4-5 ggr
 ## i uka gir også 4? (dvs Audit3_1==1-->Audit3rec=4) - gnerelt sjekke ettersom
 ## kategoriene ikke overensstemmer helt med audit)
+## Hvorfor skal vi ikke bare bruke Audit3 som det er?? (YBK)
 dt[, Audit3rec := fcase(
   Audit3 == 1, 4,
   Audit3_1 %in% c(1, 2), 3,
@@ -751,14 +760,14 @@ dt[, paste0(vars, "rec") := lapply(.SD, function(x) {
 ## Audit9 (fant Audit9 i spørreskjemaet(audit9_a_b_c)- men audit9_a er mystisk
 ## og stemmer ikke overense med _b og _c?
 dt[, Audit9rec := fcase(
-  Audit9a == 1 | Audit9b == 1, 4,
-  audit9_b == 1 | audit9_c == 1, 2,
+  Audit9a == 1 | Audit9b == 1, 4, #Ja, siste 12 måneder
+  audit9_b == 1 | audit9_c == 1, 2, #Ja, men ikke siste 12 måneder
   default = 0
 )]
 
 dt[, Audit10rec := fcase(
-  Audit10a == 1, 4,
-  Audit10 == 1, 2,
+  Audit10a == 1, 4, #Ja, siste 12 måneder
+  Audit10 == 1, 2, #Ja, men ikke siste 12 måneder
   default = 0
 )]
 
@@ -771,6 +780,9 @@ dt[, Auditscore := Audit1 + Audit2rec +
 
 ## ---------------------
 ## Risikogrupper
+# Low-risk range (0-7)
+# Hazardous or harmful range (8-14)
+# Alcohol dependent range (15+)
 dt[, risikogruppe := fcase(
   Auditscore >= 0 & Auditscore <= 7, 0,
   Auditscore >= 8 & Auditscore <= 15, 1,
