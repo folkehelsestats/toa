@@ -239,11 +239,11 @@ dt[, brennevinflaskertot := fcase(
      )]
 
 # En flaske brennevin er 0.7l (Notat fra SSB spørreskjema 2024)
-dt[, brenncl := (brennevinglassuke * 1.6 + brennevinflaskeruke * 28)*4 +
+dt[, brennevincl := (brennevinglassuke * 1.6 + brennevinflaskeruke * 28)*4 +
        brennevinglasstot * 1.6 + brennevinflaskertot * 28]
 
 ### -- Rusbrus --
-dt[, rusbrussflaskeruke := fcase(
+dt[, rusbrusflaskeruke := fcase(
        as.integer(type4b_1) %in% c(99998, 99999), NA_real_,
        is.na(type4b_1), 0,
        default = type4b_1
@@ -255,7 +255,7 @@ dt[, rusbrushalvliteruke := fcase(
        default = type4b_2
      )]
 
-dt[, rusbrussflaskertot := fcase(
+dt[, rusbrusflaskertot := fcase(
        as.integer(type4c_1) %in% c(99998, 99999), NA_real_,
        is.na(type4c_1), 0,
        default = type4c_1
@@ -268,11 +268,11 @@ dt[, rusbrushalvlitertot := fcase(
      )]
 
 # rusbrusflasker 0.33l
-dt[, rusbruscl := (rusbrussflaskeruke * 1.485 + rusbrushalvliteruke * 2.25) * 4 +
-       rusbrussflaskertot * 1.485 + rusbrushalvlitertot * 2.25]
+dt[, rusbruscl := (rusbrusflaskeruke * 1.485 + rusbrushalvliteruke * 2.25) * 4 +
+       rusbrusflaskertot * 1.485 + rusbrushalvlitertot * 2.25]
 
 ### Total mengde ren alkohol siste fire uker
-dt[, totalcl := olcl + vincl + brenncl + rusbruscl]
+dt[, totalcl := olcl + vincl + brennevincl + rusbruscl]
 
 ### Øl halvliter
 # 0.5l øl 2.25 cl ren alkohol
@@ -299,7 +299,7 @@ simple_hist(wine$both,
 
 ### Brennevin
 # Et glass 4cl brennevin er 1.6cl ren alkohol
-brenn <- convert_cl(dt, "brenncl", cl = 1.6, unit = "glass")
+brenn <- convert_cl(dt, "brennevincl", cl = 1.6, unit = "glass")
 
 #### Figur
 simple_hist(brenn$both,
@@ -345,7 +345,7 @@ simple_hist(tblAlk,
 ### Ren alkohol per drikkesort
 drikksortcl <- dt[, .(ol = mean(olcl, na.rm = T),
                       vin = mean(vincl, na.rm = T),
-                      brenn = mean(brenncl, na.rm = T),
+                      brenn = mean(brennevincl, na.rm = T),
                       rusbrus = mean(rusbruscl, na.rm = T)),
                   keyby = kjonn]
 
