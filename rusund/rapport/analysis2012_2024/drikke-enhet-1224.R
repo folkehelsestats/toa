@@ -98,11 +98,11 @@ ddt[, type3c_2 := as.numeric(type3c_2)][, brennevinflaskertot := fcase(
                                           )]
 
 ## En flaske brennevin er 0.7l (Notat fra SSB spørreskjema 2024)
-ddt[, brenncl := (brennevinglassuke * 1.6 + brennevinflaskeruke * 28)*4 +
+ddt[, brennevincl := (brennevinglassuke * 1.6 + brennevinflaskeruke * 28)*4 +
        brennevinglasstot * 1.6 + brennevinflaskertot * 28]
 
 ## -- Rusbrus --
-ddt[, type4b_1 := as.numeric(type4b_1)][, rusbrussflaskeruke := fcase(
+ddt[, type4b_1 := as.numeric(type4b_1)][, rusbrusflaskeruke := fcase(
                                             type4b_1 > 99997, NA_real_,
                                             is.na(type4b_1), 0,
                                             default = type4b_1
@@ -114,7 +114,7 @@ ddt[, type4b_2 := as.numeric(type4b_2)][, rusbrushalvliteruke := fcase(
                                             default = type4b_2
                                           )]
 
-ddt[, type4c_1 := as.numeric(type4c_1)][, rusbrussflaskertot := fcase(
+ddt[, type4c_1 := as.numeric(type4c_1)][, rusbrusflaskertot := fcase(
                                             type4c_1 > 99997, NA_real_,
                                             is.na(type4c_1), 0,
                                             default = type4c_1
@@ -126,13 +126,13 @@ ddt[, type4c_2 := as.numeric(type4c_2)][, rusbrushalvlitertot := fcase(
                                             default = type4c_2
                                           )]
 
-ddt[, rusbruscl := (rusbrussflaskeruke * 1.485 + rusbrushalvliteruke * 2.25) * 4 +
-       rusbrussflaskertot * 1.485 + rusbrushalvlitertot * 2.25]
+ddt[, rusbruscl := (rusbrusflaskeruke * 1.485 + rusbrushalvliteruke * 2.25) * 4 +
+       rusbrusflaskertot * 1.485 + rusbrushalvlitertot * 2.25]
 
 
 ## Total mengde ren alkohol siste fire uker
 ## ---------------------------------------
-ddt[, totalcl := olcl + vincl + brenncl + rusbruscl]
+ddt[, totalcl := olcl + vincl + brennevincl + rusbruscl]
 
 
 ## ddt[, .(mean(totalcl, na.rm = T)), keyby = year]

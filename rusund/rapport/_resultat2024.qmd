@@ -200,7 +200,7 @@ simple_hist(wine$both,
 #| warning: false
 
 # Et glass 4cl brennevin er 1.6cl ren alkohol
-brenn <- convert_cl(dt, "brenncl", cl = 1.6, unit = "glass")
+brenn <- convert_cl(dt, "brennevincl", cl = 1.6, unit = "glass")
 
 ```
 
@@ -286,7 +286,7 @@ simple_hist(tblAlk,
 
 drikksortcl <- dt[, .(ol = mean(olcl, na.rm = T),
                       vin = mean(vincl, na.rm = T),
-                      brenn = mean(brenncl, na.rm = T),
+                      brenn = mean(brennevincl, na.rm = T),
                       rusbrus = mean(rusbruscl, na.rm = T)),
                   keyby = kjonn]
 
