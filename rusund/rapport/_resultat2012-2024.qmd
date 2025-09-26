@@ -421,6 +421,33 @@ colnr <- ncol(enhetTbl)
 enhetTbl[, (6:colnr) := lapply(.SD, round, digits = 1), .SDcols = 6:colnr]
 enhetTbl[, .(year, adj_enhet, lower_enhet, upper_enhet)]
 
+## By gender 
+enhetKjonn <- ddt[, {
+  model <- lm(totalcl ~ alder, weights = nyvekt2, data = .SD)
+  em <- emmeans(model, ~ 1)
+  em_smry <- summary(em)
+  data.table(
+    adj_mean = em_smry$emmean,
+    SE = em_smry$SE,
+    lower_95CI = em_smry$lower.CL,
+    upper_95CI = em_smry$upper.CL,
+    adj_enhet = em_smry$emmean/1.5,
+    SE_enhet = em_smry$SE/1.5,
+    lower_enhet = em_smry$lower.CL/1.5,
+    upper_enhet = em_smry$upper.CL/1.5
+  )
+}, by = .(kjonn, year)]
+
+
+# Round enhet columns to 0 decimal place
+colnr <- ncol(enhetKjonn)
+enhetKjonn[, (7:colnr) := lapply(.SD, round, digits = 1), .SDcols = 7:colnr]
+enhetKjonn[, .(kjonn, year, adj_enhet, lower_enhet, upper_enhet)]
+
+# Diff mean
+enhetDiff <- enhetKjonn[, mean(adj_enhet), by = kjonn]
+kjonnDiff <- enhetDiff[, abs(round(diff(V1), digits = 0))]
+
 ```
 
 ```{r fig-alko-enhet}
@@ -444,7 +471,74 @@ highchart() |>
     data = list_data,
     type = "arearange",
     linkedTo = ":previous",
-    color = hex_to_rgba("#7cb5ec", 0.3),
+    color = hex_to_rgba("#206276", 0.3),
+    ## color = hex_to_rgba("#7cb5ec", 0.3),
+    fillOpacity = 0.3
+  ) |>
+  hc_tooltip(shared = TRUE) |>
+  hc_exporting(enabled = TRUE) |>
+  hc_legend(enabled = FALSE)
+```
+
+Figurene nedenfor illustrerer det aldersjusterte alkoholforbruket blant menn og
+kvinner. Beregningene viser at menn i gjennomsnitt inntar `r kjonnDiff` flere
+alkoholenheter enn kvinner siste fire uker i perioden fra 2012 til 2024.
+
+```{r fig-alko-enhet-menn}
+#| echo: false
+#| warning: false
+
+enhetMenn <- enhetKjonn[kjonn == 1]
+list_data_menn <- mapply(function(low, high) list(low = low, high = high),
+                         enhetMenn$lower_enhet, enhetMenn$upper_enhet,
+                         SIMPLIFY = FALSE)
+
+highchart() |>
+  hc_chart(type = "line") |>
+  hc_title(text = "Alkoholbruk siste 4 uker blant menn") |>
+  hc_xAxis(categories = enhetMenn$year) |>
+  hc_yAxis(
+    title = list(text = "Antall alkoholeneheter"),
+    min = 0,
+    max = 35) |>
+  hc_add_series(name = "Antall enheter ", data = enhetMenn$adj_enhet, type = "line") |>
+  hc_add_series(
+    name = "95% CI",
+    data = list_data_menn,
+    type = "arearange",
+    linkedTo = ":previous",
+    color = hex_to_rgba("#206276", 0.3),
+    fillOpacity = 0.3
+  ) |>
+  hc_tooltip(shared = TRUE) |>
+  hc_exporting(enabled = TRUE) |>
+  hc_legend(enabled = FALSE)
+```
+
+```{r fig-alko-enhet-kvinner}
+#| echo: false
+#| warning: false
+
+enhetKvinner <- enhetKjonn[kjonn == 2]
+list_data_kvinner <- mapply(function(low, high) list(low = low, high = high),
+                         enhetKvinner$lower_enhet, enhetKvinner$upper_enhet,
+                         SIMPLIFY = FALSE)
+
+highchart() |>
+  hc_chart(type = "line") |>
+  hc_title(text = "Alkoholbruk siste 4 uker blant kvinner") |>
+  hc_xAxis(categories = enhetKvinner$year) |>
+  hc_yAxis(
+    title = list(text = "Antall alkoholeneheter"),
+    min = 0,
+    max = 35) |>
+  hc_add_series(name = "Antall enheter ", data = enhetKvinner$adj_enhet, type = "line") |>
+  hc_add_series(
+    name = "95% CI",
+    data = list_data_kvinner,
+    type = "arearange",
+    linkedTo = ":previous",
+    color = hex_to_rgba("#206276", 0.3),
     fillOpacity = 0.3
   ) |>
   hc_tooltip(shared = TRUE) |>
@@ -453,3 +547,4 @@ highchart() |>
 ```
 
 <!-- {{< include _alkoenheter2012-2024.R >}} -->
+

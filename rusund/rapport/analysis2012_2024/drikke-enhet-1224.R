@@ -151,7 +151,7 @@ ddt[, totalcl := olcl + vincl + brennevincl + rusbruscl]
 ##                   ul = confint(lm(totalcl ~ alder + kjonn))[1, 2]), keyby = year]
 
 
-library(emmeans) # for adjusted means
+## library(emmeans) # for adjusted means
 
 
 ## list_data <- purrr::map2(enhetTbl$lower_enhet, enhetTbl$upper_enhet, ~ list(low = .x, high = .y))
