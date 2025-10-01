@@ -152,7 +152,7 @@ kjonncl <- beer$gender
 ```
 
 Gjennomsnittlig ølkonsum i en fire uke periode i 2024 var `r kjonncl[kjonn == 0, V1]`
-halvlitere blant menn og `r kjonncl[kjonn == 1, V1]` blant kvinner.
+enheter (0.33cl) blant menn og `r kjonncl[kjonn == 1, V1]` enheter blant kvinner.
 
 ```{r cal2-beer-fig}
 #| echo: false
