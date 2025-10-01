@@ -95,5 +95,6 @@ wine_unit <- function(abv, cl){
 wine_unit(abv = 11, cl = 20)
 #+end_src
 
+Antall enhet for en liten flaske vin 20cl med 11% ABV er:
 #+RESULTS:
 : 1.5 unit
