@@ -398,6 +398,7 @@ at den sanne verdien ligger innenfor.
 
 source("analysis2012_2024/drikke-enhet-1224.R")
 
+
 # Fit model by year and get adjusted mean for each year
 enhetTbl <- ddt[, {
   model <- lm(totalcl ~ alder + kjonn, weights = nyvekt2, data = .SD)
@@ -450,6 +451,7 @@ kjonnDiff <- enhetDiff[, abs(round(diff(V1), digits = 0))]
 
 ```
 
+
 ```{r fig-alko-enhet}
 #| echo: false
 #| warning: false
@@ -458,7 +460,7 @@ list_data <- mapply(function(low, high) list(low = low, high = high),
                          enhetTbl$lower_enhet, enhetTbl$upper_enhet,
                          SIMPLIFY = FALSE)
 
-highchart() |>
+hcAll <- highchart() |>
   hc_chart(type = "line") |>
   hc_title(text = "Alkoholbruk siste 4 uker") |>
   hc_xAxis(categories = enhetTbl$year) |>
@@ -478,6 +480,12 @@ highchart() |>
   hc_tooltip(shared = TRUE) |>
   hc_exporting(enabled = TRUE) |>
   hc_legend(enabled = FALSE)
+
+hcAll |>
+  hc_add_dependency(name = "modules/exporting.js") |> 
+  hc_add_dependency(name = "modules/export-data.js") |> 
+  hc_add_dependency(name = "modules/accessibility.js")
+
 ```
 
 Figurene nedenfor illustrerer det aldersjusterte alkoholforbruket blant menn og
@@ -512,7 +520,10 @@ highchart() |>
   ) |>
   hc_tooltip(shared = TRUE) |>
   hc_exporting(enabled = TRUE) |>
-  hc_legend(enabled = FALSE)
+  hc_legend(enabled = FALSE) |>
+  hc_add_dependency(name = "modules/exporting.js") |> 
+  hc_add_dependency(name = "modules/export-data.js") |> 
+  hc_add_dependency(name = "modules/accessibility.js")
 ```
 
 ```{r fig-alko-enhet-kvinner}
@@ -543,7 +554,10 @@ highchart() |>
   ) |>
   hc_tooltip(shared = TRUE) |>
   hc_exporting(enabled = TRUE) |>
-  hc_legend(enabled = FALSE)
+  hc_legend(enabled = FALSE) |>
+  hc_add_dependency(name = "modules/exporting.js") |> 
+  hc_add_dependency(name = "modules/export-data.js") |> 
+  hc_add_dependency(name = "modules/accessibility.js")
 ```
 
 <!-- {{< include _alkoenheter2012-2024.R >}} -->

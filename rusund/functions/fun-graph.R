@@ -405,5 +405,10 @@ make_hist <- function(d, x, y, group, n,
     }
   }
 
+  chart <- chart |>
+    hc_add_dependency(name = "modules/exporting.js") |>
+    hc_add_dependency(name = "modules/export-data.js") |>
+    hc_add_dependency(name = "modules/accessibility.js")
+
   return(chart)
 }
