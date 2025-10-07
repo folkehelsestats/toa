@@ -13,4 +13,6 @@ invisible(lapply(pkgs, function(pkg) {
     library(pkg, character.only = TRUE)
 }))
 
+## lapply(pkgs, library, character.only = TRUE)
+
 Sys.setlocale("LC_ALL", "nb-NO.UTF-8")

@@ -148,7 +148,8 @@ make_hist <- function(d, x, y, group, n,
                       type = "column",
                       line_symbols = NULL,
                       dot_size = 4,
-                      smooth = TRUE) {
+                      smooth = TRUE,
+                      filename = NULL) {
 
   # Convert arguments to character strings for consistent handling
   x <- as.character(substitute(x))
@@ -246,9 +247,22 @@ make_hist <- function(d, x, y, group, n,
     }
   }
 
+  if (is.null(filename)){
+    filename <- "tall-om-alkohol"
+  }
+
   # Create the base chart
   chart <- highcharter::highchart() |>
-    highcharter::hc_chart(inverted = flip)
+    highcharter::hc_chart(inverted = flip) |>
+    highcharter::hc_exporting(
+                     accessibility = list(
+                       enabled = TRUE # default value is TRUE
+                     ),
+                     enabled = TRUE,
+                     filename = filename
+                   ) |>
+    highcharter::hc_add_dependency(name = "modules/accessibility.js")
+
 
   # Configure y-axis
   if (!is.null(ylim)) {
