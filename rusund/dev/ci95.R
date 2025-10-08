@@ -118,7 +118,7 @@ subtit <- "Tallene er justert for forskjeller
 i kjønn og alder i befolkningen for å gjøre det
 sammenlignbare over tid"
 
-hcx <- highchart() |>
+hcx <- highchart(height = 600) |>
   hc_title(text = "Alkoholbruk siste 4 uker med 95% CI",
            margin = 20, #space btw title (or subtitle) and plot [default = 15]
            align = "left",
@@ -145,11 +145,11 @@ hc1 <- hcx |>
 
 
 hc2 <- hc1 |>
-  hc_xAxis(title = list(text = "Antall alkoholenheter"),
+  hc_yAxis(title = list(text = "Antall alkoholenheter"),
            accessibility = list(
              enabled = TRUE,
              description = "antall alkoholenheter")) |>
-  hc_yAxis(title = list(text = "År"),
+  hc_xAxis(title = list(text = "År"),
            accessibility = list(
              enabled = TRUE,
              description = "årgangene fra 2014 til 2024")) |>
@@ -197,3 +197,23 @@ hc4 <- hc3 |>
 ##       keyboardNavigation = list(enabled = TRUE)
 ##       )
 ##     )
+
+
+library(htmlwidgets)
+saveWidget(hc4, file = "figure_med_ci.html", selfcontained = TRUE)
+
+## Alternative
+
+library(htmltools)
+
+# Wrap the widget in a tag with height styling
+html <- tags$html(
+  tags$head(),
+  tags$body(
+    style = "margin:0;",
+    div(style = "height:600px;", hc4)
+  )
+)
+
+# Save the HTML
+save_html(html, "figure_med_ci_custom.html")
