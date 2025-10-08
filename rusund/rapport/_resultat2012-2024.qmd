@@ -50,8 +50,8 @@ drkMin <- drkAlle[alkosistaar == 1, min(percentage, na.rm = TRUE)]
 ```
 
 Andelen som rapporterte å ha konsumert alkohol i løpet av de siste 12 månedene
-  har vært relativt stabil i perioden 2012 til 2024, og har ligget mellom `r round(drkMin, digits = 0)`%
-og `r round(drkMax, digits = 0)`%, tilsvarende omtrent 8 av 10 personer.
+  har vært relativt stabil i perioden 2012 til 2024, og har ligget mellom `r round(drkMin, digits = 1)`%
+og `r round(drkMax, digits = 1)`% av befolkningen.
 
 ::: {.panel-tabset}
 ### Figur
