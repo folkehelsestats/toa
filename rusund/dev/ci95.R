@@ -168,7 +168,9 @@ hc3 <- hc2 |>
     hcaes(x = year, low = lower_enhet, high = upper_enhet),
     linkedTo = "ci",
     showInLegend = FALSE,
-    color = hex_to_rgba("#3699B6", 0.6),
+    color = hex_to_rgba("#206276"),
+    fillOpacity = 0.6,
+    lineWidth = 0, # No border line
     marker = list(enabled = FALSE)
 )
 
@@ -200,7 +202,7 @@ hc4 <- hc3 |>
 
 
 library(htmlwidgets)
-saveWidget(hc4, file = "figure_med_ci.html", selfcontained = TRUE)
+saveWidget(hc4, file = "figure_med_ci-hdir.html", selfcontained = TRUE)
 
 ## Alternative
 
