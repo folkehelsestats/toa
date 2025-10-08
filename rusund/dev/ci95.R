@@ -114,12 +114,16 @@ hdcolor <- c('#206276',
             '#CD3D57',
             '#47A571')
 
+subtit <- "Tallene er justert for forskjeller
+i kjønn og alder i befolkningen for å gjøre det
+sammenlignbare over tid"
+
 hcx <- highchart() |>
-  hc_title(text = "Antall alkoholeneheter med 95% CI",
+  hc_title(text = "Alkoholbruk siste 4 uker med 95% CI",
            margin = 20, #space btw title (or subtitle) and plot [default = 15]
            align = "left",
            style = list(useHTML = TRUE)) |>
-  hc_subtitle(text = "Litt forklaring om figuren hvis ønskelig",
+  hc_subtitle(text = subtit,
               align = "left")
 
 hc1 <- hcx |>
@@ -148,7 +152,13 @@ hc2 <- hc1 |>
   hc_yAxis(title = list(text = "År"),
            accessibility = list(
              enabled = TRUE,
-             description = "årgangene fra 2014 til 2024"))
+             description = "årgangene fra 2014 til 2024")) |>
+  highcharter::hc_caption(text = "Tall om alkohol") |>
+  highcharter::hc_credits(
+      enabled = TRUE,
+      text = "Helsedirektoratet",
+      href = "https://www.helsedirektoratet.no/"
+    )
 
 hc3 <- hc2 |>
   hc_add_series(
