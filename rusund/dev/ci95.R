@@ -127,21 +127,21 @@ hcx <- highchart(height = 600) |>
               align = "left")
 
 hc1 <- hcx |>
- hc_add_series(
-   data = dtx,
-   name = "Antall enheter",
-   type = "line",
-   id = "ci",
-   hcaes(x = year, y = adj_enhet),
-   lineWidth = 4,
-   showInLegend = FALSE,
-   color = hex_to_rgba("#206276"),
-   marker = list(
-     symbol = "circle",
-     enabled = TRUE,
-     radius = 6
-   )
-   )
+  hc_add_series(
+    data = dtx,
+    name = "Antall enheter",
+    type = "line",
+    id = "ci",
+    hcaes(x = year, y = adj_enhet),
+    lineWidth = 4,
+    showInLegend = FALSE,
+    color = hex_to_rgba("#206276"),
+    marker = list(
+      symbol = "circle",
+      enabled = TRUE,
+      radius = 6
+    )
+  )
 
 
 hc2 <- hc1 |>
@@ -155,10 +155,10 @@ hc2 <- hc1 |>
              description = "årgangene fra 2014 til 2024")) |>
   highcharter::hc_caption(text = "Tall om alkohol") |>
   highcharter::hc_credits(
-      enabled = TRUE,
-      text = "Helsedirektoratet",
-      href = "https://www.helsedirektoratet.no/"
-    )
+                 enabled = TRUE,
+                 text = "Helsedirektoratet",
+                 href = "https://www.helsedirektoratet.no/"
+               )
 
 hc3 <- hc2 |>
   hc_add_series(
@@ -172,7 +172,7 @@ hc3 <- hc2 |>
     fillOpacity = 0.6,
     lineWidth = 0, # No border line
     marker = list(enabled = FALSE)
-)
+  )
 
 hc4 <- hc3 |>
   hc_tooltip(shared = TRUE) |>
@@ -219,3 +219,9 @@ html <- tags$html(
 
 # Save the HTML
 save_html(html, "figure_med_ci_custom.html")
+
+
+### Function
+### --------
+
+create_ci_chart(dtx)
