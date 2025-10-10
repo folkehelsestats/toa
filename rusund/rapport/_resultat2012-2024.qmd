@@ -454,7 +454,11 @@ kjonnDiff <- enhetDiff[, abs(round(diff(V1), digits = 0))]
 #| echo: false
 #| warning: false
 
-create_ci_graph(data = enhetTbl, title = "Alkoholbruk siste 4 uker")
+create_ci_graph(data = enhetTbl,
+                title = "Alkoholbruk siste 4 uker",
+                caption = "Helsedirektoratet, tall fra Rus- og tobakksundersøkelsen (SSB)",
+                y_axis_title = "Antall alkoholenheter",
+                ylim = c(0,35))
 ```
 
 Figurene nedenfor illustrerer det aldersjusterte alkoholforbruket blant menn og
@@ -466,7 +470,11 @@ alkoholenheter enn kvinner siste fire uker i perioden fra 2012 til 2024.
 #| warning: false
 
 enhetMenn <- enhetKjonn[kjonn == 1]
-create_ci_graph(data = enhetMenn, title = "Alkoholbruk siste 4 uker blant menn")
+create_ci_graph(data = enhetMenn,
+                title = "Alkoholbruk siste 4 uker blant menn",
+                caption = "Helsedirektoratet, tall fra Rus- og tobakksundersøkelsen (SSB)",
+                y_axis_title = "Antall alkoholenheter",
+                ylim = c(0,35))
 ```
 
 ```{r fig-alko-enhet-kvinner}
@@ -474,7 +482,12 @@ create_ci_graph(data = enhetMenn, title = "Alkoholbruk siste 4 uker blant menn")
 #| warning: false
 
 enhetKvinner <- enhetKjonn[kjonn == 2]
-create_ci_graph(data = enhetKvinner, title = "Alkoholbruk siste 4 uker blant kvinner")
+create_ci_graph(data = enhetKvinner,
+                title = "Alkoholbruk siste 4 uker blant kvinner",
+                caption = "Helsedirektoratet, tall fra Rus- og tobakksundersøkelsen (SSB)",
+                y_axis_title = "Antall alkoholenheter",
+                ylim = c(0,35)
+                )
 
 ```
 
