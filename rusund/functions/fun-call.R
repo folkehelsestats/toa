@@ -9,7 +9,8 @@ funs <- c("hdir-color.R",
           "fun-bar.R",
           "fun-percent-weighted.R",
           "fun-units.R",
-          "fun-simple-graph.R")
+          "fun-simple-graph.R",
+          "fun-ci-graph.R")
 
 invisible(
   mapply(function(x) source(file.path(here::here(), "rusund", "functions", x), echo = FALSE), funs)

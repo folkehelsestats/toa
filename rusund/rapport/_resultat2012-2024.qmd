@@ -454,30 +454,7 @@ kjonnDiff <- enhetDiff[, abs(round(diff(V1), digits = 0))]
 #| echo: false
 #| warning: false
 
-list_data <- mapply(function(low, high) list(low = low, high = high),
-                         enhetTbl$lower_enhet, enhetTbl$upper_enhet,
-                         SIMPLIFY = FALSE)
-
-highchart() |>
-  hc_chart(type = "line") |>
-  hc_title(text = "Alkoholbruk siste 4 uker") |>
-  hc_xAxis(categories = enhetTbl$year) |>
-  hc_yAxis(
-    title = list(text = "Antall alkoholeneheter"),
-    min = 0 ) |>
-  hc_add_series(name = "Antall enheter ", data = enhetTbl$adj_enhet, type = "line") |>
-  hc_add_series(
-    name = "95% CI",
-    data = list_data,
-    type = "arearange",
-    linkedTo = ":previous",
-    color = hex_to_rgba("#206276", 0.3),
-    ## color = hex_to_rgba("#7cb5ec", 0.3),
-    fillOpacity = 0.3
-  ) |>
-  hc_tooltip(shared = TRUE) |>
-  hc_exporting(enabled = TRUE) |>
-  hc_legend(enabled = FALSE)
+create_ci_graph(data = enhetTbl, title = "Alkoholbruk siste 4 uker")
 ```
 
 Figurene nedenfor illustrerer det aldersjusterte alkoholforbruket blant menn og
@@ -489,30 +466,7 @@ alkoholenheter enn kvinner siste fire uker i perioden fra 2012 til 2024.
 #| warning: false
 
 enhetMenn <- enhetKjonn[kjonn == 1]
-list_data_menn <- mapply(function(low, high) list(low = low, high = high),
-                         enhetMenn$lower_enhet, enhetMenn$upper_enhet,
-                         SIMPLIFY = FALSE)
-
-highchart() |>
-  hc_chart(type = "line") |>
-  hc_title(text = "Alkoholbruk siste 4 uker blant menn") |>
-  hc_xAxis(categories = enhetMenn$year) |>
-  hc_yAxis(
-    title = list(text = "Antall alkoholeneheter"),
-    min = 0,
-    max = 35) |>
-  hc_add_series(name = "Antall enheter ", data = enhetMenn$adj_enhet, type = "line") |>
-  hc_add_series(
-    name = "95% CI",
-    data = list_data_menn,
-    type = "arearange",
-    linkedTo = ":previous",
-    color = hex_to_rgba("#206276", 0.3),
-    fillOpacity = 0.3
-  ) |>
-  hc_tooltip(shared = TRUE) |>
-  hc_exporting(enabled = TRUE) |>
-  hc_legend(enabled = FALSE)
+create_ci_graph(data = enhetMenn, title = "Alkoholbruk siste 4 uker blant menn")
 ```
 
 ```{r fig-alko-enhet-kvinner}
@@ -520,30 +474,8 @@ highchart() |>
 #| warning: false
 
 enhetKvinner <- enhetKjonn[kjonn == 2]
-list_data_kvinner <- mapply(function(low, high) list(low = low, high = high),
-                         enhetKvinner$lower_enhet, enhetKvinner$upper_enhet,
-                         SIMPLIFY = FALSE)
+create_ci_graph(data = enhetKvinner, title = "Alkoholbruk siste 4 uker blant kvinner")
 
-highchart() |>
-  hc_chart(type = "line") |>
-  hc_title(text = "Alkoholbruk siste 4 uker blant kvinner") |>
-  hc_xAxis(categories = enhetKvinner$year) |>
-  hc_yAxis(
-    title = list(text = "Antall alkoholeneheter"),
-    min = 0,
-    max = 35) |>
-  hc_add_series(name = "Antall enheter ", data = enhetKvinner$adj_enhet, type = "line") |>
-  hc_add_series(
-    name = "95% CI",
-    data = list_data_kvinner,
-    type = "arearange",
-    linkedTo = ":previous",
-    color = hex_to_rgba("#206276", 0.3),
-    fillOpacity = 0.3
-  ) |>
-  hc_tooltip(shared = TRUE) |>
-  hc_exporting(enabled = TRUE) |>
-  hc_legend(enabled = FALSE)
 ```
 
 <!-- {{< include _alkoenheter2012-2024.R >}} -->
