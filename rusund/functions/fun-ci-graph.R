@@ -4,21 +4,21 @@
 #' over time with 95% confidence intervals shown as a shaded area range.
 #'
 #' @param data A data frame containing the data to plot.
-#' @param x_col Character. Name of the year column. Default: \code{"year"}.
-#' @param y_col Character. Name of the value column. Default: \code{"adj_enhet"}.
+#' @param x_col Character. Name of column in the dataset for x-axis. Default: \code{"year"}.
+#' @param y_col Character. Name of column in the dataset for y-axis. Default: \code{"adj_enhet"}.
 #' @param lower_col Character. Name of the lower CI column. Default: \code{"lower_enhet"}.
 #' @param upper_col Character. Name of the upper CI column. Default: \code{"upper_enhet"}.
-#' @param title Character. Main title for the chart. Default: \code{"Alkoholbruk siste 4 uker med 95\% CI"}.
-#' @param subtitle Character. Subtitle text. Default: Norwegian text about standardization.
-#' @param y_axis_title Character. Y-axis title. Default: \code{"Antall alkoholenheter"}.
-#' @param x_axis_title Character. X-axis title. Default: \code{"År"}.
+#' @param title Character. Main title for the chart.
+#' @param subtitle Character. Subtitle text.
+#' @param y_axis_title Character. Y-axis title.
+#' @param x_axis_title Character. X-axis title.
 #' @param series_name Character. Name for the main data series. Default: \code{"Antall enheter"}.
 #' @param line_color Character. Hex color code for the line and area. Default: \code{"#206276"}.
 #' @param caption Character. Chart caption text. Default: \code{"Tall om alkohol"}.
 #' @param credits_text Character. Credits text. Default: \code{"Helsedirektoratet"}.
 #' @param credits_href Character. URL for credits link. Default: Helsedirektoratet URL.
 #' @param height Numeric. Chart height in pixels. Default: \code{600}.
-#' @param save Logical. Save file. Default: FALSE
+#' @param save Logical. Save file as a selfcontained HTML. Default: FALSE
 #'
 #' @return A \code{highchart} object that can be rendered or further customized.
 #'
@@ -88,12 +88,17 @@ create_ci_graph <- function(data,
                             caption = "Tall om alkohol",
                             credits_text = "Helsedirektoratet",
                             credits_href = "https://www.helsedirektoratet.no/",
-                            height = 600,
                             save = FALSE) {
 
   # Load required library
   if (!requireNamespace("highcharter", quietly = TRUE)) {
     stop("Package 'highcharter' is required but not installed.")
+  }
+
+  if (save){
+    if (!requireNamespace("htmlwidges", quietly = TRUE)) {
+      stop("Package 'htmlwidges' is required but not installed.")
+    }
   }
 
   # Validate that required columns exist
@@ -104,7 +109,7 @@ create_ci_graph <- function(data,
   }
 
   # Create base chart with title and subtitle
-  hcx <- highcharter::highchart(height = height) |>
+  hcx <- highcharter::highchart() |>
     highcharter::hc_title(
       text = title,
       margin = 20,
