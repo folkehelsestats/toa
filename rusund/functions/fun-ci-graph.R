@@ -6,15 +6,20 @@
 #' @param data A data frame containing the data to plot.
 #' @param x_col Character. Name of column in the dataset for x-axis. Default: \code{"year"}.
 #' @param y_col Character. Name of column in the dataset for y-axis. Default: \code{"adj_enhet"}.
+#' @param ylim Numeric vector of length 2, optional. Sets fixed y-axis limits as c(min, max).
+#'   If NULL (default), y-axis limits are determined automatically by the data.
+#'   Example: c(0, 70) sets y-axis from 0 to 70.
 #' @param lower_col Character. Name of the lower CI column. Default: \code{"lower_enhet"}.
 #' @param upper_col Character. Name of the upper CI column. Default: \code{"upper_enhet"}.
+#' @param y_max Numeric. Maximum value of y-axis.
+#' @param y_min Numeric. Minimum value of y-axis.
 #' @param title Character. Main title for the chart.
 #' @param subtitle Character. Subtitle text.
 #' @param y_axis_title Character. Y-axis title.
 #' @param x_axis_title Character. X-axis title.
 #' @param series_name Character. Name for the main data series. Default: \code{"Antall enheter"}.
 #' @param line_color Character. Hex color code for the line and area. Default: \code{"#206276"}.
-#' @param caption Character. Chart caption text. Default: \code{"Tall om alkohol"}.
+#' @param caption Character. Chart caption text randered below the chart.
 #' @param credits_text Character. Credits text. Default: \code{"Helsedirektoratet"}.
 #' @param credits_href Character. URL for credits link. Default: Helsedirektoratet URL.
 #' @param height Numeric. Chart height in pixels. Default: \code{600}.
@@ -79,13 +84,14 @@ create_ci_graph <- function(data,
                             y_col = "adj_enhet",
                             lower_col = "lower_enhet",
                             upper_col = "upper_enhet",
+                            ylim = NULL,
                             title = NULL,
                             subtitle = NULL,
                             y_axis_title = NULL,
                             x_axis_title = NULL,
                             series_name = "Antall enheter",
                             line_color = "#206276",
-                            caption = "Tall om alkohol",
+                            caption = NULL,
                             credits_text = "Helsedirektoratet",
                             credits_href = "https://www.helsedirektoratet.no/",
                             save = FALSE) {
@@ -108,74 +114,102 @@ create_ci_graph <- function(data,
     stop("Missing required columns: ", paste(missing_cols, collapse = ", "))
   }
 
+  # Validate ylim parameter
+  if (!is.null(ylim)) {
+    if (!is.numeric(ylim) || length(ylim) != 2) {
+      stop("'ylim' must be a numeric vector of length 2, e.g., c(0, 100)")
+    }
+    if (ylim[1] >= ylim[2]) {
+      stop("'ylim' first value must be less than second value, e.g., c(0, 100)")
+    }
+  }
+
   # Create base chart with title and subtitle
   hcx <- highcharter::highchart() |>
     highcharter::hc_title(
-      text = title,
-      margin = 20,
-      align = "left",
-      style = list(useHTML = TRUE)
-    ) |>
+                   text = title,
+                   margin = 20,
+                   align = "left",
+                   style = list(useHTML = TRUE)
+                 ) |>
     highcharter::hc_subtitle(
-      text = subtitle,
-      align = "left"
-    )
+                   text = subtitle,
+                   align = "left"
+                 )
 
   # Add main line series
-  hc1 <- hcx |>
+  hc0 <- hcx |>
     highcharter::hc_add_series(
-      data = data,
-      name = series_name,
-      type = "line",
-      id = "ci",
-      highcharter::hcaes(x = .data[[x_col]], y = .data[[y_col]]),
-      lineWidth = 2,
-      showInLegend = FALSE,
-      color = highcharter::hex_to_rgba(line_color),
-      marker = list(
-        symbol = "circle",
-        enabled = TRUE,
-        radius = 4
-      )
-    )
+                   data = data,
+                   name = series_name,
+                   type = "line",
+                   id = "ci",
+                   highcharter::hcaes(x = .data[[x_col]], y = .data[[y_col]]),
+                   lineWidth = 2,
+                   showInLegend = FALSE,
+                   color = highcharter::hex_to_rgba(line_color),
+                   marker = list(
+                     symbol = "circle",
+                     enabled = TRUE,
+                     radius = 4
+                   )
+                 )
+
+
+  # Configure y-axis
+  if (!is.null(ylim)) {
+    hc1 <- hc0 |>
+      highcharter::hc_yAxis(
+                     title = list(text = y_axis_title),
+                     accessibility = list(
+                       enabled = TRUE,
+                       description = tolower(y_axis_title)
+                     ),
+                     min = ylim[1],
+                     max = ylim[2]
+                   )
+  } else {
+    hc1 <- hc0 |>
+      highcharter::hc_yAxis(
+                     title = list(text = y_axis_title),
+                     accessibility = list(
+                       enabled = TRUE,
+                       description = tolower(y_axis_title)
+                     ),
+                     min = 0
+                   )
+  }
 
   # Add axes, caption, and credits
   hc2 <- hc1 |>
-    highcharter::hc_yAxis(
-      title = list(text = y_axis_title),
-      accessibility = list(
-        enabled = TRUE,
-        description = y_axis_title
-      )
-    ) |>
     highcharter::hc_xAxis(
-      title = list(text = x_axis_title),
-      accessibility = list(
-        enabled = TRUE,
-        description = paste0("årgangene fra ", min(data[[x_col]]), " til ", max(data[[x_col]]))
-      )
-    ) |>
+                   title = list(text = x_axis_title),
+                   accessibility = list(
+                     enabled = TRUE,
+                     description = paste0("årgangene fra ", min(data[[x_col]]), " til ", max(data[[x_col]]))
+                   )
+                 ) |>
     highcharter::hc_caption(text = caption) |>
     highcharter::hc_credits(
-      enabled = TRUE,
-      text = credits_text,
-      href = credits_href
-    )
+                   enabled = TRUE,
+                   text = credits_text,
+                   href = credits_href
+                 )
 
   # Add confidence interval area
   hc3 <- hc2 |>
     highcharter::hc_add_series(
-      data = data,
-      name = "95% CI",
-      type = "arearange",
-      highcharter::hcaes(x = .data[[x_col]], low = .data[[lower_col]], high = .data[[upper_col]]),
-      linkedTo = "ci",
-      showInLegend = FALSE,
-      color = highcharter::hex_to_rgba(line_color),
-      fillOpacity = 0.6,
-      lineWidth = 0,
-      marker = list(enabled = FALSE)
-    )
+                   data = data,
+                   name = "95% CI",
+                   type = "arearange",
+                   highcharter::hcaes(x = .data[[x_col]], low = .data[[lower_col]], high = .data[[upper_col]]),
+                   linkedTo = "ci",
+                   showInLegend = FALSE,
+                   color = highcharter::hex_to_rgba(line_color),
+                   fillOpacity = 0.6,
+                   lineWidth = 0,
+                   marker = list(enabled = FALSE)
+                 )
 
   # Add tooltip, exporting, and accessibility
   hc4 <- hc3 |>
