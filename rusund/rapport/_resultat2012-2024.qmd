@@ -470,8 +470,13 @@ alkoholenheter enn kvinner siste fire uker i perioden fra 2012 til 2024.
 #| warning: false
 
 enhetMenn <- enhetKjonn[kjonn == 1]
+
+mtitle <- "Alkoholinntak blant menn over tid"
+msubt <- "Antall gjennomsnittlig inntak i alkoholenheter blant menn siste 4 uker\n med nedre og øvre grense for 95% konfidensintervall, 2012–2024"
+
 create_ci_graph(data = enhetMenn,
-                title = "Alkoholbruk siste 4 uker blant menn",
+                title = mtitle,
+                subtitle = msubt,
                 caption = "Helsedirektoratet, tall fra Rus- og tobakksundersøkelsen (SSB)",
                 y_axis_title = "Antall alkoholenheter",
                 ylim = c(0,35))
@@ -482,8 +487,12 @@ create_ci_graph(data = enhetMenn,
 #| warning: false
 
 enhetKvinner <- enhetKjonn[kjonn == 2]
+
+ftitle <- "Alkoholinntak blant kvinner over tid"
+fsubt <- "Antall gjennomsnittlig inntak i alkoholenheter blant kvinner siste 4 uker\n med nedre og øvre grense for 95% konfidensintervall, 2012–2024"
 create_ci_graph(data = enhetKvinner,
-                title = "Alkoholbruk siste 4 uker blant kvinner",
+                title = ftitle,
+                subtitle = fsubt, 
                 caption = "Helsedirektoratet, tall fra Rus- og tobakksundersøkelsen (SSB)",
                 y_axis_title = "Antall alkoholenheter",
                 ylim = c(0,35)
