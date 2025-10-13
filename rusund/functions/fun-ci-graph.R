@@ -189,9 +189,10 @@ create_ci_graph <- function(data,
                      description = paste0("årgangene fra ", min(data[[x_col]]), " til ", max(data[[x_col]]))
                    )
                  ) |>
-    highcharter::hc_caption(text = caption) |>
+    highcharter::hc_caption(text = caption,
+                            align = "right") |>
     highcharter::hc_credits(
-                   enabled = TRUE,
+                   enabled = FALSE,
                    text = credits_text,
                    href = credits_href
                  )
