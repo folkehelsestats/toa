@@ -165,6 +165,7 @@ create_ci_graph <- function(data,
                        enabled = TRUE,
                        description = tolower(y_axis_title)
                      ),
+                     tickInterval = 5,
                      min = ylim[1],
                      max = ylim[2]
                    )
