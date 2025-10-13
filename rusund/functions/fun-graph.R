@@ -190,7 +190,7 @@ make_hist <- function(d, x, y, group, n,
   x_title_text <- if (is.null(xtitle)) " " else xtitle
   y_title_text <- if (is.null(ytitle)) " " else ytitle
 
-                                        # Handle x-axis based on variable type
+  # Handle x-axis based on variable type
   is_x_numeric <- is.numeric(d[[x]])
 
   if (is_x_numeric) {
@@ -253,16 +253,7 @@ make_hist <- function(d, x, y, group, n,
 
   # Create the base chart
   chart <- highcharter::highchart() |>
-    highcharter::hc_chart(inverted = flip) |>
-    highcharter::hc_exporting(
-                     accessibility = list(
-                       enabled = TRUE # default value is TRUE
-                     ),
-                     enabled = TRUE,
-                     filename = filename
-                   ) |>
-    highcharter::hc_add_dependency(name = "modules/accessibility.js")
-
+    highcharter::hc_chart(inverted = flip)
 
   # Configure y-axis
   if (!is.null(ylim)) {
@@ -327,7 +318,14 @@ make_hist <- function(d, x, y, group, n,
       x = 50,
       y = 0
     ) |>
-    highcharter::hc_exporting(enabled = TRUE)
+    highcharter::hc_exporting(
+                     accessibility = list(
+                       enabled = TRUE # default value is TRUE
+                     ),
+                     enabled = TRUE,
+                     filename = filename
+                   ) |>
+    highcharter::hc_add_dependency(name = "modules/accessibility.js")
 
   if (use_categories) {
     mapping <- highcharter::hcaes(x = x_index, y = !!rlang::sym(y))
