@@ -19,6 +19,15 @@ library(readr)
 # 1. Les inn sav-fil:
 kfa_2024_2025 <- read_sav("O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Leveranse 2024_2025/Original/Alkohol_v2.sav")
 
+# Lage kodebøker, bruker Yusmans kode: 
+library(DT)
+
+source("https://raw.githubusercontent.com/folkehelsestats/rusus/refs/heads/main/fun-codebook.R")
+
+# Lager kodeboka som eksporteres:
+create_codebook(kfa_2024_2025)
+
+
 
 # 2. Les inn variabellabels og kategoriske labels
 var_labels <- read_csv("O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Analyser 2024_2025/R/variable_labels.csv")
@@ -126,22 +135,7 @@ Totalt antall kommuner i 2024 var `r nrow(kommuner2024)`, mens det var `r nrow(k
 
 N i datafil 2024_2025 er `r nrow(kfa_oppdatert)`. Antall kommuner som ikke har besvart spørreskjemaet er `r sum(is.na(kfa_oppdatert$respid) | trimws(kfa_oppdatert$respid) == "")`.
 
-```{r}
-#| echo: false
-#| output: false
-# Lage kodebøker, bruker Yusmans kode: 
-
-library(DT)
-
-source("https://raw.githubusercontent.com/folkehelsestats/rusus/refs/heads/main/fun-codebook.R")
-
-create_codebook(kfa_2024_2025)
-
-
-```
-
-```         
-[Se kodeboken](https://github.com/Helsedir/toa/blob/main/kfa/Codebook
+```{}
 ```
 
 # Kodebok KFA 2024_2025
