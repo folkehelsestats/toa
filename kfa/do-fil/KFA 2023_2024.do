@@ -325,7 +325,7 @@ list utvalg_kommune utvalg_kommunenummer tot_skjenk23 if tot_skjenk23 >=100
 	
 	*For hvor mange av skjenkesbevillingene gjaldt maksimaltiden der samtlige besvart?*/
 	codebook q2_6b
-	total q2_1 if  q2_6b == 1
+	total q2_1 if  q2_6b == 1 // antall skjenkebevillinger hvor bevillingen gir anledning til å skjenke til maksimaltiden.
 	
 	/* Antall skjenkebevillinger til maksimaltid om det ikke gjelder alle*/
 	total q2_6b_n2
@@ -604,6 +604,7 @@ list utvalg_kommune utvalg_kommunenummer tot_skjenk23 if tot_skjenk23 >=100
 /*skjenkebevillinger for en enkelt anledning og/eller ambulerende skjenkebevillinger i 2023?*/
 	summarize q2_3
 	return list // viser spredningen og totalt antall ambulerende skjenkebev i 2023
+	histogram q2_3, discrete frequency
 	
 	* Kategoriserer antall ambulerende bevillinger:
 	gen ambev = .
@@ -645,5 +646,5 @@ list utvalg_kommune utvalg_kommunenummer tot_skjenk23 if tot_skjenk23 >=100
 	tabulate vilkaar
 	tabulate vilkaar if q2_5 == 1
 
-
+save "O:\Prosjekt\Rusdata\Kommunenes forvaltning\Alkoholloven\Analyser 2023_2024\KFA_2023_2024_beh.dta", replace
 * Filen slutter her.

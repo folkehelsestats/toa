@@ -9,8 +9,9 @@ editor: visual
 # Importer fil og rydd
 
 ```{r}
-#| echo: false
+#| include: false
 #| output: false
+#| message: false
 
 library(haven)
 library(labelled)
@@ -24,7 +25,7 @@ library(DT)
 
 source("https://raw.githubusercontent.com/folkehelsestats/rusus/refs/heads/main/fun-codebook.R")
 
-# Lager kodeboka som eksporteres:
+# Lager kodeboka som eksporteres manuelt:
 create_codebook(kfa_2024_2025)
 
 
@@ -68,10 +69,14 @@ str(kfa_2024_2025)
 anyDuplicated(kfa_2024_2025$kommunenummer)
 sum(is.na(kfa_2024_2025$kommunenummer))
 
+
 ```
+
+
 
 ```{r}
 #| echo: false
+#| message: false
 #| output: false
 
 # Kommuner fra tidligere år
@@ -107,6 +112,7 @@ N <- nrow(kommuner2024)
 # Laster inn fjorårets fil, ferdigstilt i Stata som inneholder impurterte antall bevillinger fra tidligere.
 kfa_2023_2024 <- read_dta("O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Analyser 2023_2024/KFA_2023_2024_beh.dta")
 names(kfa_2023_2024)
+create_codebook(kfa_2023_2024)
 
 
 # Henter kommune-inndeling i 2023 og lagrer som Stata-fil:
@@ -114,29 +120,241 @@ kommuner2023 <- get_code("kommune", from = 2023)
 kommuner2023 <- kommuner2023[kommuner2023$code != 9999, ]
 N <- nrow(kommuner2023)
 
-
-
     
 ```
 
 # Kvalitetssjekk 2024_2025
 
 ```{r}
+#| message: false
 #| echo: false
 #| output: false
+
 # Antall kommuner som ikke har svart 2024_2025:
 sum(is.na(kfa_oppdatert$respid) | trimws(kfa_oppdatert$respid) == "")
 
-
+# Svarprosent: 
+  # Totalantall rader
+  total <- nrow(kfa_oppdatert)
+  
+  # Antall rader der respid er NA eller tom
+  uten_respid <- sum(is.na(kfa_oppdatert$respid) | trimws(kfa_oppdatert$respid) == "")
+  
+  # Antall med gyldig respid
+  med_respid <- total - uten_respid
+  
+  # Prosentandel med gyldig respid
+  svarprosent <- (med_respid / total) * 100
+  
+  # Vis resultatet
+  svarprosent
 
 ```
 
 Totalt antall kommuner i 2024 var `r nrow(kommuner2024)`, mens det var `r nrow(kommuner2023)` i 2023.
 
-N i datafil 2024_2025 er `r nrow(kfa_oppdatert)`. Antall kommuner som ikke har besvart spørreskjemaet er `r sum(is.na(kfa_oppdatert$respid) | trimws(kfa_oppdatert$respid) == "")`.
+N i datafil 2024_2025 er `r nrow(kfa_oppdatert)`. Antall kommuner som ikke har besvart spørreskjemaet er `r sum(is.na(kfa_oppdatert$respid) | trimws(kfa_oppdatert$respid) == "")`. Det gir en svarprosent på `r round(svarprosent, 1)`. 
 
-```{}
+Når det gjelder hvem som har svart på undersøkelsen for kommunen så er dette et åpent spørsmål, og gjelder stillingen personen har. Noen velger likevel å oppgi sektortilhørighet. Komplett liste:
+
+```{r}
+
+# Stilling til den som har svart på spørreskjemet i kommuen
+table(kfa_oppdatert$qintro_2_1_4)
+
 ```
+
+
+### Bevillinger
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+# Summerer antall salgsbevillinger tot: 
+kfa_oppdatert$tot_salg24 <- rowSums(kfa_oppdatert[, c(
+  "q1_1_1", "q1_1_2", "q1_1_3",
+  "q1_1_4", "q1_1_5", "q1_1_6", "q1_1_7"
+)], na.rm = TRUE)
+
+sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)
+
+  
+  # Sikrer at rader/kommuner med NA, forblir slik: 
+  vars <- c("q1_1_1", "q1_1_2", "q1_1_3", "q1_1_4", "q1_1_5", "q1_1_6", "q1_1_7")
+  
+  # Summér med na.rm = TRUE
+  kfa_oppdatert$tot_salg24 <- rowSums(kfa_oppdatert[vars], na.rm = TRUE)
+  
+  # Sett NA der alle er NA
+  kfa_oppdatert$tot_salg24[rowSums(!is.na(kfa_oppdatert[vars])) == 0] <- NA
+
+
+# Hvilke kommuner er missing mtp salgsbevillinger? Må imputere fra 2023.
+salg_missing <- kfa_oppdatert$kommune[is.na(kfa_oppdatert$tot_salg24)]
+salg_missing
+ 
+oldCode_missing <- kfa_oppdatert$oldCode[is.na(kfa_oppdatert$tot_salg24)]
+# OBs på at flere av disse har endret kommunenr fra 2023 til 2024.
+  
+# Har noen kommuner i 2024, 0 salgbevillinger?
+salg_null <- kfa_oppdatert$kommune[kfa_oppdatert$tot_salg24 == 0 &  !is.na(kfa_oppdatert$tot_salg24)]
+salg_null
+
+oldCode_0 <- kfa_oppdatert$oldCode[kfa_oppdatert$tot_salg24 == 0]
+# OBs på at en av disse har endret kommunenr fra 2023 til 2024.
+
+
+# Imputerer antall salgsbevillinger fra 2023 for kommuner med missing og 0:
+
+  # Finn indekser for matching mellom oldCode og utvalg_kommunenummer
+  match_index <- match(kfa_oppdatert$oldCode, kfa_2023_2024$utvalg_kommunenummer)
+  
+  # Imputer tot_salg24 med tot_salg23 der tot_salg24 er NA eller 0
+  kfa_oppdatert$tot_salg24[is.na(kfa_oppdatert$tot_salg24) | kfa_oppdatert$tot_salg24 == 0] <- 
+    kfa_2023_2024$tot_salg23[match_index][is.na(kfa_oppdatert$tot_salg24) | kfa_oppdatert$tot_salg24 == 0]
+
+  ## OBS, høre med BETTA. 
+
+# Imputerer tilsvarende for salgsbevillinger knyttet til ulike utsalgssteder:
+  
+  # Dagligvare
+  sum(kfa_oppdatert$q1_1_1, na.rm = TRUE)
+  
+    # Lager ny variabel, dagligvare:
+    kfa_oppdatert$dagligvare24 <- kfa_oppdatert$q1_1_1
+     match_index <- match(kfa_oppdatert$oldCode, kfa_2023_2024$utvalg_kommunenummer)
+    # Imputerer tall fra 2023 for kommuner som har missing og 0:
+    kfa_oppdatert$dagligvare24[is.na(kfa_oppdatert$dagligvare24) | kfa_oppdatert$dagligvare24 == 0] <- kfa_2023_2024$dagligvare[match_index][is.na(kfa_oppdatert$dagligvare24) | kfa_oppdatert$dagligvare24 == 0]
+    # Sjekker at ingen er missing:
+    table(is.na(kfa_oppdatert$dagligvare24))
+    # Sjekker antall dagligvare salgsbevillinger:
+    sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)
+    
+  # Bryggeri
+  kfa_oppdatert$bryggeri24 <- kfa_oppdatert$q1_1_2
+  # Imputerer tall fra 2023 for kommuner som har missing og 0:
+    kfa_oppdatert$bryggeri24[is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0] <- kfa_2023_2024$bryggeri[match_index][is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0]
+    # Sjekker at ingen er missing:
+    table(is.na(kfa_oppdatert$bryggeri24))
+    # Sjekker antall bryggeri salgsbevillinger:
+    sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)
+
+  
+  # Gårdsutsalg
+    kfa_oppdatert$gaard24 <- kfa_oppdatert$q1_1_3
+  # Imputerer tall fra 2023 for kommuner som har missing og 0:
+    kfa_oppdatert$gaard24[is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0] <- kfa_2023_2024$gaard[match_index][is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0]
+    # Sjekker at ingen er missing:
+    table(is.na(kfa_oppdatert$gaard24))
+    # Sjekker antall gårdsutsalg salgsbevillinger:
+    sum(kfa_oppdatert$gaard24, na.rm = TRUE)
+    
+  # Nettsalg
+    kfa_oppdatert$nettsalg24 <- kfa_oppdatert$q1_1_4
+  # Imputerer tall fra 2023 for kommuner som har missing og 0:
+    kfa_oppdatert$nettsalg24[is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0] <- kfa_2023_2024$nettsalg[match_index][is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0]
+    # Sjekker at ingen er missing:
+    table(is.na(kfa_oppdatert$nettsalg24))
+    # Sjekker antall gårdsutsalg salgsbevillinger:
+    sum(kfa_oppdatert$nettsalg24, na.rm = TRUE)
+    
+
+  # Øl- og mineralvannutsalg (nytt av i år, ikke noe å imputere)
+   kfa_oppdatert$olutsalg24 <- kfa_oppdatert$q1_1_5
+     sum(kfa_oppdatert$olutsalg24, na.rm = TRUE)
+     
+  # Kultur (nytt av i år, ikke noe å imputere)
+     kfa_oppdatert$kultur24 <- kfa_oppdatert$q1_1_6
+     sum(kfa_oppdatert$kultur24, na.rm = TRUE)
+    
+  # Andre
+kfa_oppdatert$andre24 <- kfa_oppdatert$q1_1_7
+  # Imputerer tall fra 2023 for kommuner som har missing og 0:
+    kfa_oppdatert$andre24[is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0] <- kfa_2023_2024$andre[match_index][is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0]
+    # Sjekker at ingen er missing:
+    table(is.na(kfa_oppdatert$andre24))
+    # Sjekker antall gårdsutsalg salgsbevillinger:
+    sum(kfa_oppdatert$andre24, na.rm = TRUE)
+ 
+salgsbevillinger <- c((sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)), (sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)), (sum(kfa_oppdatert$gaard24, na.rm = TRUE)), (sum(kfa_oppdatert$nettsalg24, na.rm = TRUE)), (sum(kfa_oppdatert$olutsalg24, na.rm = TRUE)), (sum(kfa_oppdatert$kultur24, na.rm = TRUE)), (sum(kfa_oppdatert$andre24, na.rm = TRUE)))
+
+# Funksjon med Hdirs farger:
+hdir_color <- c("#025169", "#0069E8",
+                "#7C145C", "#047FA4",
+                "#C68803", "#38A389",
+                "#6996CE", "#366558",
+                "#BF78DE", "#767676")
+
+
+library(dplyr)
+library(highcharter) 
+# Set highcharter options
+options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
+
+# Data:
+salgsbevillinger <- data.frame(x = c(0, 1, 2, 3, 4, 5, 6),
+      y = c((sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)), (sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)), (sum(kfa_oppdatert$gaard24, na.rm = TRUE)), (sum(kfa_oppdatert$nettsalg24, na.rm = TRUE)), (sum(kfa_oppdatert$olutsalg24, na.rm = TRUE)), (sum(kfa_oppdatert$kultur24, na.rm = TRUE)), (sum(kfa_oppdatert$andre24, na.rm = TRUE))),
+      name = as.factor(c("Dagligvarehandel","Bryggeri","Gårdsutsalg","Nettsalg","Øl- og mineralvannutsalg", "Kutlur", "Andre")))
+
+salgbev_hc <- salgsbevillinger %>%
+  hchart(
+    "pie", hcaes(x = name, y = y),
+    name = "Salgsbevillinger etter utsalgssted",
+    colorByPoint = TRUE) %>%
+    hc_colors(hdir_color)
+
+salgbev_hc
+
+## Må få inn så det kan vises i prosent også!
+
+```
+
+Følgende kommuner har missing på salgsbevillinger i 2024: `r salg_missing `; mens disse rapportert å ha 0 salgsbevillinger i 2024: `r salg_null `. For disse kommunene erstattes salgsbevillingene med tall fra 2023, unntatt Aure som kan se ut til å ha riktig antall salgsbevillinger. [Usikker på om det blir korrekt å gjøre for kommunene som aktivt rapporterer 0.]{.mark}
+
+Med antall salgsbevillinger fra tidligere for kommunene med null salgsbevillinger og missing, så er totalt antall salgsbevillinger for salg av øl/rusbrus (alkoholholdig drikk 1) i 2024: `r sum(kfa_oppdatert$tot_salg24, na.rm = TRUE) `. Tilsvarende antall salgsbevillinger for salg av øl/rusbrus (alkoholholdig drikk 1) i 2023 var: `r sum(kfa_2023_2024$tot_salg23, na.rm = TRUE)`. I 2022 var antallet 4806, fra rapporten [Alkohol i Norge](https://www.fhi.no/le/alkohol/alkoholinorge/forebyggende-tiltak/salgs--og-skjenkebevillinger-kommunenes-forvaltning-av-alkoholloven/#salgsbevillinger). 
+
+#### Fordeling av salgsbevilling for øl/rusbrus etter utsalgssted
+
+Salgsbevillinger dagligvare 2024: `r sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)`.
+Salgsbevillinger bryggeri 2024: `r sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)`.
+Salgsbevillinger gårdsutsalg 2024: `r sum(kfa_oppdatert$gaard24, na.rm = TRUE)`.
+Salgsbevillinger nettsalg 2024: `r sum(kfa_oppdatert$nettsalg24, na.rm = TRUE)`. 
+Salgsbevillinger øl- og mineralvannutsalg 2024: `r sum(kfa_oppdatert$olutsalg24, na.rm = TRUE)`
+Salgsbevillinger kultur 2024: `r sum(kfa_oppdatert$kultur24, na.rm = TRUE)`
+Salgsbevillinger andre 2024: `r sum(kfa_oppdatert$andre24, na.rm = TRUE)`
+
+Tabell som viser fordeling av salgsbevillinger for øl/rusbrus etter utsalgssted i 2024:
+
+| Utsalgssted              | Antall                                            | Prosent                                                                                                               |
+|--------------------------|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| Dagligvare               | `r sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)` | `r round ((((sum(kfa_oppdatert$dagligvare24, na.rm = TRUE))/(sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)))*100) , 1)` |
+| Bryggeri                 | `r sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)`   | `r round ((((sum(kfa_oppdatert$bryggeri24, na.rm = TRUE))/(sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)))*100) , 1)`   |
+| Gårdsutsalg              | `r sum(kfa_oppdatert$gaard24, na.rm = TRUE)`      | `r round ((((sum(kfa_oppdatert$gaard24, na.rm = TRUE))/(sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)))*100) , 1)`      |
+| Nettsalg                 | `r sum(kfa_oppdatert$nettsalg24, na.rm = TRUE)`   | `r round ((((sum(kfa_oppdatert$nettsalg24, na.rm = TRUE))/(sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)))*100) , 1)`   |
+| Øl- og mineralvannutsalg | `r sum(kfa_oppdatert$olutsalg24, na.rm = TRUE)`   | `r round ((((sum(kfa_oppdatert$olutsalg24, na.rm = TRUE))/(sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)))*100) , 1)`   |
+| Kultur                   | `r sum(kfa_oppdatert$kultur24, na.rm = TRUE)`     | `r round ((((sum(kfa_oppdatert$kultur24, na.rm = TRUE))/(sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)))*100) , 1)`     |
+| Andre                    | `r sum(kfa_oppdatert$andre24, na.rm = TRUE)`      | `r round ((((sum(kfa_oppdatert$andre24, na.rm = TRUE))/(sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)))*100) , 1)`      |
+
+`r salgbev_hc`
+Figur: Nasjonal fordeling av antall salgsbevillinger for øl/rusbrus (alkoholholdig drikk gruppe 1) etter utsalgssted, 2024.
+
+
+##### Antall kommuner med bevillinger for salg av øl/rusbrus (alkoholholdig drikk 1) etter utsalgssted og spredning av antall bevillinger i en enkelt kommune.
+
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
 
 # Kodebok KFA 2024_2025
 

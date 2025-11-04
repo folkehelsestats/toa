@@ -201,7 +201,7 @@ tabulate qintro_2_1_4_2024 // stor variasjon. Tar det videre i excel og copilot
 total q1_1_1_2024
 tab q1_1_1_2024, mi
 gen dagligvare24 = q1_1_1_2024
-list kommune_2024 if dagligvare24 == 0 // sjekker at det er de samme med 0
+list kommune_2024 if dagligvare24 == 0 // sjekker at det er de samme med 0, som det er
 list kommune_2024 if dagligvare24 == .
 replace dagligvare24 = dagligvare_2023 if missing(dagligvare24)
 replace dagligvare24 = dagligvare_2023 if dagligvare24 ==0
