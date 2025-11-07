@@ -5,8 +5,8 @@ source("c:/Users/ykama/Git-hdir/toa/rusund/setup.R")
 
 ## readClipboard()
 odrive <- "O:\\Prosjekt\\Rusdata"
-rusdrive <- "Rusundersøkelsen\\Rusus historiske data\\ORG\\alkohol_rusundersokelsen"
-filpath <- file.path(odrive, rusdrive)
+source(file.path(odrive, "folder-path.R"))
+filpath <- file.path(Rususdata, "Rusus_2012_2023\\ORG\\alkohol_rusundersokelsen")
 filer <- grep("dta$", list.files(filpath), value = TRUE)
 
 
@@ -23,8 +23,7 @@ filnn <- sub("^(Rus\\d{4}).*", "\\1", filer, perl = TRUE)
 names(DD) <- filnn
 
 ## Add 2024 data
-fil2024 <- "O:\\Prosjekt\\Rusdata"
-DD[["Rus2024"]] <- readRDS(file.path(fil2024, "Rusundersøkelsen", "Rusus 2024","rus2024.rds"))
+DD[["Rus2024"]] <- readRDS(file.path(Rususdata, "Rusus_2024","rus2024.rds"))
 
 filnr <- length(DD)
 
@@ -197,7 +196,8 @@ skimr::skim(alk01)
 str(alk01$Kjonn)
 str(alk01)
 
-codebook::codebook(alk01)
+## ## This create a lots of figures separately
+## codebook::codebook(alk01)
 
 # Example: Generate HTML codebook
 dataMaid::makeCodebook(alk01, file = "alk01.html")

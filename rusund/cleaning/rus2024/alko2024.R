@@ -7,8 +7,9 @@ library("here")
 source(file.path(here::here(), "rusund/setup.R"))
 source(file.path(here::here(), "rusund/functions/fun-call.R"))
 dataPath <- "O:\\Prosjekt\\Rusdata"
+source(file.path(dataPath, "folder-path.R"))
 
-DT <- readRDS(file.path(dataPath, "Rusundersøkelsen", "Rusus 2024","rus2024.rds"))
+DT <- readRDS(file.path(Rususdata, "Rusus_2024","rus2024.rds"))
 dt <- as.data.table(DT)
 
 pth2024 <- file.path(here::here(), "rusund", "rapport")
