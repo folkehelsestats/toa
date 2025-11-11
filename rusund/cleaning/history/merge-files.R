@@ -62,6 +62,11 @@ for (i in dtHis)
 mean2024 <- DD$Rus2024[, mean(vekt, na.rm = T)]
 DD$Rus2024[, nyvekt2 := vekt/mean2024]
 
+## Drukket -------------
+## Har noen gang drukket alkohol "drukk1b" finnes ikke i 2012 og 2013
+lapply(ComDD, function(x) grep("drukk1b", x, value = T))
+DD[["Rus2012"]][, drukk1b := NA]
+DD[["Rus2013"]][, drukk1b := NA]
 
 ## Enhet drukket -------------
 lapply(ComDD, function(x) grep("type1b_", x, value = T)) # Øl ukenlig
@@ -131,9 +136,8 @@ c("nyvekt2", "helse", "drukket1", "drukket2", "drukk2a", "drukk2b",
 "can7_e", "can7sps", "can8", "can8sps", "can9", "can10", "can11",
 "can13", "can14", "ans1", "ans2_a", "ans2_b", "ans2_c", "ans2_d",
 "ans2_e", "ans2_f", "ans2_g", "ans2_h", "landsdel", "sentralitet",
-"yrkstat2", "siv", "sivstat", "antpers", "antbarn1", "antbarn2"
-)
-
+"yrkstat2", "siv", "sivstat", "antpers", "antbarn1", "antbarn2",
+"drukk1b")
 
 ## Find which vectors contain selected variable and show matches
 ## Alder --------------
@@ -183,13 +187,16 @@ for (i in seq_len(filnr)){
 }
 
 DT <- data.table::rbindlist(dd, use.names = TRUE, ignore.attr=TRUE, fill = TRUE)
-## spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
-## fwrite(DT, file.path(spth, "data_2012_2024.csv"))
-## saveRDS(DT, file.path(spth, "data_2012_2024.rds"))
+
+## dataPath <- "O:\\Prosjekt\\Rusdata"
+## source(file.path(dataPath, "folder-path.R"))
+## data.table::fwrite(DT, file.path(Rususdata, "Rusus_2012_2023", "data_2012_2024.csv"))
+## saveRDS(DT, file.path(Rususdata, "Rusus_2012_2023", "data_2012_2024.csv"))
 
 
-
+## --------------------
 ## Codebook -----------
+## -------------------
 
 alk01 <- haven::read_dta(file.path(filpath, filer[1]))
 skimr::skim(alk01)
