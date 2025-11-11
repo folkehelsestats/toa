@@ -111,6 +111,7 @@ twoway (line Antall Kvt if Lufthavn == "Trondheim", sort) ///
 reshape wide
 */
 
+
 /* Sjekker noen av de større flyplassene. Kategori-utfordringer siste år.
 reshape long
 twoway (line Antall Kvt if Lufthavn == "Oslo", sort) ///
@@ -121,7 +122,7 @@ twoway (line Antall Kvt if Lufthavn == "Bergen", sort) ///
 	    if Utsalg == "Totalt", ///
 	    by(Gruppe, yrescale) ylabel(#2)
 		
-twoway (line Antall Kvt if Lufthavn == "Bergen", sort) ///
+twoway (line Antall Kvt if Lufthavn == "Stavanger", sort) ///
 	    if Utsalg == "Totalt", ///
 	    by(Gruppe, yrescale) ylabel(#2)
 

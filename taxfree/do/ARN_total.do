@@ -1,7 +1,7 @@
 *******************************************************************************
 	* Denne fila er opprettet 5/8-2025
 	* Fila bygger på FHIs fil
-	* Fila legger til ARN-data for 2023 (q4).
+	* Fila legger til ARN-data for 2024 (q4).
 	* Fila er opprettet av Bente Øvrebø, Hdir.
 	* Fila er under arbeid.
 
@@ -334,13 +334,15 @@ sort Lufthavn Utsalg Gruppe Kvt
 order Lufthavn Utsalg Kvt Gruppe Antall
 save "ARN2019.dta", replace
 
-/* Hent inn tall for 2020-2023 */
+/* Hent inn tall for 2020-2021 */
 import excel "ARN 2020-2023.xlsx", sheet("Ark1") firstrow clear 
 
 gen Kvt = yq(År, Kvartal)
 drop År Kvartal 
 format %tq Kvt 
 label var Kvt "Kvartal"
+
+drop if Kvt >= yq(2022,1)
 
 gen Gruppe=""
 replace Gruppe="Øl" if Varegruppe == "230 - Beer & softdrinks"
@@ -388,13 +390,15 @@ replace Lufthavn = "Torp" if Lufthavn == "Torp Avgang"
 replace Utsalg = "Ankomst" if Utsalg == "Arrival"
 replace Utsalg = "Avgang" if Utsalg == "Departure"
 replace Utsalg = "" if Utsalg == "Total"
-replace Utsalg = "" if Utsalg == "Toital"
+replace Utsalg = "Total" if Utsalg == ""
 
 collapse (sum) Antall, by(Lufthavn Utsalg Gruppe Kvt)
 label var Antall "Antall" 
 sort Lufthavn Utsalg Gruppe Kvt 
 order Lufthavn Utsalg Kvt Gruppe Antall
-save "ARN2020-2023.dta", replace
+save "ARN2020-2021.dta", replace
+
+*** FORTSETT HER OG LEGG INN 2022+2023
 
 /* Samle alle årene i en fil */
 use "ARN2010-2014.dta", replace
@@ -405,7 +409,7 @@ append using "ARN2016.dta"
 append using "Torp2017.dta"
 append using "Torp2018.dta"
 append using "ARN2019.dta"
-append using "ARN2020-2023.dta"
+append using "ARN2020-2021.dta"
 append using "ARN2024.dta"
 compress
 
@@ -414,6 +418,33 @@ sort Lufthavn Utsalg Gruppe Kvt
 save "ARN2010-2024.dta", replace
 
 
+
+/* BENTE FORTSETT HER
+/* Samle alle årene i en fil */
+clear all
+
+
+cd "O:\Prosjekt\Rusdata\Omsetning\Taxfree_originalfiler\Airport Retail Norway\"
+use "ARN2010-2014.dta", replace
+drop if Kvt >= yq(2014,1)
+append using "ARN2014.dta"
+append using "ARN2015.dta"
+append using "ARN2016.dta"
+append using "Torp2017.dta"
+append using "Torp2018.dta"
+append using "ARN2019.dta"
+append using "ARN2020-2023.dta"
+drop if Kvt >= yq(2022,1)
+append using "ARN_2022.dta"
+append using "ARN_2023.dta"
+append using "ARN_2024.dta"
+compress
+
+sort Lufthavn Utsalg Gruppe Kvt
+
+save "ARN2010-2024.dta", replace
+
+*/
 
 /*
 
