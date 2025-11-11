@@ -297,7 +297,7 @@ tab ulikt3
 
 	* For å finne antall kommuner og antall bevillinger for gårdsutsalg:
 	tab gaard24
-	display 357-273
+	display 357-303
 	
 	* Nettsalg
 	summarize nettsalg24
@@ -310,6 +310,22 @@ tab ulikt3
 	tab nettsalg24
 	display 357-241
 	
+	* Øl- og mineralvannutsalg
+	summarize q1_1_5_2024 
+	return list 
+	
+	tab q1_1_5_2024, mi
+	display 357-324
+
+
+	* Kultur
+	summarize q1_1_6_2024
+	return list
+	
+	tab q1_1_6_2024
+	display 357- 339
+	total q1_1_6_2024
+	
 	* Andre typer (ikke vinmonopol)
 	summarize andre24
 	return list
@@ -321,6 +337,7 @@ tab ulikt3
 	tab andre24
 	display 357-306
 	
+	summarize 
 
 /* Oppretter grupper med antall kommuner med grupperinger av antall salgsbevillinger */
 tab tot_salg24 // Viser spredningen for inntrykk. 79% har under 16 bevillinger.
@@ -373,11 +390,10 @@ tabulate salgsbevillingsgruppe
 	local total_skjenkebevilling = r(sum)
 	display "`total_skjenkebevilling'"
 	
-	
 	/* Hvilke kommuner har 0 skjenkebevillinger*/
 	tabulate q2_1_sum_2024 // 6 kommuner rapporterer 0 skjenkebevillinger
 	list kommune_2024 if q2_1_sum_2024 ==0
-	* Sjekker de to kommunene med 0 slagsevillinger (år og i fjor)
+	* Sjekker de to kommunene med 0 skjenkebevillinger (år og i fjor)
 	list q2_1_sum_2024 tot_skjenk23 if kommune == 1576 // Aure
 	list q2_1_sum_2024 tot_skjenk23 if kommune == 5421 // Senja
 	
@@ -434,6 +450,102 @@ label values skjenkebevillingsgruppe bevgrp
 
 tabulate skjenkebevillingsgruppe
 list kommune_2024 tot_skjenk24 if tot_skjenk24 >=100
+/*
+********************************************************************************
+********************************************************************************
+* Sjekker bevillinger opp mot fjoråret:
+
+*******************************************************************************
+	*Kvalitetssjekk av tallene på salgsbevillinger for 2024
+*******************************************************************************
+*******************************************************************************
+
+/*Endring i total antall salgbevillinger fra 2023 til 2024 med >30%*/
+
+gen salgsbevilling = tot_salg24 - tot_salg23_2023
+label variable salgsbevilling "absolutt endring i antall bevillinger fra 2023 til 2024"
+tab salgsbevilling 
+
+gen salgsbevillingpros = (salgsbevilling/tot_salg23_2023)*100
+gen salgpros = int(salgsbevillingpros)
+label variable salgpros "% endring i antall bevillinger fra 2023 til 2024"
+tab salgpros
+
+	* Kommuner som har en 30% (eller mer) endring i antall bevillinger fra 2023 til 2024.
+tab kommune_2024 if abs(salgpros) >30 // Viser kommunene som har en endring på +/- 30%
+
+list kommune_2024 kommunenummer_2024 tot_salg23_2023 tot_salg24 salgsbevilling salgpros kommunenummer_2024 if abs(salgpros) >30
+* Lister over viser stor endring for noen av kommunene. 
+* Her må det gjøres en vurdering om hva som er plausibelt og ikke
+* Se wordfil for info.
+
+	* Total salgsbevillinger fra 2023-2024, for kommunene med usikre tall:
+/*
+list kommune_2024 kommunenummer_2024 tot_salg21 tot_salg22 tot_salg23_2023 tot_salg24 salgsbevilling salgpros kommunenummer_2024 if abs(salgpros) >30 & abs(salgsbevilling)>1 */
+
+	* dagligvare
+	list kommunenummer_2024 kommune_2024 salgsbevilling q1_1_1_resp_2023 q1_1_1_2024 if abs(salgpros) >30 & abs(salgsbevilling)>1
+	* bryggeri
+	list kommunenummer_2024 kommune_2024 salgsbevilling q1_1_2_resp_2023 q1_1_2_2024 if abs(salgpros) >30 & abs(salgsbevilling)>1
+	* gårdsutsalg
+	list kommunenummer_2024 kommune_2024 salgsbevilling q1_1_3_resp_2023 q1_1_3_2024 if abs(salgpros) >30 & abs(salgsbevilling)>1
+	* nettsalg
+	list kommunenummer_2024 kommune_2024 salgsbevilling q1_1_4_resp_2023 q1_1_4_2024 if abs(salgpros) >30 & abs(salgsbevilling)>1
+	* andre
+	list kommunenummer_2024 kommune_2024  salgsbevilling q1_1_5_resp_2023 q1_1_7 if abs(salgpros) >30 & abs(salgsbevilling)>1 
+	
+* Det har kommet inn to nye gruppper over (øl- og mineralvannutsalg og kultur), så ikke så annet vil sannsynligvis endres.
+	
+
+*****************************************************************************
+*******************************************************************************
+*******************************************************************************
+	*Kvalitetssjekk av tallene på skjenkebevillinger for 2024*
+
+*******************************************************************************
+*******************************************************************************
+
+/* Endring i total antall skjenkeveillinger fra 2023 til 2024 med >30%*/
+gen skjenkbevilling = tot_skjenk24 - tot_skjenk23_2023
+label variable skjenkbevilling "absolutt endring i antall bevillinger fra 2023 til 2024"
+tab skjenkbevilling // Viser noen store endringer fra året før
+
+gen skjenkbevillingpros = (skjenkbevilling/tot_skjenk23_2023)*100 // 15 missing generated
+
+	* Sjekker opp i de missing-verdiene som genereres
+list kommunenummer_2024 kommune_2024 skjenkbevilling tot_skjenk23_2023 tot_skjenk24 if skjenkbevillingpros ==.
+
+
+gen skjenkpros = int(skjenkbevillingpros)
+label variable skjenkpros "% endring i antall bevillinger fra 2023 til 2024"
+tab skjenkpros
+
+* Lister opp kommuner som har en endring i antall skjenkebevillinger på over 30% og hvor absolutt endring er over 1:
+list kommunenummer_2024 kommune_2024 tot_skjenk23_2023 tot_skjenk24 skjenkbevilling skjenkpros if abs(skjenkpros) >30 & abs(skjenkbevilling) >1
+* Listen viser kommuner med endring over 30% i antall bevillinger fra 2023 til 2024.
+* Må gjøres en vurdering om hva som er plausibelt og ikke. Se wordfil med info.
+
+* Sjekker det samme, men de som har en absolutt endring ove r6 (6-cut off er fra FHI)
+list kommunenummer_2024 kommune_2024 tot_skjenk23_2023 tot_skjenk24 skjenkbevilling skjenkpros if abs(skjenkpros) >30 & abs(skjenkbevilling) >6
+
+* Ser på antall skjenkebevilling etter type over år:
+
+* Gruppe 1:
+list kommunenummer_2024 kommune_2024 skjenkbevilling q2_1_1_resp_2023 q2_1_1_2024 if abs(skjenkpros) >30 & abs(skjenkbevilling) >1
+* Gruppe 1 og 2:
+list kommunenummer_2024 kommune_2024 skjenkbevilling  q2_1_2_resp_2023 q2_1_1_2024 if abs(skjenkpros) >30 & abs(skjenkbevilling) >1
+
+* Gruppe 1, 2 og 3:
+list kommunenummer_2024 kommune_2024 skjenkbevilling q2_1_3_resp_2023 q2_1_1_2024 if abs(skjenkpros) >30 & abs(skjenkbevilling) >1
+
+*/
+
+********************************************************************************
+********************************************************************************
+********************************************************************************
+
+*Fortsetter med analyser: 
+
 
 /* Hvor mange kommuner har bevilling til skjenking av alkohol på andre steder enn barer, diskotek, klubber, kafeer og restauranter i 2024? */
 tabulate q2_2_2024
@@ -953,7 +1065,7 @@ tabulate q5_2a_5_2024 // Annet
 tabulate q5_3_2024
 
 * Filen slutter her.
-
+/*
 *Gammel kode:
 
 
