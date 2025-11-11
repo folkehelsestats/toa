@@ -191,7 +191,7 @@ DT <- data.table::rbindlist(dd, use.names = TRUE, ignore.attr=TRUE, fill = TRUE)
 ## dataPath <- "O:\\Prosjekt\\Rusdata"
 ## source(file.path(dataPath, "folder-path.R"))
 ## data.table::fwrite(DT, file.path(Rususdata, "Rusus_2012_2023", "data_2012_2024.csv"))
-## saveRDS(DT, file.path(Rususdata, "Rusus_2012_2023", "data_2012_2024.csv"))
+## saveRDS(DT, file.path(Rususdata, "Rusus_2012_2023", "data_2012_2024.rds"))
 
 
 ## --------------------
