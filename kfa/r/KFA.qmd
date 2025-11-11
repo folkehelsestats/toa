@@ -80,8 +80,8 @@ sum(is.na(kfa_2024_2025$kommunenummer))
 #| output: false
 
 # Kommuner fra tidligere år
-if(!require(pak)) install.packages("pak")
-pak::pkg_install("helseprofil/norgeo")
+# if(!require(pak)) install.packages("pak")
+# pak::pkg_install("helseprofil/norgeo")
 
 library(norgeo)
 
@@ -123,7 +123,7 @@ N <- nrow(kommuner2023)
     
 ```
 
-# Kvalitetssjekk 2024_2025
+# Datafil 2024_2025, besvarelse
 
 ```{r}
 #| message: false
@@ -149,11 +149,14 @@ sum(is.na(kfa_oppdatert$respid) | trimws(kfa_oppdatert$respid) == "")
   # Vis resultatet
   svarprosent
 
+  
+  # 
 ```
+Data om kommunenes forvaltning av alkoholloven kommer fra spørreskjema som kommunene besvarer. Kommunene plikter etter anmodning å gi opplysninger om kommunens forvaltning, jf. alkoholforskriften § 7-3. 
 
 Totalt antall kommuner i 2024 var `r nrow(kommuner2024)`, mens det var `r nrow(kommuner2023)` i 2023.
 
-N i datafil 2024_2025 er `r nrow(kfa_oppdatert)`. Antall kommuner som ikke har besvart spørreskjemaet er `r sum(is.na(kfa_oppdatert$respid) | trimws(kfa_oppdatert$respid) == "")`. Det gir en svarprosent på `r round(svarprosent, 1)`. 
+N i datafil 2024_2025 er `r nrow(kfa_oppdatert)`. Antall kommuner som ikke har besvart spørreskjemaet er `r sum(is.na(kfa_oppdatert$respid) | trimws(kfa_oppdatert$respid) == "")`. Det gir en svarprosent på `r round(svarprosent, 1)`. Til sammenlikning var svarprosenten i 2023 `r round ((((nrow(kfa_2023_2024))-(sum(is.na(kfa_2023_2024$qintro_2_1_tel) | trimws(kfa_2023_2024$qintro_2_1_tel) == "")))/(nrow(kfa_2023_2024)))*100, 1)`.
 
 Når det gjelder hvem som har svart på undersøkelsen for kommunen så er dette et åpent spørsmål, og gjelder stillingen personen har. Noen velger likevel å oppgi sektortilhørighet. Komplett liste:
 
@@ -211,11 +214,14 @@ oldCode_0 <- kfa_oppdatert$oldCode[kfa_oppdatert$tot_salg24 == 0]
   # Finn indekser for matching mellom oldCode og utvalg_kommunenummer
   match_index <- match(kfa_oppdatert$oldCode, kfa_2023_2024$utvalg_kommunenummer)
   
-  # Imputer tot_salg24 med tot_salg23 der tot_salg24 er NA eller 0
-  kfa_oppdatert$tot_salg24[is.na(kfa_oppdatert$tot_salg24) | kfa_oppdatert$tot_salg24 == 0] <- 
-    kfa_2023_2024$tot_salg23[match_index][is.na(kfa_oppdatert$tot_salg24) | kfa_oppdatert$tot_salg24 == 0]
+  # Imputer tot_salg24 med tot_salg23 der tot_salg24 er NA 
+  kfa_oppdatert$tot_salg24[is.na(kfa_oppdatert$tot_salg24)] <- 
+    kfa_2023_2024$tot_salg23[match_index][is.na(kfa_oppdatert$tot_salg24)]
+  
+    # Imputer tot_salg24 med tot_salg23 der tot_salg24 er NA eller 0. Har valgt å ikke imputere fjorårets for de med 0 salgsbevillinger.
+  # kfa_oppdatert$tot_salg24[is.na(kfa_oppdatert$tot_salg24) | kfa_oppdatert$tot_salg24 == 0] <- 
+    # kfa_2023_2024$tot_salg23[match_index][is.na(kfa_oppdatert$tot_salg24) | kfa_oppdatert$tot_salg24 == 0]
 
-  ## OBS, høre med BETTA. 
 
 # Imputerer tilsvarende for salgsbevillinger knyttet til ulike utsalgssteder:
   
@@ -226,7 +232,9 @@ oldCode_0 <- kfa_oppdatert$oldCode[kfa_oppdatert$tot_salg24 == 0]
     kfa_oppdatert$dagligvare24 <- kfa_oppdatert$q1_1_1
      match_index <- match(kfa_oppdatert$oldCode, kfa_2023_2024$utvalg_kommunenummer)
     # Imputerer tall fra 2023 for kommuner som har missing og 0:
-    kfa_oppdatert$dagligvare24[is.na(kfa_oppdatert$dagligvare24) | kfa_oppdatert$dagligvare24 == 0] <- kfa_2023_2024$dagligvare[match_index][is.na(kfa_oppdatert$dagligvare24) | kfa_oppdatert$dagligvare24 == 0]
+    kfa_oppdatert$dagligvare24[is.na(kfa_oppdatert$dagligvare24) # | kfa_oppdatert$dagligvare24 == 0
+                               ] <- kfa_2023_2024$dagligvare[match_index][is.na(kfa_oppdatert$dagligvare24) # | kfa_oppdatert$dagligvare24 == 0
+                                                                                                                                             ]
     # Sjekker at ingen er missing:
     table(is.na(kfa_oppdatert$dagligvare24))
     # Sjekker antall dagligvare salgsbevillinger:
@@ -235,7 +243,9 @@ oldCode_0 <- kfa_oppdatert$oldCode[kfa_oppdatert$tot_salg24 == 0]
   # Bryggeri
   kfa_oppdatert$bryggeri24 <- kfa_oppdatert$q1_1_2
   # Imputerer tall fra 2023 for kommuner som har missing og 0:
-    kfa_oppdatert$bryggeri24[is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0] <- kfa_2023_2024$bryggeri[match_index][is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0]
+    kfa_oppdatert$bryggeri24[is.na(kfa_oppdatert$q1_1_sum) # | kfa_oppdatert$q1_1_sum == 0
+                             ] <- kfa_2023_2024$bryggeri[match_index][is.na(kfa_oppdatert$q1_1_sum) #| kfa_oppdatert$q1_1_sum == 0
+                                                                      ]
     # Sjekker at ingen er missing:
     table(is.na(kfa_oppdatert$bryggeri24))
     # Sjekker antall bryggeri salgsbevillinger:
@@ -245,7 +255,9 @@ oldCode_0 <- kfa_oppdatert$oldCode[kfa_oppdatert$tot_salg24 == 0]
   # Gårdsutsalg
     kfa_oppdatert$gaard24 <- kfa_oppdatert$q1_1_3
   # Imputerer tall fra 2023 for kommuner som har missing og 0:
-    kfa_oppdatert$gaard24[is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0] <- kfa_2023_2024$gaard[match_index][is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0]
+    kfa_oppdatert$gaard24[is.na(kfa_oppdatert$q1_1_sum) # | kfa_oppdatert$q1_1_sum == 0
+                          ] <- kfa_2023_2024$gaard[match_index][is.na(kfa_oppdatert$q1_1_sum) # | kfa_oppdatert$q1_1_sum == 0
+                                                                ]
     # Sjekker at ingen er missing:
     table(is.na(kfa_oppdatert$gaard24))
     # Sjekker antall gårdsutsalg salgsbevillinger:
@@ -254,7 +266,9 @@ oldCode_0 <- kfa_oppdatert$oldCode[kfa_oppdatert$tot_salg24 == 0]
   # Nettsalg
     kfa_oppdatert$nettsalg24 <- kfa_oppdatert$q1_1_4
   # Imputerer tall fra 2023 for kommuner som har missing og 0:
-    kfa_oppdatert$nettsalg24[is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0] <- kfa_2023_2024$nettsalg[match_index][is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0]
+    kfa_oppdatert$nettsalg24[is.na(kfa_oppdatert$q1_1_sum) # | kfa_oppdatert$q1_1_sum == 0
+                             ] <- kfa_2023_2024$nettsalg[match_index][is.na(kfa_oppdatert$q1_1_sum) # | kfa_oppdatert$q1_1_sum == 0
+                                                                      ]
     # Sjekker at ingen er missing:
     table(is.na(kfa_oppdatert$nettsalg24))
     # Sjekker antall gårdsutsalg salgsbevillinger:
@@ -272,13 +286,14 @@ oldCode_0 <- kfa_oppdatert$oldCode[kfa_oppdatert$tot_salg24 == 0]
   # Andre
 kfa_oppdatert$andre24 <- kfa_oppdatert$q1_1_7
   # Imputerer tall fra 2023 for kommuner som har missing og 0:
-    kfa_oppdatert$andre24[is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0] <- kfa_2023_2024$andre[match_index][is.na(kfa_oppdatert$q1_1_sum) | kfa_oppdatert$q1_1_sum == 0]
+    kfa_oppdatert$andre24[is.na(kfa_oppdatert$q1_1_sum) # | kfa_oppdatert$q1_1_sum == 0
+                          ] <- kfa_2023_2024$andre[match_index][is.na(kfa_oppdatert$q1_1_sum) # | kfa_oppdatert$q1_1_sum == 0
+                                                                ]
     # Sjekker at ingen er missing:
     table(is.na(kfa_oppdatert$andre24))
     # Sjekker antall gårdsutsalg salgsbevillinger:
     sum(kfa_oppdatert$andre24, na.rm = TRUE)
  
-salgsbevillinger <- c((sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)), (sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)), (sum(kfa_oppdatert$gaard24, na.rm = TRUE)), (sum(kfa_oppdatert$nettsalg24, na.rm = TRUE)), (sum(kfa_oppdatert$olutsalg24, na.rm = TRUE)), (sum(kfa_oppdatert$kultur24, na.rm = TRUE)), (sum(kfa_oppdatert$andre24, na.rm = TRUE)))
 
 # Funksjon med Hdirs farger:
 hdir_color <- c("#025169", "#0069E8",
@@ -307,23 +322,29 @@ salgbev_hc <- salgsbevillinger %>%
 
 salgbev_hc
 
-## Må få inn så det kan vises i prosent også!
+
+# Les inn sav-fil for 2022_2023: 
+# kfa_2022_2023 <- read_dta("O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Data_Stata/2023_beh.dta")
+
+
 
 ```
 
-Følgende kommuner har missing på salgsbevillinger i 2024: `r salg_missing `; mens disse rapportert å ha 0 salgsbevillinger i 2024: `r salg_null `. For disse kommunene erstattes salgsbevillingene med tall fra 2023, unntatt Aure som kan se ut til å ha riktig antall salgsbevillinger. [Usikker på om det blir korrekt å gjøre for kommunene som aktivt rapporterer 0.]{.mark}
+Følgende kommuner har missing på salgsbevillinger i 2024: `r salg_missing `; mens disse kommunene har rapportert å ha 0 salgsbevillinger i 2024: `r salg_null `. Når det gjelder de to sistenente kommunene med 0 salgsbevillinger, er vi usikre på om dette er korrekt. Vi har likevel valgt å ikke imutere fjorårets tall.  For kommunene med missing, vil antall salgsbevillinger erstattes salgsbevillingene rapportert tidligere.
 
 Med antall salgsbevillinger fra tidligere for kommunene med null salgsbevillinger og missing, så er totalt antall salgsbevillinger for salg av øl/rusbrus (alkoholholdig drikk 1) i 2024: `r sum(kfa_oppdatert$tot_salg24, na.rm = TRUE) `. Tilsvarende antall salgsbevillinger for salg av øl/rusbrus (alkoholholdig drikk 1) i 2023 var: `r sum(kfa_2023_2024$tot_salg23, na.rm = TRUE)`. I 2022 var antallet 4806, fra rapporten [Alkohol i Norge](https://www.fhi.no/le/alkohol/alkoholinorge/forebyggende-tiltak/salgs--og-skjenkebevillinger-kommunenes-forvaltning-av-alkoholloven/#salgsbevillinger). 
 
-#### Fordeling av salgsbevilling for øl/rusbrus etter utsalgssted
+#### Salgsbevillinger 
 
-Salgsbevillinger dagligvare 2024: `r sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)`.
-Salgsbevillinger bryggeri 2024: `r sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)`.
-Salgsbevillinger gårdsutsalg 2024: `r sum(kfa_oppdatert$gaard24, na.rm = TRUE)`.
-Salgsbevillinger nettsalg 2024: `r sum(kfa_oppdatert$nettsalg24, na.rm = TRUE)`. 
-Salgsbevillinger øl- og mineralvannutsalg 2024: `r sum(kfa_oppdatert$olutsalg24, na.rm = TRUE)`
-Salgsbevillinger kultur 2024: `r sum(kfa_oppdatert$kultur24, na.rm = TRUE)`
-Salgsbevillinger andre 2024: `r sum(kfa_oppdatert$andre24, na.rm = TRUE)`
+##### Fordeling av salgsbevilling for øl/rusbrus etter utsalgssted
+
+* Salgsbevillinger dagligvare 2024: `r sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)`.
+* Salgsbevillinger bryggeri 2024: `r sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)`.
+* Salgsbevillinger gårdsutsalg 2024: `r sum(kfa_oppdatert$gaard24, na.rm = TRUE)`.
+* Salgsbevillinger nettsalg 2024: `r sum(kfa_oppdatert$nettsalg24, na.rm = TRUE)`. 
+* Salgsbevillinger øl- og mineralvannutsalg 2024: `r sum(kfa_oppdatert$olutsalg24, na.rm = TRUE)`.
+* Salgsbevillinger kultur 2024: `r sum(kfa_oppdatert$kultur24, na.rm = TRUE)`.
+* Salgsbevillinger andre 2024: `r sum(kfa_oppdatert$andre24, na.rm = TRUE)`.
 
 Tabell som viser fordeling av salgsbevillinger for øl/rusbrus etter utsalgssted i 2024:
 
@@ -344,15 +365,1002 @@ Figur: Nasjonal fordeling av antall salgsbevillinger for øl/rusbrus (alkoholhol
 ##### Antall kommuner med bevillinger for salg av øl/rusbrus (alkoholholdig drikk 1) etter utsalgssted og spredning av antall bevillinger i en enkelt kommune.
 
 
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+library(data.table)
+
+# Anta at datasettet ditt heter kfa_oppdatert og er en data.table
+utsalg_var <- c("dagligvare24", "bryggeri24", "gaard24", "nettsalg24", "olutsalg24", "kultur24", "andre24")
+
+# Funksjon for å beregne ønsket statistikk for én variabel
+oppsummer <- function(varnavn, dt) {
+  verdier <- dt[[varnavn]]
+  verdier <- verdier[!is.na(verdier)]  # Fjern NA
+  kommuner_med_bevilling <- verdier[verdier > 0]
+  antall_kommuner <- length(kommuner_med_bevilling)
+  min_max <- if (antall_kommuner > 0) {
+    paste0(min(kommuner_med_bevilling), " - ", max(kommuner_med_bevilling))
+  } else {
+    "0 - 0"
+  }
+  return(data.table(Utsalgssted = varnavn, Antall_kommuner = antall_kommuner, Min_Maks_bevilling = min_max))
+}
+
+# Lag tabellen
+resultat_tabell <- rbindlist(lapply(utsalg_var, oppsummer, dt = kfa_oppdatert))
+
+# Vis tabellen
+print(resultat_tabell)
+
+```
+
+Antall kommuner med bevillinger for salg av øl/rusbrus (alkoholholdig drikk gruppe 1) etter utsalgssted og spredning av antall bevillinger i en enkelt kommune, 2024.
 
 ```{r}
+#| message: false
+#| echo: false
+
+print(resultat_tabell)
+
+
+```
+
+
+##### Salgsbevillinger i kommuner
+Antall kommuner etter grupperinger av antall salgsbevillinger for øl/rusbrus (alkoholholdig drikk gruppe 1), 2024:
+
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+# Tabell etter salgsbevillingsgrupper:
+kfa_oppdatert <- as.data.table(kfa_oppdatert)
+
+kfa_oppdatert[, salgsbevillingsgruppe := fifelse(
+  tot_salg24 >= 1 & tot_salg24 <= 5, "1–5",
+  fifelse(tot_salg24 >= 6 & tot_salg24 <= 10, "6–10",
+  fifelse(tot_salg24 >= 11 & tot_salg24 <= 20, "11–20",
+  fifelse(tot_salg24 >= 21 & tot_salg24 <= 30, "21–30",
+  fifelse(tot_salg24 >= 31 & tot_salg24 <= 50, "31–50",
+  fifelse(tot_salg24 > 50, "Over 50", NA_character_))))))]
+
+# Lag en tabell med antall kommuner per gruppe
+fordeling <- kfa_oppdatert[!is.na(salgsbevillingsgruppe), .N, by = salgsbevillingsgruppe][order(salgsbevillingsgruppe)]
+
+# Vis tabellen
+print(fordeling)
+
+# Lag tabell med antall kommuner per gruppe
+rekkefolge <- c("1–5", "6–10", "11–20", "21–30", "31–50", "Over 50")
+fordeling <- kfa_oppdatert[!is.na(salgsbevillingsgruppe), .N, by = salgsbevillingsgruppe]
+fordeling[, salgsbevillingsgruppe := factor(salgsbevillingsgruppe, levels = rekkefolge)]
+fordeling <- fordeling[order(salgsbevillingsgruppe)]
+
+# Sølylediagram:
+highchart() %>%
+  hc_chart(type = "column") %>%
+  hc_title(text = "Antall kommuner etter salgsbevillingsgrupper") %>%
+  hc_xAxis(categories = fordeling$salgsbevillingsgruppe, title = list(text = "Antall salgsbevillinger")) %>%
+  hc_yAxis(title = list(text = "Antall kommuner")) %>%
+  hc_series(list(name = "Antall kommuner", data = fordeling$N, color = "#025169")) %>%
+  hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))
+
+```
+
+
+`r highchart() %>% hc_chart(type = "column") %>% hc_title(text = "Antall kommuner etter salgsbevillingsgrupper") %>% hc_xAxis(categories = fordeling$salgsbevillingsgruppe, title = list(text = "Antall salgsbevillinger")) %>% hc_yAxis(title = list(text = "Antall kommuner")) %>% hc_series(list(name = "Antall kommuner", data = fordeling$N, color = "#025169")) %>%  hc_plotOptions(column = list(dataLabels = list(enabled = TRUE))) `
+
+
+#### Skjenkebevillinger 
+
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+# rm(kfa_oppdatert) # fjerner datatable på kfa_oppdatert
+class(kfa_oppdatert)
+kfa_oppdatert <- as.data.frame(kfa_oppdatert)
+
+# Summerer antall salgsbevillinger tot: 
+kfa_oppdatert$tot_skjenk24 <- rowSums(kfa_oppdatert[, c(
+  "q2_1_1", "q2_1_2", "q2_1_3"
+)], na.rm = TRUE)
+
+sum(kfa_oppdatert$tot_skjenk24, na.rm = TRUE) # Totalt antall med missing, må imputere missing fra i fjor
+  
+  # Sikrer at rader/kommuner med NA, forblir slik: 
+  vars_skjenk <- c("q2_1_1", "q2_1_2", "q2_1_3")
+  
+  # Summér med na.rm = TRUE
+  kfa_oppdatert$tot_skjenk24 <- rowSums(kfa_oppdatert[vars_skjenk], na.rm = TRUE)
+
+  # Sett NA der alle er NA
+  kfa_oppdatert$tot_skjenk24[rowSums(!is.na(kfa_oppdatert[vars_skjenk])) == 0] <- NA
+
+# Hvilke kommuner er missing mtp salgsbevillinger? Må imputere fra 2023.
+skjenk_missing <- kfa_oppdatert$kommune[is.na(kfa_oppdatert$tot_skjenk24)]
+skjenk_missing
+antall_skjenk_miss <- table(skjenk_missing)
+sum(antall_skjenk_miss)
+ 
+oldCode_missing <- kfa_oppdatert$oldCode[is.na(kfa_oppdatert$tot_skjenk24)]
+# OBs på at flere av disse har endret kommunenr fra 2023 til 2024.
+  
+# Har noen kommuner i 2024, 0 skjenkebevillinger?
+skjenk_null <- kfa_oppdatert$kommune[kfa_oppdatert$tot_skjenk24 == 0 &  !is.na(kfa_oppdatert$tot_skjenk24)]
+skjenk_null
+antall_skjenk_0 <- table(skjenk_null)
+sum(antall_skjenk_0)
+
+
+# Imputerer antall salgsbevillinger fra 2023 for kommuner med missing:
+
+  # Finn indekser for matching mellom oldCode og utvalg_kommunenummer
+  match_index <- match(kfa_oppdatert$oldCode, kfa_2023_2024$utvalg_kommunenummer)
+  
+  # Imputer tot_skjenk24 med tot_skjenk23 der tot_skjenk24 er NA eller 0
+  kfa_oppdatert$tot_skjenk24[is.na(kfa_oppdatert$tot_skjenk24)] <- 
+    kfa_2023_2024$tot_skjenk23[match_index][is.na(kfa_oppdatert$tot_skjenk24)]
+  
+# Gir antall skjenkebevillinger i 2024 med imputerte tall:
+sum(kfa_oppdatert$tot_skjenk24, na.rm = TRUE) 
+
+# Skjenkebevillinger etter gruppe:
+  # Gruppe 1:
+
+ # Lager ny variabel, dagligvare:
+    kfa_oppdatert$gr1 <- kfa_oppdatert$q2_1_1
+     match_index <- match(kfa_oppdatert$oldCode, kfa_2023_2024$utvalg_kommunenummer)
+    # Imputerer tall fra 2023 for kommuner som har missing:
+    kfa_oppdatert$gr1[is.na(kfa_oppdatert$gr1)] <- kfa_2023_2024$gr1[match_index][is.na(kfa_oppdatert$gr1)]
+    
+    # Sjekker at ingen er missing:
+    table(is.na(kfa_oppdatert$gr1))
+    # Sjekker antall dagligvare skjenkebevillinger:
+    sum(kfa_oppdatert$gr1, na.rm = TRUE)
+    
+  # Gruppe 2:
+     # Lager ny variabel, dagligvare:
+    kfa_oppdatert$gr12 <- kfa_oppdatert$q2_1_2
+     match_index <- match(kfa_oppdatert$oldCode, kfa_2023_2024$utvalg_kommunenummer)
+    # Imputerer tall fra 2023 for kommuner som har missing:
+    kfa_oppdatert$gr12[is.na(kfa_oppdatert$gr12)] <- kfa_2023_2024$gr12[match_index][is.na(kfa_oppdatert$gr12)]
+    
+    # Sjekker at ingen er missing:
+    table(is.na(kfa_oppdatert$gr12))
+    # Sjekker antall dagligvare skjenkesbevillinger:
+    sum(kfa_oppdatert$gr12, na.rm = TRUE)
+    
+      # Gruppe 3:
+     # Lager ny variabel, dagligvare:
+    kfa_oppdatert$gr123 <- kfa_oppdatert$q2_1_3
+     match_index <- match(kfa_oppdatert$oldCode, kfa_2023_2024$utvalg_kommunenummer)
+    # Imputerer tall fra 2023 for kommuner som har missing:
+    kfa_oppdatert$gr123[is.na(kfa_oppdatert$gr123)] <- kfa_2023_2024$gr123[match_index][is.na(kfa_oppdatert$gr123)]
+    
+    # Sjekker at ingen er missing:
+    table(is.na(kfa_oppdatert$gr123))
+    # Sjekker antall dagligvare skjenkesbevillinger:
+    sum(kfa_oppdatert$gr123, na.rm = TRUE)
+    
+  
+
+    
+library(dplyr)
+library(highcharter) 
+# Set highcharter options
+options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
+
+# Data:
+skjenkebevillinger <- data.frame(x = c(0, 1, 2),
+      y = c((sum(kfa_oppdatert$gr1, na.rm = TRUE)), (sum(kfa_oppdatert$gr12, na.rm = TRUE)), (sum(kfa_oppdatert$gr123, na.rm = TRUE))),
+      name = as.factor(c("Øl/rusbrus","Øl/rusbrus og vin","Øl/rusbrus, vin og brennevin")))
+
+skjenkbev_hc <- skjenkebevillinger %>%
+  hchart(
+    "pie", hcaes(x = name, y = y),
+    name = "Skjenkebevillinger etter alkoholholdig drikk",
+    colorByPoint = TRUE) %>%
+    hc_colors(hdir_color)
+
+skjenkbev_hc
+
+```
+
+
+I 2024 rapporterte `r sum(antall_skjenk_0)` å ha null skjenkebevillinger. Det var følgende kommuner: `r skjenk_null `. 
+
+Følgende kommuner (n=`r sum(antall_skjenk_miss)`) har missing på skjenkebevillinger `r skjenk_missing`, og vi imputerer antall skjenkebevilling fra tidligere. Totalt antall skjenkebevillinger i 2024 var: `r sum(kfa_oppdatert$tot_skjenk24, na.rm = TRUE) `. Dette inkluderer tidligere rapportert antall skjenkebevillinger fra kommunene som ikke har besvart spørsmålet for 2024. Tilsvarende tall i 2023 var: `r sum(kfa_2023_2024$tot_skjenk23, na.rm = TRUE) `. I 2022 var antallet 8456, fra rapporten [Alkohol i Norge](https://www.fhi.no/le/alkohol/alkoholinorge/forebyggende-tiltak/salgs--og-skjenkebevillinger-kommunenes-forvaltning-av-alkoholloven/#salgsbevillinger). 
+
+Fordelingen av hvilken alkoholholdig drikke skjenkebevillingene gjelder vises i figur og tabell under:
+
+`r skjenkbev_hc`. 
+
+
+```{r}
+#| message: false
+#| echo: false
+
+print(skjenkebevillinger)
+
+
+```
+
+
+##### Antall skjenkebevillinger i kommuner
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+# Tabell etter salgsbevillingsgrupper:
+kfa_oppdatert <- as.data.table(kfa_oppdatert)
+
+kfa_oppdatert[, skjenkebevillingsgruppe := fifelse(
+  tot_skjenk24 == 0, "0",
+  fifelse(tot_skjenk24 >= 1 & tot_skjenk24 <= 5, "1–5",
+  fifelse(tot_skjenk24 >= 6 & tot_skjenk24 <= 10, "6–10",
+  fifelse(tot_skjenk24 >= 11 & tot_skjenk24 <= 20, "11–20",
+  fifelse(tot_skjenk24 >= 21 & tot_skjenk24 <= 30, "21–30",
+  fifelse(tot_skjenk24 >= 31 & tot_skjenk24 <= 50, "31–50",
+  fifelse(tot_skjenk24 > 50, "Over 50", NA_character_)))))))]
+
+# Lag en tabell med antall kommuner per gruppe
+fordeling_skjenk <- kfa_oppdatert[!is.na(skjenkebevillingsgruppe), .N, by = skjenkebevillingsgruppe][order(skjenkebevillingsgruppe)]
+
+# Vis tabellen
+print(fordeling_skjenk)
+
+# Lag tabell med antall kommuner per gruppe
+rekkefolge1 <- c("0", "1–5", "6–10", "11–20", "21–30", "31–50", "Over 50")
+fordeling_skjenk <- kfa_oppdatert[!is.na(skjenkebevillingsgruppe), .N, by = skjenkebevillingsgruppe]
+fordeling_skjenk[, skjenkebevillingsgruppe := factor(skjenkebevillingsgruppe, levels = rekkefolge1)]
+fordeling_skjenk <- fordeling_skjenk[order(skjenkebevillingsgruppe)]
+
+# Sølylediagram:
+highchart() %>%
+  hc_chart(type = "column") %>%
+  hc_title(text = "Antall kommuner etter skjenkebevillingsgrupper") %>%
+  hc_xAxis(categories = fordeling_skjenk$skjenkebevillingsgruppe, title = list(text = "Antall skjenkbevillinger")) %>%
+  hc_yAxis(title = list(text = "Antall kommuner")) %>%
+  hc_series(list(name = "Antall kommuner", data = fordeling_skjenk$N, color = "#025169")) %>%
+  hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))
+
+```
+
+
+
+Antall kommuner etter grupperinger av antall skjenkebevillinger, 2024:
+`r highchart() %>% hc_chart(type = "column") %>% hc_title(text = "Antall kommuner etter skjenkebevillingsgrupper") %>% hc_xAxis(categories = fordeling_skjenk$skjenkebevillingsgruppe, title = list(text = "Antall skjenkbevillinger")) %>% hc_yAxis(title = list(text = "Antall kommuner")) %>% hc_series(list(name = "Antall kommuner", data = fordeling_skjenk$N, color = "#025169")) %>%  hc_plotOptions(column = list(dataLabels = list(enabled = TRUE))) `
+
+##### Skjenkebevillinger på andre steder enn barer, diskotek, klubber, kaffer og resturanter:
+
+Det var `r sum(kfa_oppdatert$q2_2 == "Ja", na.rm = TRUE)` kommuner som oppga at de hadde gitt skjenkebevillinger på andre steder enn barer, diskotek, klubber, kaffer og resturanter. De fleste av disse var gitt til: 
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+kfa_oppdatert <- as.data.frame(kfa_oppdatert)
+
+# Antall kommuner som oppgir å ha skjenkebevillinger på andre steder enn barer etc.
+sum(kfa_oppdatert$q2_2 == "Ja", na.rm = TRUE)
+
+# Antall skjenkebevill innenfor andre kateogirer:
+
+# Lag en vektor med variabelnavn
+varlist <- c(
+  q2_2_1_1 = "Alders- og sykehjem / eldresenter el. liknende", 
+  q2_2_1_2 = "Transportmidler (eks. båt)", 
+  q2_2_1_3 = "Idrettsarena (utendørs og innendørs)", 
+  q2_2_1_4 = "Kantiner",
+  q2_2_1_5 = "Turisthytter", 
+  q2_2_1_6 = "Kultur (kino, museer, konserthus, bibliotek)", 
+  q2_2_1_7 = "Frisør/spa og velvære", 
+  q2_2_1_8 = "Opplevelsessenter",
+  q2_2_1_9 = "Selskapslokaler", 
+  q2_2_1_10 = "Klær-/sko-/interiørbutikker el. liknende", 
+  q2_2_1_11 = "Festival", 
+  q2_2_1_12 = "Annet"
+)
+
+for (var in names(varlist)) {
+  cat("\nSum for", varlist[[var]], ":\n")
+  print(sum(kfa_oppdatert[[var]], na.rm = TRUE))
+}
+
+# 
+var_labels <- c(
+  q2_2_1_1 = "Alders- og sykehjem / eldresenter el. liknende", 
+  q2_2_1_2 = "Transportmidler (eks. båt)", 
+  q2_2_1_3 = "Idrettsarena (utendørs og innendørs)", 
+  q2_2_1_4 = "Kantiner",
+  q2_2_1_5 = "Turisthytter", 
+  q2_2_1_6 = "Kultur (kino, museer, konserthus, bibliotek)", 
+  q2_2_1_7 = "Frisør/spa og velvære", 
+  q2_2_1_8 = "Opplevelsessenter",
+  q2_2_1_9 = "Selskapslokaler", 
+  q2_2_1_10 = "Klær-/sko-/interiørbutikker el. liknende", 
+  q2_2_1_11 = "Festival", 
+  q2_2_1_12 = "Annet"
+)
+
+# Lag tabell med summer
+andreskjenkebev <- data.frame(
+  Variabel = names(var_labels),
+  Label = unname(var_labels),
+  Sum = sapply(names(var_labels), function(var) {
+    sum(kfa_oppdatert[[var]], na.rm = TRUE)
+  })
+)
+
+
+# Lag tabell med antall rader der verdien > 0
+andreskjenkebev_n <- data.frame(
+  Variabel = names(var_labels),
+  Label = unname(var_labels),
+  Antall_n = sapply(names(var_labels), function(var) {
+    sum(kfa_oppdatert[[var]] > 0, na.rm = TRUE)
+  })
+)
+
+
+# Vis tabellene
+print(andreskjenkebev) # Viser totalt antall bevillinger for hver kategori.
+print(andreskjenkebev_n) # Viser antall kommuner som har de ulike bevillingene.
+
+
+```
+
+Antall skjenkebevillinger som var gitt til andre steder enn barer, diskotek, klubber, kafeer og restauranter i 2024:
+
+```{r}
+#| message: false
+#| echo: false
+
+print(andreskjenkebev)
+
+
+```
+
+Under vises antall kommuner som har gitt skjenebevillinger til andre steder enn barer, diskotek, klubber, kafeer og restauranter i 2024:
+```{r}
+#| message: false
+#| echo: false
+
+
+print(andreskjenkebev_n)
+
+
+```
+
+
+
+#### Antall skjenkebevillinger for en enkeltanledning og/eller ambulerende skjenkebevillinger ble gitt i 2024
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+# Antall skjenkebev for enkeltanledning eller ambulerende:
+sum(kfa_oppdatert$q2_3, na.rm = TRUE)
+
+# Spredningen: 
+summary(kfa_oppdatert$q2_3)
+
+
+# Tabell etter ambulerendebevillingerbevillingsgrupper:
+kfa_oppdatert <- as.data.table(kfa_oppdatert)
+
+kfa_oppdatert[, ambubevillingsgruppe := fifelse(
+  q2_3 == 0, "0",
+  fifelse(q2_3 >= 1 & q2_3 <= 10, "1-10",
+  fifelse(q2_3 >= 11 & q2_3 <= 20, "11-20",
+  fifelse(q2_3 >= 21 & q2_3 <= 30, "21-30",
+  fifelse(q2_3 >= 31 & q2_3 <= 40, "31-40",
+  fifelse(q2_3 >= 41 & q2_3 <= 50, "41-50",
+  fifelse(q2_3 > 50, "Over 50", NA_character_)))))))]
+
+# Lag en tabell med antall kommuner per gruppe
+fordeling_ambu <- kfa_oppdatert[!is.na(ambubevillingsgruppe), .N, by = ambubevillingsgruppe][order(ambubevillingsgruppe)]
+
+# Vis tabellen
+print(fordeling_ambu)
+
+# Lag tabell med antall kommuner per gruppe
+rekkefolge2 <- c("0", "1-10", "11-20", "21-30", "31-40", "41-50", "Over 50")
+fordeling_ambu <- kfa_oppdatert[!is.na(ambubevillingsgruppe), .N, by = ambubevillingsgruppe]
+fordeling_ambu[, ambubevillingsgruppe := factor(ambubevillingsgruppe, levels = rekkefolge2)]
+fordeling_ambu <- fordeling_ambu[order(ambubevillingsgruppe)]
+
+# Sølylediagram:
+highchart() %>%
+  hc_chart(type = "column") %>%
+  hc_title(text = "Antall kommuner etter bevillingsgrupper") %>%
+  hc_xAxis(categories = fordeling_ambu$ambubevillingsgruppe, title = list(text = "Antall enkelt/ambulerende bevillinger")) %>%
+  hc_yAxis(title = list(text = "Antall kommuner")) %>%
+  hc_series(list(name = "Antall kommuner", data = fordeling_ambu$N, color = "#025169")) %>%
+  hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))
+
+  
+```
+
+
+
+I 2024 var total antall skjenkebevillinger for en enkelt anledning eller ambulerende skjenkebevillinger: `r format(sum(kfa_oppdatert$q2_3, na.rm = TRUE), scientific = FALSE)`. Det er stor spredning i antallet slike som komunene oppgir å ha gitt, mix-max: `r min(kfa_oppdatert$q2_3, na.rm = TRUE)`-`r max(kfa_oppdatert$q2_3, na.rm = TRUE)`. I 2023 ble det gitt totalt antall `r format(sum(kfa_2023_2024$q2_3, na.rm = TRUE), scientific = FALSE)` skjenkebevillinger for en enkelt anledning eller ambulerende skjenkebevillinger.
+
+Fordelingen av antall kommuner med enkelt/ambulerende skjenkebevillinger i 2024:
+
+`r highchart() %>% hc_chart(type = "column") %>% hc_title(text = "Antall kommuner etter bevillingsgrupper") %>% hc_xAxis(categories = fordeling_ambu$ambubevillingsgruppe, title = list(text = "Antall enkelt/ambulerende bevillinger")) %>% hc_yAxis(title = list(text = "Antall kommuner")) %>% hc_series(list(name = "Antall kommuner", data = fordeling_ambu$N, color = "#025169")) %>% hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))`
+
+#### Vilkår for skjenkebevillinger
+
+Det var det `r round ((((sum(kfa_oppdatert$q2_5 == "Ja", na.rm = TRUE))/(nrow(kommuner2024)))*100), 1)`% (n=`r sum(kfa_oppdatert$q2_5 == "Ja", na.rm = TRUE)`) kommuner som rapporterte å ha vilkår knyttet til noen av skjenkebevillingene i 2024. I 2023 var det `r round ((((sum(kfa_2023_2024$q2_5 == 1, na.rm = TRUE))/(nrow(kommuner2023)))*100), 1)`% kommuner som rapporterte å ha vilkår knyttet til noen av skjenkebevillingene. 
+
+
+
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+kfa_oppdatert <- as.data.frame(kfa_oppdatert)
+
+# Antall kommuner som har vilkår knytte ttil noen av skjenkebevillingene:
+sum(kfa_oppdatert$q2_5 == "Ja", na.rm = TRUE)
+
+# Antall kommuner som rapporterer å ha ulike vilkår knyttet til skjenkebevillinger:
+sum(kfa_oppdatert$q2_5_1_1 == "Ordensvakter på stedet", na.rm = TRUE)
+sum(kfa_oppdatert$q2_5_1_2 == "Kursing av ansatte (eks. Ansvarlig Vertskap e-læringskurs )", na.rm = TRUE)
+sum(kfa_oppdatert$q2_5_1_3 == "Nedre aldersgrense", na.rm = TRUE)
+sum(kfa_oppdatert$q2_5_1_4 == "Matservering", na.rm = TRUE)
+sum(kfa_oppdatert$q2_5_1_5 == "Begrensning i skjenketid", na.rm = TRUE)
+sum(kfa_oppdatert$q2_5_1_6 == "Annet", na.rm = TRUE)
+sum(kfa_oppdatert$q2_5_1_7 == "Ingen vilkår ble benyttet", na.rm = TRUE)
+
+# Tabell og figur: 
+
+# Lag en tabell med summerte verdier
+vilkar_data <- data.frame(
+  Vilkår = c(
+    "Ordensvakter på stedet",
+    "Kursing av ansatte",
+    "Nedre aldersgrense",
+    "Matservering",
+    "Begrensning i skjenketid",
+    "Annet",
+    "Ingen vilkår ble benyttet"
+  ),
+  Antall = c(
+    sum(kfa_oppdatert$q2_5_1_1 == "Ordensvakter på stedet", na.rm = TRUE),
+    sum(kfa_oppdatert$q2_5_1_2 == "Kursing av ansatte (eks. Ansvarlig Vertskap e-læringskurs )", na.rm = TRUE),
+    sum(kfa_oppdatert$q2_5_1_3 == "Nedre aldersgrense", na.rm = TRUE),
+    sum(kfa_oppdatert$q2_5_1_4 == "Matservering", na.rm = TRUE),
+    sum(kfa_oppdatert$q2_5_1_5 == "Begrensning i skjenketid", na.rm = TRUE),
+    sum(kfa_oppdatert$q2_5_1_6 == "Annet", na.rm = TRUE),
+    sum(kfa_oppdatert$q2_5_1_7 == "Ingen vilkår ble benyttet", na.rm = TRUE)
+  )
+)
+
+
+# Lag søylediagram med highcharter
+highchart() %>%
+  hc_chart(type = "column") %>%
+  hc_title(text = "Bruk av vilkår ved skjenkebevilling") %>%
+  hc_xAxis(categories = vilkar_data$Vilkår) %>%
+  hc_yAxis(title = list(text = "Antall kommuner")) %>%
+  hc_series(list(
+    name = "Antall kommuner",
+    data = vilkar_data$Antall,
+    color = "#025169"
+  )) %>%
+  hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))
+
+
+```
+
+Fordelingen av vilkårene, 2024:
+
+`r highchart() %>% hc_chart(type = "column") %>% hc_title(text = "Bruk av vilkår ved skjenkebevilling") %>% hc_xAxis(categories = vilkar_data$Vilkår) %>% hc_yAxis(title = list(text = "Antall kommuner")) %>% hc_series(list(name = "Antall kommuner", data = vilkar_data$Antall, color = "#025169" )) %>% hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))`
+
+
+#### Nye bevillinger
+
+##### Salgsbevillinger
+
+Antall nye salgsbevillinger som ble innvilget i 2024: `r sum(kfa_oppdatert$q1_13a_1, na.rm = TRUE)`.
+
+Antall nye salgsbevillinger som ble avslått: `r sum(kfa_oppdatert$q1_13a_2, na.rm = TRUE)`.
+Årsak til avslag:
+
+* Manglende vandelskrav: `r sum(kfa_oppdatert$q1_13b_1, na.rm = TRUE)`.
+* Lokalpolitiske hensyn: `r sum(kfa_oppdatert$q1_13b_2, na.rm = TRUE)`.
+* Manglende dokumentasjon fra søker: `r    sum(kfa_oppdatert$q1_13b_3, na.rm = TRUE)`.
+* Annet: `r sum(kfa_oppdatert$q1_13b_4, na.rm = TRUE) `.
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+# Antall nye salgsbevillinger som ble innvilget:
+  sum(kfa_oppdatert$q1_13a_1, na.rm = TRUE)
+
+# Antall nye salgsbevillinger som ble avslått:
+  sum(kfa_oppdatert$q1_13a_2, na.rm = TRUE)
+  
+  # Årsak til avslag:
+   sum(kfa_oppdatert$q1_13b_1, na.rm = TRUE) # Vandelskrav
+   sum(kfa_oppdatert$q1_13b_2, na.rm = TRUE) # Lokalpolitiske hensyn
+   sum(kfa_oppdatert$q1_13b_3, na.rm = TRUE) # Manglende dokumentasjon fra søker
+   sum(kfa_oppdatert$q1_13b_4, na.rm = TRUE) # Annet
+```
+
+##### Skjenkebevillinger
+
+Antall nye skjenkebevillinger som ble innvilget: `r sum(kfa_oppdatert$q2_8a_1, na.rm = TRUE)`.
+
+Antall nye skjenkebevillinger som ble avslått: `r sum(kfa_oppdatert$q2_8a_2, na.rm = TRUE)`.
+Av de som ble avslått var årsakene:
+
+* Manglende vandelskrav: `r sum(kfa_oppdatert$q2_8b_1_1, na.rm = TRUE)`.
+* Lokalpolitiske hensyn: `r sum(kfa_oppdatert$q2_8b_1_2, na.rm = TRUE)`.
+* Manglende dokumentasjon fra søker: `r sum(kfa_oppdatert$q2_8b_1_3, na.rm = TRUE)`.
+* Manglende godkjenning fra andre offentlige myndigheter: `r sum(kfa_oppdatert$q2_8b_1_4, na.rm = TRUE)`.
+* Annet: `r sum(kfa_oppdatert$q2_8b_1_5, na.rm = TRUE)`.
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+# Antall nye skjenkebevillinger som ble innvilget:
+  sum(kfa_oppdatert$q2_8a_1, na.rm = TRUE)
+
+# Antall nye skjenkebevillinger som ble avslått:
+  sum(kfa_oppdatert$q2_8a_2, na.rm = TRUE)
+
+    # Årsak til avslag:
+   # Årsak til avslag:
+   sum(kfa_oppdatert$q2_8b_1_1, na.rm = TRUE) # Vandelskrav
+   sum(kfa_oppdatert$q2_8b_1_2, na.rm = TRUE) # Lokalpolitiske hensyn
+   sum(kfa_oppdatert$q2_8b_1_3, na.rm = TRUE) # Manglende dokumentasjon fra søker
+   sum(kfa_oppdatert$q2_8b_1_4, na.rm = TRUE) # Manglende godkjenning fra andre offentlige myndigheter
+   sum(kfa_oppdatert$q2_8b_1_5, na.rm = TRUE) # Annet
+
+```
+
+##### Fornyelse av salg og skjenking
+
+Kommunens gjennomføring av fornyelse av salg- og skjenkebevillinger i 2024.
+
+
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+table(kfa_oppdatert$q4_1)
+
+library(highcharter)
+
+# Lag frekvenstabell
+freq_fornyelse <- table(kfa_oppdatert$q4_1)
+
+# Konverter til data.frame
+fornyelse <- data.frame(
+  kategori = names(freq_fornyelse),
+  antall = as.numeric(freq_fornyelse)
+)
+
+# Lag kakediagram med highcharter
+highchart() %>%
+  hc_chart(type = "pie") %>%
+  hc_title(text = "Antall kommuner og gjennomføring av fornyelse av bevillinger") %>%
+  hc_add_series(
+    data = list_parse2(fornyelse),
+    name = "Svar") %>%
+    hc_colors(hdir_color)
+
+
+```
+
+`r highchart() %>% hc_chart(type = "pie") %>% hc_title(text = "Antall kommuner og gjennomføring av fornyelse av bevillinger") %>% hc_add_series( data = list_parse2(fornyelse), name = "Svar") %>% hc_colors(hdir_color)`
+
+
+
+# Salgs- og skjenketider:
+
+## Salgstider
+
+
+```{r}
+#| message: false
+#| echo: false
+
+
+# Antall kommuner med ulik skjenketid for salg av øl/rusbrus på hverdager:
+table(kfa_oppdatert$q1_3a_1)
+
+makssalg_hver <- table(kfa_oppdatert$q1_3a_1, useNA = "no")
+total_N <- sum(makssalg_hver) # Totalt antall besvart
+  # Prosentfordeling: 
+  round(prop.table(table(kfa_oppdatert$q1_3a_1, useNA = "no")) * 100, 1)
+  total_N
+
+# Antall kommuner med ulik skjenketid for salg av øl/rusbrus på lørdager:
+table(kfa_oppdatert$q1_3a_2)
+
+makssalg_helg <- table(kfa_oppdatert$q1_3a_2, useNA = "no")
+total_N <- sum(makssalg_helg) # Totalt antall besvart
+  # Prosentfordeling: 
+  round(prop.table(table(kfa_oppdatert$q1_3a_2, useNA = "no")) * 100, 1)
+total_N
+
+# Antall kommuner hvor alle salgsbevillingene var gitt til maksimaltiden:
+table(kfa_oppdatert$q1_3b)
+
+
+```
+
+## Skjenketider
+
+```{r}
+#| message: false
+#| echo: false
+
+# Antall kommuner med maksimaltid for skjenking av øl/rusbrus og vin, for helg om ulik tid:
+table(kfa_oppdatert$q2_6a)
+
+maksskjenk_ol <- table(kfa_oppdatert$q2_6a, useNA = "no")
+total_N <- sum(maksskjenk_ol) # Totalt antall besvart
+  # Prosentfordeling: 
+  round(prop.table(table(kfa_oppdatert$q2_6a, useNA = "no")) * 100, 2)
+total_N 
+
+  # Anall kommuner hvor alle skjenkebevillingene for øl/rusbrus var gitt til maksimaltiden:
+table(kfa_oppdatert$q2_6b)
+
+# Antall kommuner med maksimaltid for skjenking av brennevin, for helg om ulik tid:
+table(kfa_oppdatert$q2_7a)
+
+maksskjenk_bren <- table(kfa_oppdatert$q2_7a, useNA = "no")
+total_N <- sum(maksskjenk_bren) # Totalt antall besvart
+  # Prosentfordeling: 
+  round(prop.table(table(kfa_oppdatert$q2_7a, useNA = "no")) * 100, 2)
+  total_N 
+  # Anall kommuner hvor alle skjenkebevillingene for brennevin var gitt til maksimaltiden:
+table(kfa_oppdatert$q2_7b)
+
+
+```
+## Salgs- og skjenketider i utvalgte byer
+
+| Kommune      | Salgstid, hverdager                                                  | Salgstid, helg                                                       | Skjenketid øl/rusbrus og vin                                       | Skjenketid brennevin                                               |
+|--------------|----------------------------------------------------------------------|----------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------------------------|
+| Oslo         | `r subset(kfa_oppdatert, kommunenummer == 301, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 301, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 301, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 301, select = c(q2_7a))` |
+| Bergen       | `r subset(kfa_oppdatert, kommunenummer == 4601, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 4601, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 4601, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 4601, select = c(q2_7a))` |
+| Trondheim    | `r subset(kfa_oppdatert, kommunenummer == 5001, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 5001, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 5001, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 5001, select = c(q2_7a))` |
+| Stavanger    | `r subset(kfa_oppdatert, kommunenummer == 1103, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 1103, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 1103, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 1103, select = c(q2_7a))` |
+| Kristiansand | `r subset(kfa_oppdatert, kommunenummer == 4204, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 4204, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 4204, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 4204, select = c(q2_7a))` |
+| Fredrikstad  | `r subset(kfa_oppdatert, kommunenummer == 3107, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3107, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3107, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3107, select = c(q2_7a))` |
+| Tromsø       | `r subset(kfa_oppdatert, kommunenummer == 5501, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 5501, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 5501, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 5501, select = c(q2_7a))` |
+| Sandnes      | `r subset(kfa_oppdatert, kommunenummer == 1108, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 1108, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 1108, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 1108, select = c(q2_7a))` |
+| Drammen      | `r subset(kfa_oppdatert, kommunenummer == 3301, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3301, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3301, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3301, select = c(q2_7a))` |
+| Sandefjord   | `r subset(kfa_oppdatert, kommunenummer == 3907, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3907, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3907, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3907, select = c(q2_7a))` |
+| Sarpsborg    | `r subset(kfa_oppdatert, kommunenummer == 3105, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3105, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3105, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3105, select = c(q2_7a))` |
+| Skien        | `r subset(kfa_oppdatert, kommunenummer == 4003, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 4003, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 4003, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 4003, select = c(q2_7a))` |
+| Bodø         | `r subset(kfa_oppdatert, kommunenummer == 1804, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 1804, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 1804, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 1804, select = c(q2_7a))` |
+| Larvik       | `r subset(kfa_oppdatert, kommunenummer == 3909, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3909, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3909, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3909, select = c(q2_7a))` |
+| Ålesund      | `r subset(kfa_oppdatert, kommunenummer == 1508, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 1508, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 1508, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 1508, select = c(q2_7a))` |
+| Arendal      | `r subset(kfa_oppdatert, kommunenummer == 4203, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 4203, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 4203, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 4203, select = c(q2_7a))` |
+| Tønsberg     | `r subset(kfa_oppdatert, kommunenummer == 3905, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3905, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3905, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3905, select = c(q2_7a))` |
+| Porsgrunn    | `r subset(kfa_oppdatert, kommunenummer == 4001, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 4001, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 4001, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 4001, select = c(q2_7a))` |
+| Haugesund    | `r subset(kfa_oppdatert, kommunenummer == 1106, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 1106, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 1106, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 1106, select = c(q2_7a))` |
+| Moss         | `r subset(kfa_oppdatert, kommunenummer == 3103, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3103, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3103, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3103, select = c(q2_7a))` |
+| Gjøvik       | `r subset(kfa_oppdatert, kommunenummer == 3407, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3407, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3407, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3407, select = c(q2_7a))` |
+| Hamar        | `r subset(kfa_oppdatert, kommunenummer == 3403, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3403, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3403, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3403, select = c(q2_7a))` |
+| Halden       | `r subset(kfa_oppdatert, kommunenummer == 3101, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3101, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3101, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3101, select = c(q2_7a))` |
+| Lillehammer  | `r subset(kfa_oppdatert, kommunenummer == 3405, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3405, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3405, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3405, select = c(q2_7a))` |
+| Horten       | `r subset(kfa_oppdatert, kommunenummer == 3901, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3901, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3901, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3901, select = c(q2_7a))` |
+| Kongsberg    | `r subset(kfa_oppdatert, kommunenummer == 3303, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 3303, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 3303, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 3303, select = c(q2_7a))` |
+| Molde        | `r subset(kfa_oppdatert, kommunenummer == 1506, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 1506, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 1506, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 1506, select = c(q2_7a))` |
+| Harstad      | `r subset(kfa_oppdatert, kommunenummer == 5503, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 5503, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 5503, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 5503, select = c(q2_7a))` |
+| Kristiansund | `r subset(kfa_oppdatert, kommunenummer == 1505, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 1505, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 1505, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 1505, select = c(q2_7a))` |
+| Steinkjer    | `r subset(kfa_oppdatert, kommunenummer == 5006, select = c(q1_3a_1))` | `r subset(kfa_oppdatert, kommunenummer == 5006, select = c(q1_3a_2))` | `r subset(kfa_oppdatert, kommunenummer == 5006, select = c(q2_6a))` | `r subset(kfa_oppdatert, kommunenummer == 5006, select = c(q2_7a))` |
+|              |                                                                      |                                                                      |                                                                    |                                                                    |
+
+
+
+# Brudd på alkoholloven
+
+## Overtredelser knyttet til salgsbevillinger etter type
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+# Antall kommuner som har rapportert overtredelser knyttet til salgsbevillinger:
+table(kfa_oppdatert$q1_6)
+
+# Summerer antall overtredelser knyttet til salgsbevillinger: 
+
+  # Sikrer at rader/kommuner med NA, forblir slik: 
+  vars_otgsalg <- c("q1_6a_1_1", "q1_6a_1_2", "q1_6a_1_3", "q1_6a_1_4", "q1_6a_1_5", "q1_6a_1_6", "q1_6a_1_7", "q1_6a_1_8", "q1_6a_1_9", "q1_6a_1_10", "q1_6a_1_11", "q1_6a_1_12", "q1_6a_1_13", "q1_6a_1_14", "q1_6a_1_15", "q1_6a_1_16")
+  
+  navn_otgsalg <- c("Salg til mindreårige", "Brudd på kravet om forsvarlig drift", "Hindring av kontroll", "Salg til åpenbart påvirket person", "Brudd på tidsbestemmelsene", "Brudd på reklamebestemmelsene", "Brudd på alderskrav til den som selger alkohol", "Mangler ved internkontrollen", "Brudd på regler om styrer og stedfortreder", "Brudd på reglene om plassering av alkoholholdig drikk på salgsstedet", "Brudd på vilkår i bevillingsvedtaket", "Manglende levering av omsetningsoppgave innen kommunens frist", "Manglende betaling av bevillingsgebyr innen kommunens frist", "Omsetning med rabatt", "Ubetjent salg", "Annen type overtredelse")
+  
+  # Summér med na.rm = TRUE
+  kfa_oppdatert$otg_salg24 <- rowSums(kfa_oppdatert[vars_otgsalg], na.rm = TRUE)
+  
+  # Sett NA der alle er NA
+  kfa_oppdatert$otg_salg24[rowSums(!is.na(kfa_oppdatert[vars_otgsalg])) == 0] <- NA
+
+sum(kfa_oppdatert$otg_salg24, na.rm = TRUE)
+
+
+# Lag datasettet til figur:
+otg_salg <- data.frame(
+  x = seq_along(vars_otgsalg) - 1,
+  y = sapply(vars_otgsalg, function(v) sum(kfa_oppdatert[[v]], na.rm = TRUE)),
+  name = factor(navn_otgsalg)
+)
+
+## Figur som viser overtredelser knyttet til salg:
+highchart() %>%
+  hc_chart(type = "bar") %>%  # Liggende søyler
+  hc_title(text = "Overtredelser knyttet til salgsbevillinger") %>%
+  hc_xAxis(categories = otg_salg$name) %>%  # Bruk navnene som kategorier
+  hc_add_series(
+    name = "",
+   data = otg_salg$y,
+      colorByPoint = TRUE) %>%
+    hc_colors(hdir_color) %>%
+  hc_plotOptions(bar = list(dataLabels = list(enabled = TRUE))) %>% # Viser verdier på søylene
+hc_legend(enabled = FALSE)  # Fjerner legend
+
+# Tabell om nødvendig
+#kable(otg_salg)
+
+
+```
+
+Det var `r sum(kfa_oppdatert$q1_6 == "Ja", na.rm = TRUE)` kommuner som rapporterte overtredelser knyttet til salgsbevillinger i 2024. Totalt ble det avdekket `r sum(kfa_oppdatert$otg_salg24, na.rm = TRUE)` overtredelser knyttet til salgsbevillinger. 
+
+Fordelingen av de ulike overtredlsene vises under.
+
+`r highchart() %>%  hc_chart(type = "bar") %>% hc_title(text = "Overtredelser knyttet til salgsbevillinger") %>%  hc_xAxis(categories = otg_salg$name) %>% hc_add_series(name = "", data = otg_salg$y, colorByPoint = TRUE) %>%  hc_colors(hdir_color) %>% hc_plotOptions(bar = list(dataLabels = list(enabled = TRUE))) %>% hc_legend(enabled = FALSE)`
+
+## Overtredelser knyttet til skjenkebevillinger etter type
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+
+# Antall kommuner som har rapportert overtredelser knyttet til salgsbevillinger:
+table(kfa_oppdatert$q2_11)
+
+# Summerer antall overtredelser knyttet til salgsbevillinger: 
+
+  # Sikrer at rader/kommuner med NA, forblir slik: 
+  vars_otgskjenk <- c("q2_11a_1_1", "q2_11a_1_2", "q2_11a_1_3", "q2_11a_1_4", "q2_11a_1_5", "q2_11a_1_6", "q2_11a_1_7", "q2_11a_1_8", "q2_11a_1_9", "q2_11a_1_10","q2_11a_1_11","q2_11a_1_12", "q2_11a_1_13", "q2_11a_1_14", "q2_11a_1_15", "q2_11a_1_16", "q2_11a_1_17", "q2_11a_1_18", "q2_11a_1_19", "q2_11a_1_20", "q2_11a_1_21", "q2_11a_1_22", "q2_11a_1_23")
+  
+  navn_otgskjenk <- c("Skjenking til mindreårige", "Brudd på bistandsplikten", "Brudd på kravet om forsvarlig drift", "Hindring av kontroll", "Skjenking til åpenbart påvirket person", "Brudd på tidsbestemmelsene", "Brudd på reklamebestemmelsene", "Skjenking av sprit til person mellom 18 og 20 år", "Brudd på alderskrav til den som skjenker alkohol", "Åpenbart påvirket person i lokalet", "Mangler ved internkontrollsystemet", "Brudd på regler om styrer og stedfortreder", "Gjentatt diskriminering", "Gjentatt narkotikaomsetning", "Brudd på reglene om alkoholfrie alternativer", "Brudd på reglene om plassering av alkoholholdig drikk på skjenkestedet", "Brudd på reglene om skjenkemengde for brennevin", "Brudd på vilkår i bevillingsvedtaket", "Konsum av medbrakt alkohol", "Gjester tar med alkohol ut", "Manglende levering av omsetningsoppgave innen kommunens frist", "Manglende betaling av bevillingsgebyr innen kommunens frist", "Annen type overtredelse")
+  
+  # Summér med na.rm = TRUE
+  kfa_oppdatert$otg_skjenk24 <- rowSums(kfa_oppdatert[vars_otgskjenk], na.rm = TRUE)
+  
+  # Sett NA der alle er NA
+  kfa_oppdatert$otg_skjenk24[rowSums(!is.na(kfa_oppdatert[vars_otgskjenk])) == 0] <- NA
+
+  sum(kfa_oppdatert$otg_skjenk24, na.rm = TRUE)
+
+
+# Lag datasettet til figur:
+otg_skjenk <- data.frame(
+  x = seq_along(vars_otgskjenk) - 1,
+  y = sapply(vars_otgskjenk, function(v) sum(kfa_oppdatert[[v]], na.rm = TRUE)),
+  name = factor(navn_otgskjenk)
+)
+
+## Figur som viser overtredelser knyttet til salg:
+highchart() %>%
+  hc_chart(type = "bar") %>%  # Liggende søyler
+  hc_title(text = "Overtredelser knyttet til salgsbevillinger") %>%
+  hc_xAxis(categories = otg_skjenk$name) %>%  # Bruk navnene som kategorier
+  hc_add_series(
+    name = "",
+   data = otg_skjenk$y,
+      colorByPoint = TRUE) %>%
+    hc_colors(hdir_color) %>%
+  hc_plotOptions(bar = list(dataLabels = list(enabled = TRUE))) %>% # Viser verdier på søylene
+hc_legend(enabled = FALSE)  # Fjerner legend
+
+# Tabell om nødvendig
+#kable(otg_skjenk)
+
+
+```
+
+Det var `r sum(kfa_oppdatert$q2_11 == "Ja", na.rm = TRUE)` kommuner som rapporterte overtredelser knyttet til skjenkebevillinger i 2024.Totalt ble det avdekket `r sum(kfa_oppdatert$otg_skjenk24, na.rm = TRUE)` overtredelser knyttet til skjenkebevillinger. Fordelingen av de ulike overtredelsene vises under.
+
+`r highchart() %>% hc_chart(type = "bar") %>% hc_title(text = "Overtredelser knyttet til salgsbevillinger") %>% hc_xAxis(categories = otg_skjenk$name) %>% hc_add_series(name = "", data = otg_skjenk$y, colorByPoint = TRUE) %>% hc_colors(hdir_color) %>% hc_plotOptions(bar = list(dataLabels = list(enabled = TRUE))) %>% hc_legend(enabled = FALSE)`
+
+
+## Inndragninger av bevillinger
+
+
+* Salg, permanent: `r sum(kfa_oppdatert$q1_7_1, na.rm = TRUE)`.
+* Salg, midlertidig: `r sum(kfa_oppdatert$q1_8_1, na.rm = TRUE)`.
+* Skjenke, permanent: `r sum(kfa_oppdatert$q2_12_1, na.rm = TRUE)`.
+* Skjenke, midlertidig: `r sum(kfa_oppdatert$q2_13_1, na.rm = TRUE)`.
+
+```{r}
+#| message: false
+#| echo: false
+
+
+```
+
+
+
+# Kommunens alkoholpolitikk og saksbehandling
+
+I spørsmål om kommunen har utarbeidet alkoholpolitsk handlingplan (eller liknende føringer for alkoholpolitikken, for eksempel retningslinjer), sier `r round ((((sum(kfa_oppdatert$q4_3 == "Ja", na.rm = TRUE))/(sum(kfa_oppdatert$q4_3 == "Ja" | kfa_oppdatert$q4_3 == "Nei", na.rm = TRUE)))*100),1) ` % av kommunene at de gjør dette (n=`r sum(kfa_oppdatert$q4_3 == "Ja", na.rm = TRUE)`). 
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+# Utarbeidet alkoholpolitiske handlingsplan (eller liknende føringer for alkoholpolitikken)
+table(kfa_oppdatert$q4_3)
+
+sum(kfa_oppdatert$q4_3 == "Ja", na.rm = TRUE)
+sum(kfa_oppdatert$q4_3 == "Ja" | kfa_oppdatert$q4_3 == "Nei", na.rm = TRUE)
+
+# Opplevde største utfordringene i saksbehandlingen
+
+kfa_oppdatert <- as.data.frame(kfa_oppdatert)
+
+# Lage firgur med utfordringer
+
+utfordringer_data <- data.frame(
+  utfordringer = c(
+  "Innhenting av uttalelser fra høringsinstansene", 
+  "Manglende saksbehandlingssystem/fagsystem", 
+  "Registrering av bevillinger i Tobakksalgs- og bevillingsregisteret (TBR)", 
+  "Spørsmål fra bevillingssøker",
+  "Vandelsvurdering", 
+  "Mangel på tilgjengelig veiledning og informasjon om regelverket", 
+  "Komplisert regelverk", 
+  "Annet",
+  "Ikke noe"
+  ),
+  Antall_U = c(
+  sum(kfa_oppdatert$q5_1_1 == "Innhenting av uttalelser fra høringsinstansene", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_1_2 == "Manglende saksbehandlingssystem/fagsystem", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_1_3 == "Registrering av bevillinger i Tobakksalgs- og bevillingsregisteret (TBR)", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_1_4 == "Spørsmål fra bevillingssøker", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_1_5 == "Vandelsvurdering", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_1_6 == "Mangel på tilgjengelig veiledning og informasjon om regelverket", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_1_7 == "Komplisert regelverk", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_1_8 == "Annet", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_1_9 == "Ikke noe", na.rm = TRUE)
+)
+)
+
+highchart() %>%
+  hc_chart(type = "column") %>%
+  hc_title(text = "Opplevde største utfordringer i saksbehandlingen etter alkoholloven") %>%
+  hc_xAxis(categories = utfordringer_data$utfordringer) %>%
+  hc_yAxis(title = list(text = "")) %>%
+  hc_series(list(
+    name = "Antall kommuner",
+    data = utfordringer_data$Antall_U,
+    color = "#025169"
+  )) %>%
+  hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))
+
+
+
+
+```
+
+## Opplevde største utfordringene i saksbehandlingen 
+
+Figur under viser de opplevde største utfordrignene i saksbehandlingene etter alkoholloven. 
+`r highchart() %>% hc_chart(type = "column") %>% hc_title(text = "Opplevde største utfordringer i saksbehandlingen etter alkoholloven") %>% hc_xAxis(categories = utfordringer_data$utfordringer) %>% hc_yAxis(title = list(text = "Antall kommuner")) %>% hc_series(list(name = "Antall kommuner", data = utfordringer_data$Antall_U, color = "#025169" )) %>% hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))`
+
+
+## Veildning ifm saksbehandling av salgs- og skjenkebevillinger
+Det var `r sum(kfa_oppdatert$q5_2 == "Ja", na.rm = TRUE)` av kommunene som rapporterter at de har mottatt veildning i 2024. Videre rapporterer disse å få veiledning fra ulike aktører, se under.
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+# Veildning ifm saksbehandling av salgs- og skjenkebevillinger
+
+# Antall kommuner som har vilkår knytte ttil noen av skjenkebevillingene:
+table(kfa_oppdatert$q5_2)
+  # antall kommuner med veildning:
+sum(kfa_oppdatert$q5_2 == "Ja", na.rm = TRUE)
+
+# Hvem kommunene fikk veiledning fra:
+
+kfa_oppdatert <- as.data.frame(kfa_oppdatert)
+
+# Lage firgur med utfordringer
+
+veiledning_data <- data.frame(
+  veiledning = c(
+  "Statsforvalter", 
+  "Annen kommune", 
+  "KORUS", 
+  "Kommunalt alkoholfaglig saksbehandlerforum (KAS)",
+  "Annet"
+  ),
+  Antall_v = c(
+  sum(kfa_oppdatert$q5_2a_1 == "Statsforvalter", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_2a_2 == "Annen kommune", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_2a_3 == "KORUS", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_2a_4 == "Kommunalt alkoholfaglig saksbehandlerforum (KAS)", na.rm = TRUE),
+  sum(kfa_oppdatert$q5_2a_5 == "Annet", na.rm = TRUE)
+)
+)
+
+highchart() %>%
+  hc_chart(type = "column") %>%
+  hc_title(text = "Kommunene har fått veiledning fra...") %>%
+  hc_xAxis(categories = veiledning_data$veiledning) %>%
+  hc_yAxis(title = list(text = "")) %>%
+  hc_series(list(
+    name = "Antall kommuner",
+    data = veiledning_data$Antall_v,
+    color = "#025169"
+  )) %>%
+  hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))
+
+
+```
+`r highchart() %>% hc_chart(type = "column") %>% hc_title(text = "Kommunene har fått veiledning fra...") %>% hc_xAxis(categories = veiledning_data$veiledning) %>% hc_yAxis(title = list(text = "")) %>% hc_series(list( name = "Antall kommuner", data = veiledning_data$Antall_v, color = "#025169")) %>% hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))`
+
+
+
+```{r}
+#| message: false
+#| echo: false
+#| output: false
 
 ```
 
 
 ```{r}
+#| message: false
+#| echo: false
+#| output: false
+
+
 
 ```
+
 
 
 
