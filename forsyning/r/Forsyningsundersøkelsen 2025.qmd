@@ -4,24 +4,133 @@ format: html
 editor: visual
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+# Importere fil, konvertere til data.table og lage kodebok. 
 
 ```{r}
+#| include: false
+#| output: false
+#| message: false
+
 library(data.table)
+library(haven)
+
+for_2025 <- read_sav("O:/Prosjekt/Rusdata/Forsyningsundersøkelsen/Data_Forsyn_2015_2024/FU_veid_2015_2025_sep.sav")
+
+for_2025 <- as.data.frame(for_2025) # Gjør datasettet til data.frame
 
 ```
 
-You can add options to executable code like this
 
 ```{r}
 #| echo: false
-2 * 2
+#| message: false
+
+library(DT)
+
+source("https://raw.githubusercontent.com/folkehelsestats/rusus/refs/heads/main/fun-codebook.R")
+
+# Lager kodeboka som eksporteres manuelt:
+create_codebook(for_2025)
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+
+# Opprette variabler, endre navn og fjerner inivider <16 år og >74
+
+```{r}
+#| echo: false
+#| include: false
+#| output: false
+#| message: false
+
+# År, måned, dag:
+setDT(for_2025)
+
+for_2025[, Astartdato1 := as.Date(as.character(Astartdato1), format = "%Y%m%d")]
+
+for_2025[, `:=`(
+  aar   = year(Astartdato1),
+  maned = month(Astartdato1),
+  dag   = mday(Astartdato1)
+)]
+
+# Alder og kjønn
+setnames(for_2025, old = c("Aalder1", "Akjonn"), new = c("alder", "kjonn"))
+
+  # Fjern rader der kjonn er NA
+  for_2025 <- for_2025[!is.na(kjonn)] # !is.na(kjonn) fjerner rader med manglende verdi i kjonn.
+  # Fjern rader der alder > 74
+  for_2025 <- for_2025[alder <= 74]
+  # Fjern rader der alder < 16
+  for_2025 <- for_2025[alder >= 16]
+
+  # Alder i 4 grupper
+  # 1. Lag ny variabel alder_4 (4-aldersgrupper) med NA som utgangspunkt
+  for_2025[, alder_4 := NA_integer_] # NA_integer_ sikrer at alder_4 starter som numerisk.
+  
+  # 2. Sett alder_4 = alder hvis alder > 15 & alder < 75
+  for_2025[alder > 15 & alder < 75, alder_4 := alder]
+  
+  # 3. Recode til grupper (bytter alderen med tall 1-4)
+  for_2025[alder_4 %between% c(16, 24), alder_4 := 1]
+  for_2025[alder_4 %between% c(25, 49), alder_4 := 2]
+  for_2025[alder_4 %between% c(50, 64), alder_4 := 3]
+  for_2025[alder_4 %between% c(65, 74), alder_4 := 4]
+  
+  # 4. Lag labels som en faktor
+  for_2025[, alder_4 := factor(alder_4,
+                         levels = 1:4,
+                         labels = c("16-24", "25-49", "50-64", "65-74"))]
+  
+  # Alder i 6 grupper (med 10 år)
+  # 1. Lag ny variabel alder_10 (6 aldersgrupper) med NA som utgangspunkt
+  for_2025[, alder_10 := NA_integer_]
+  
+  # 2. Sett alder_10 = alder hvis alder > 15 & alder < 75
+  for_2025[alder > 15 & alder < 75, alder_10 := alder]
+  
+  # 3. Recode til grupper (bytter alderen med tall 1-4)
+  for_2025[alder_10 %between% c(16, 25), alder_10 := 1]
+  for_2025[alder_10 %between% c(26, 35), alder_10 := 2]
+  for_2025[alder_10 %between% c(36, 45), alder_10 := 3]
+  for_2025[alder_10 %between% c(46, 55), alder_10 := 4]
+  for_2025[alder_10 %between% c(56, 65), alder_10 := 5]
+  for_2025[alder_10 %between% c(66, 75), alder_10 := 6]
+  
+  # 4. Lag labels som en faktor
+  for_2025[, alder_10 := factor(alder_10,
+                         levels = 1:6,
+                         labels = c("16-25", "26-35", "36-45", "46-55", "56-65", "66-75"))]
+  
+```
+
+
+
+
+
+
+## Lage variabøer for røyk, snus og damp/vape i tråd med FHIs koder.
+
+```{r}
+#| echo: false
+#| include: false
+#| output: false
+#| message: false
+
+# Oppretter variabler om beskrivelse av vaner (daglig, av-og-til, tidligere, aldri) for røyk, snus og damp: 
+for_2025[, royk := Aq1]
+for_2025[, snus := Aq2]
+for_2025[, damp := Aq3]
+
+
+```
+
+
+
+# 2025 Utvalget
+
+N = `r for_2025[aar == 2025, .N]`
+Kjønn: 
+`r for_2025[aar == 2025, .N, by = kjonn]`
+
+
