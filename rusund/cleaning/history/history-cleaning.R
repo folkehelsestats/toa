@@ -18,6 +18,7 @@ ddt[year %in% c(2022,2024), kjonn := fcase(kjonn == 1, 2, #Kvinne
 
 ## Exclude 2012 and 2013 since the answers are different for drukk2c than the others
 ## The recoding for frequency differ from Elin og Ingeborg. This one is the way Ingeborg defines it.
+## Antall dager drukket alkohol siste år (blant siste års drikkere)
 ddt[!(year %in% 2012:2013), alkodager := fcase(
                              drukket2 == 1, 365,
                              drukket2 == 2 & drukk2a == 1, 234,

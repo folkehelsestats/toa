@@ -45,7 +45,7 @@ subtit <- "Tallene er justert for forskjeller
 i kjønn og alder i befolkningen for å gjøre det
 sammenlignbare over tid"
 
-hcx <- highchart(height = 600) |>
+hcx <- highchart() |>
   hc_title(text = "Alkoholbruk siste 4 uker med 95% CI",
            margin = 20, #space btw title (or subtitle) and plot [default = 15]
            align = "left",
@@ -152,3 +152,19 @@ save_html(html, "figure_med_ci_custom.html")
 ### --------
 
 create_ci_chart(dtx)
+
+
+
+### TEST
+### ....
+library(highcharter)
+
+# install.packages("palmerpenguins")
+data(penguins, package = "palmerpenguins")
+
+hchart(
+  penguins,
+  "scatter",
+  hcaes(x = flipper_length_mm, y = bill_length_mm, group = species)
+) |>
+  hc_exporting(enabled = TRUE)
