@@ -1,0 +1,242 @@
+---
+title: "Alkohol relatert tall"
+subtitle: "GBD"
+format:
+  html:
+    code-fold: true
+    toc: false 
+---
+
+```{r setup}
+#| echo: false
+#| warning: false
+#| include : false
+
+source("c:/Users/ykama/Git-hdir/toa/rusund/setup.R")
+
+odrive <- "O:\\Prosjekt\\Rusdata"
+source(file.path(odrive, "folder-path.R"))
+source(file.path(here::here(), "rusund/functions/fun-call.R"))
+
+## Data 2012 - 2024
+ddt <- readRDS(file.path(Rususdata, "Rusus_2012_2023", "data_2012_2024.rds"))
+cleanFile <- file.path("rusund", "cleaning", "history", "history-cleaning.R")
+## Datasettet ddt blir omdefinert her
+source(file.path(here::here(), cleanFile))
+
+## Make it downloadable
+makeDT <- function(d){
+  DT::datatable(d,
+                rownames = FALSE,  # This removes the row numbers
+                extensions = 'Buttons',
+                options = list(
+                  pageLength = 10,
+                  lengthMenu = c(10, 25, 50, 100),  # Let users choose
+                  dom = 'Blrtip', #
+                  buttons = c('csv', 'excel')
+                ))
+}
+
+## Select only relevant data
+dt <- ddt[year %in% 2020:2024] #as requested
+
+
+## Fordeling etter kjønn og 5-årige aldersgrupper (eller 10-årige) for 2020 til
+## 2024 med CI. Gjerne antall dager per måned alkoholkonsum framfor ja/nei
+## drukket alkohol siste 12 måneder
+
+## Alders kategorier ---
+ageBreak5 <- c(16, 21, 26, 31, 36, 41, 46, 51, 56, 61, 66, 71, 76, Inf)
+ageLab5 <- c("16-20", "21-25", "26-30", "31-35", "36-40",
+            "41-45", "46-50", "51-55", "56-60", "61-65",
+            "66-70", "71-75", "76-79")
+
+group_age(dt = dt, var = "alder", breaks = ageBreak5,
+          labels = ageLab5, new_var = "age5",
+          right = FALSE, missing_values = c(999, 998))
+
+ageBreak10 <- c(16, 25, 35, 45, 55, 65, Inf)
+ageLab10 <- c("16-24", "25-34", "35-44", "45-54", "55-64", "65-79")
+
+group_age(dt = dt, var = "alder", breaks = ageBreak10,
+          labels = ageLab10, new_var = "age10",
+          right = FALSE, missing_values = c(999, 998))
+
+## Kjonn kodebook
+kjonnval <- c("Menn" = 1, "Kvinner" = 2, "Alle" = 3)
+kjonnkb <- data.table(v1 = as.integer(kjonnval),
+                      v2 = names(kjonnval))
+
+dt[, kjonnStr := fcase(kjonn == 1, "Menn",
+                       kjonn == 2, "Kvinner")]
+
+```
+# Drukket alkohol de siste 12 måneder
+
+```{r drink}
+#| echo: false
+#| warning: false
+
+source(file.path(here::here(), "misc/GBD/fun-prevalence-with-ci.R"))
+
+## Crude
+drinkCIx <- dt[, {
+calc_prevalence(.SD, "alkosistaar")
+}, by = .(year, kjonn)]
+
+## Weighted
+drinkCIw <- dt[, {
+  calc_prevalence(.SD, "alkosistaar", weight = "nyvekt2")
+}, keyby = .(year, kjonnStr)]
+
+drinkCIwage <- dt[, {
+  calc_prevalence(.SD, "alkosistaar", weight = "nyvekt2")
+}, keyby = .(year, kjonnStr, age5)]
+
+dwa <- drinkCIwage[, lapply(.SD, \(x) if(is.numeric(x)) round(x, 2) else x)]
+
+## library(DT)
+makeDT(dwa)
+```
+
+# Drikkefrekvens - Antall dager siste 12 måneder 
+
+Antall dager for drikkefrekvens defineres i koden på følgende måte:
+
+```{r code-dag}
+#| code-fold: true
+#| code-summary: "Se koden"
+#
+# Antall dager drukket alkohol siste 12 måneder (blant siste års drikkere)
+dt[, drinkdays := fcase(
+  drukket2 == 1, 365,
+  drukket2 == 2 & drukk2a == 1, 234, #4-5 dager i uken
+  drukket2 == 2 & drukk2a == 2, 130, #2-3 dager i uken
+  drukket2 == 2 & drukk2a == 3, 52,  #1 dag i uken
+  drukket2 == 3 & drukk2b == 1, 42,  #Flere enn tre dager i måneden
+  drukket2 == 3 & drukk2b == 2, 30,  #2-3 dager i måneden
+  drukket2 == 3 & drukk2b == 3, 12,  #1 dag i måneden
+  drukket2 == 4 & drukk2c == 1, 7.5, #Flere enn tre dager i året (Hvordan få man 7.5 dager?)
+  drukket2 == 4 & drukk2c == 2, 2.5, #2-3 dager i året
+  drukket2 == 4 & drukk2c == 3, 1,   #1 dag i året
+  drukket2 == 9 |
+    drukk2a == 8 |
+    drukk2b == 9 |
+    drukk2c %in% c(8, 9) |
+    drukket1 %in% c(8, NA), NA_real_,
+  default = 0
+)]
+
+```
+
+
+```{r freq}
+#| echo: false
+
+source(file.path(here::here(), "misc/GBD/fun-prevalence-cat.R"))
+                                        # Usage:
+freqD <- dt[, {
+  result <- calc_prevalence_category(.SD, "alkodager", weight = "nyvekt2")
+  setnames(result, "category", "alkodager")
+  result
+}, by = .(year, kjonnStr)]
+
+freqD <- freqD[, lapply(.SD, \(i) if(is.numeric(i)) round(i, 2) else i)]
+
+makeDT(freqD)
+```
+
+# Mengde forbruk blant de som drikker i cl siste 4 uker (justert for alder)
+
+Det finnes ulike definisjoner for hvor mye cl eller gram som utgjør én
+alkoholenhet. I denne sammenhengen bruker vi 15 ml ren alkohol per enhet.
+Tallene her viser gjennomsnittlig konsum av ren alkohol i centiliter, justert for
+alder. Dersom man definerer én enhet som 12 gram alkohol, kan man multiplisere
+tallene med 8.
+
+```{r konsum}
+#| echo: false
+
+source("https://raw.githubusercontent.com/folkehelsestats/toa/refs/heads/main/rusund/rapport/analysis2024/drikk-enheter.R")
+
+## En enhet er 1.5cl
+## Covert to gram by multiply the result with 8. coz 12/1.5 = 8
+enhetKjonn <- dt[, {
+  model <- lm(totalcl ~ alder, weights = nyvekt2, data = .SD)
+  em <- emmeans(model, ~ 1)
+  em_smry <- summary(em)
+  data.table(
+    adj_mean = em_smry$emmean,
+    SE = em_smry$SE,
+    lower_95CI = em_smry$lower.CL,
+    upper_95CI = em_smry$upper.CL,
+    adj_enhet = em_smry$emmean/1.5, # 1.5cl
+    SE_enhet = em_smry$SE/1.5,
+    lower_enhet = em_smry$lower.CL/1.5,
+    upper_enhet = em_smry$upper.CL/1.5
+  )
+}, keyby = .(year, kjonnStr)]
+
+enhetKjonn <- enhetKjonn[, lapply(.SD, \(i) if(is.numeric(i)) round(i, 2) else i)]
+
+makeDT(enhetKjonn)
+```
+
+# Aldri drukkket alkohol
+
+```{r ikke-drikk}
+#| echo: false
+
+vekt <- "nyvekt2"
+source("https://raw.githubusercontent.com/folkehelsestats/toa/refs/heads/main/rusund/rapport/analysis2024/drikk-frekvens.R")
+
+dt[!is.na(alkofrekvens), ikkedrk := fifelse(alkofrekvens != 0, 0, 1)]
+
+ikkDrk <- dt[, {
+  calc_prevalence(.SD, "ikkedrk", weight = "nyvekt2")
+}, keyby = .(year, kjonnStr)]
+
+ikkDrk <- ikkDrk[, lapply(.SD, \(x) if(is.numeric(x)) round(x, 2) else x)]
+
+makeDT(ikkDrk)
+
+```
+
+# Tidligere drakk alkohol, men ikke lenger
+
+```{r ikk-no}
+#| echo: false
+
+dt[!is.na(alkofrekvens), ikkedrknow := fifelse(alkofrekvens != 1, 0, 1)]
+
+ikkDrkNo <- dt[, {
+  calc_prevalence(.SD, "ikkedrknow", weight = "nyvekt2")
+}, keyby = .(year, kjonnStr)]
+
+ikkDrkNo <- ikkDrkNo[, lapply(.SD, \(x) if(is.numeric(x)) round(x, 2) else x)]
+
+makeDT(ikkDrkNo)
+```
+
+# Binge drinkers siste 12 måneder 
+
+Her blir binge drinker definert som innta seks eller flere alkoholenheter ved én og samme anledning.
+
+```{r binge}
+#| echo: false
+
+## Nevner inkluderer de som ikke har drukket siste år også dvs. drukket1=2(Nei)
+dt[, drink6 := fcase(audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjeldenere
+                     audit3 == 5, 0, #aldri
+                     drukket1 == 2, 0,
+                     default = NA)]
+
+
+drink6 <- dt[, {
+  calc_prevalence(.SD, "drink6", weight = "nyvekt2")
+}, keyby = .(year, kjonnStr, age10)]
+
+drink6 <- drink6[, lapply(.SD, \(i) if(is.numeric(i)) round(i, 2) else i)]
+
+makeDT(drink6)
+```
