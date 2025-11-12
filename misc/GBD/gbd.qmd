@@ -9,7 +9,7 @@ format:
 
 **Sist oppdatert:** `r format(Sys.Date(), "%d. %B %Y")`
 
-Tallene som presenteres her er vektet for:
+Tallene som presenteres her er med 95% CI og er vektet for:
 
 - Alder
 - Kjønn
@@ -177,14 +177,14 @@ enhetKjonn <- dt[, {
   em <- emmeans(model, ~ 1)
   em_smry <- summary(em)
   data.table(
-    adj_mean = em_smry$emmean,
-    SE = em_smry$SE,
-    lower_95CI = em_smry$lower.CL,
-    upper_95CI = em_smry$upper.CL,
+    adj_mean_cl = em_smry$emmean,
+    ## SE = em_smry$SE,
+    loCI_cl = em_smry$lower.CL,
+    upCI_cl = em_smry$upper.CL,
     adj_enhet = em_smry$emmean/1.5, # 1.5cl
-    SE_enhet = em_smry$SE/1.5,
-    lower_enhet = em_smry$lower.CL/1.5,
-    upper_enhet = em_smry$upper.CL/1.5
+    ## SE_enhet = em_smry$SE/1.5,
+    loCI_enhet = em_smry$lower.CL/1.5,
+    upCI_enhet = em_smry$upper.CL/1.5
   )
 }, keyby = .(year, kjonnStr)]
 
