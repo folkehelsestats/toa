@@ -9,6 +9,15 @@ format:
 
 **Sist oppdatert:** `r format(Sys.Date(), "%d. %B %Y")`
 
+Tallene som presenteres her er vektet for:
+
+- Alder
+- Kjønn
+- Utdanning
+- Landsdel
+
+Detaljene om undersøkelsen kan leses hos [SSB](https://www.ssb.no/helse/undersokelsen-om-tobakk-og-rusmiddelbruk-i-norge "SSB") og rapporten finne hos [Helsedirektoratet](https://www.helsedirektoratet.no/rapporter/tall-om-alkohol "helsedirektoratet"). 
+
 ```{r setup}
 #| echo: false
 #| warning: false
