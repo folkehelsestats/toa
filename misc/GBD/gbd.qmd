@@ -7,6 +7,8 @@ format:
     toc: false 
 ---
 
+**Sist oppdatert:** `r format(Sys.Date(), "%d. %B %Y")`
+
 ```{r setup}
 #| echo: false
 #| warning: false
