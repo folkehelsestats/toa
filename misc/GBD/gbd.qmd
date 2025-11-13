@@ -157,7 +157,7 @@ freqD <- freqD[, lapply(.SD, \(i) if(is.numeric(i)) round(i, 2) else i)]
 makeDT(freqD)
 ```
 
-# Mengde forbruk blant de som drikker i cl siste 4 uker (justert for alder)
+# Mengde forbruk blant de som drikker i cl siste 4 uker (Crude)
 
 Det finnes ulike definisjoner for hvor mye cl eller gram som utgjør én
 alkoholenhet. I denne sammenhengen bruker vi 15 ml ren alkohol per enhet.
@@ -165,10 +165,43 @@ Tallene her viser gjennomsnittlig konsum av ren alkohol i centiliter, justert fo
 alder. Dersom man definerer én enhet som 12 gram alkohol, kan man multiplisere
 tallene med 8.
 
-```{r konsum}
+```{r konsum-crude}
 #| echo: false
-
+#| warning: false
 source("https://raw.githubusercontent.com/folkehelsestats/toa/refs/heads/main/rusund/rapport/analysis2024/drikk-enheter.R")
+
+## En enhet er 1.5cl
+## Covert to gram by multiply the result with 8. coz 12/1.5 = 8
+enhetCrude <- dt[, {
+  model <- lm(totalcl ~ 1, weights = nyvekt2, data = .SD)
+  em <- emmeans(model, ~ 1)
+  em_smry <- summary(em)
+  data.table(
+    adj_mean_cl = em_smry$emmean,
+    ## SE = em_smry$SE,
+    loCI_cl = em_smry$lower.CL,
+    upCI_cl = em_smry$upper.CL,
+    adj_enhet = em_smry$emmean/1.5, # 1.5cl
+    ## SE_enhet = em_smry$SE/1.5,
+    loCI_enhet = em_smry$lower.CL/1.5,
+    upCI_enhet = em_smry$upper.CL/1.5
+  )
+}, keyby = .(year, kjonnStr, age5)]
+
+enhetCrude <- enhetCrude[, lapply(.SD, \(i) if(is.numeric(i)) round(i, 2) else i)]
+
+makeDT(enhetCrude)
+```
+
+
+
+# Mengde forbruk blant de som drikker i cl siste 4 uker (justert for alder)
+
+
+```{r konsum-adj}
+#| echo: false
+#| warning: false
+
 
 ## En enhet er 1.5cl
 ## Covert to gram by multiply the result with 8. coz 12/1.5 = 8
