@@ -120,13 +120,30 @@ numlabel, add force // tvinger stata til å bruke labels og nummer.
 
 		*Vedleggstabell 3.X: Andel som svarte hvor sigaretter røykt siste 24 timer var kjøpt, 2015-2020, dagligrøykere i alderen 16-74
 
-			table aar if As19==0 & (alder>15 & alder<75), statistic(mean As11 As12 As13 As14 As15 As16 As17 As18) //statistic(count As19)
+			table aar if As19==0 & (alder>15 & alder<75), statistic(mean As11 As12 As13 As14 As15 As16 As17 As18) //statistic(count As19) // 0= de som ikke har svart at de IKKE har røykt noen sigaretter de siste 24 timene. GJør her MEAN på en kategorisk variabel. 
 
 			*Med vekt
 
 			table aar if As19==0 & (alder>15 & alder<75) [pweight=W1], statistic(mean As11 As12 As13 As14 As15 As16 As17 As18) //statistic(count As19)
 			
 	restore
+	
+	/*
+** Tester, Bente:
+	table aar if As19==0 & (alder>15 & alder<75), ///
+    statistic(count As11 As12 As13 As14 As15 As16 As17 As18) 
+    statistic(count As11)
+	
+	table aar if As19==0 & (alder>15 & alder<75), ///
+    statistic(percent As11 As12 As13 As14 As15 As16 As17 As18) 
+	
+	
+	* Antall som har krysset av på flere kilder til hvor røyken som er røyk siste 24t er kjøpt:
+	gen As1_antall = .
+	replace As1_antall = (As11+ As12+ As13+ As14+ As15+ As16+ As17+ As18) if As19==0 // legger sammen kun hos de som rapporterer å ha røykt siste 24t.
+	tab As1_antall // Viser at de fleste (90%) krysser av på ett alternativ, men noen krysser av på flere (har flere kilder til røyekn røkt siste 24 t)
+	
+	*/
 	
 **************************************************
 	*Dagligrøykere, andel antall DENNE!
@@ -173,7 +190,8 @@ keep if royk==1
 
 			table aar if alder>15 & alder<75, statistic(mean roykkjopt_nor roykkjopt_tax roykkjopt_smu roykkjopt_sve roykkjopt_dan roykkjopt_utl roykkjopt_inn roykkjopt_inu)
 			table aar if alder>15 & alder<75 , statistic(sum n_royk)
-
+/* Tabellen rett over gir antall sigaretter kjøpt per år fra de ulike kildene, som videre kan benyttes til å beregne fordeling av hvor sigaretter røykt siste 24t er kjøpt - se excelfil.*/
+			
 			*Med vekt
 		
 			table aar if alder>15 & alder<75 [pweight=W1], statistic(mean roykkjopt_nor roykkjopt_tax roykkjopt_smu roykkjopt_sve roykkjopt_dan roykkjopt_utl roykkjopt_inn roykkjopt_inu)
@@ -181,13 +199,77 @@ keep if royk==1
 
 restore		
 
+****
 
-
-			
-			
+** BENTE FORTSETT HER: 
+	/* Denne utregningen gir samme som EXCEL-fil*/
 	
-	
+gen roykkjopt_tot_test = .
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2015 & As19==0
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2016 & As19==0
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2017 & As19==0
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2018 & As19==0
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2019 & As19==0
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2020 & As19==0
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2021 & As19==0
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2022 & As19==0
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2023 & As19==0
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2024 & As19==0
+replace roykkjopt_tot_test = (roykkjopt_nor + roykkjopt_tax + roykkjopt_smu + roykkjopt_sve + roykkjopt_dan + roykkjopt_utl + roykkjopt_inn + roykkjopt_inu) if aar == 2025 & As19==0
 
+gen andel_royk_nor = (roykkjopt_nor/roykkjopt_tot_test) if As19==0
+gen andel_royk_tax = (roykkjopt_tax/roykkjopt_tot_test) if As19==0
+gen andel_royk_smu = (roykkjopt_smu/roykkjopt_tot_test) if As19==0
+gen andel_royk_sve = (roykkjopt_sve/roykkjopt_tot_test) if As19==0
+gen andel_royk_dan = (roykkjopt_dan/roykkjopt_tot_test) if As19==0
+gen andel_royk_utl = (roykkjopt_utl/roykkjopt_tot_test) if As19==0
+gen andel_royk_inn = (roykkjopt_inn/roykkjopt_tot_test) if As19==0
+gen andel_royk_inu = (roykkjopt_inu/roykkjopt_tot_test) if As19==0
+
+
+table aar if alder>15 & alder<75 & As19==0, statistic(mean andel_royk_nor andel_royk_tax andel_royk_smu andel_royk_sve andel_royk_dan andel_royk_utl andel_royk_inn andel_royk_inu)
+
+/* Vektings-tallene er helt like den rett over*/
+table aar if alder>15 & alder<75 & As19==0 [pweight=W1], statistic(mean andel_royk_nor andel_royk_tax andel_royk_smu andel_royk_sve andel_royk_dan andel_royk_utl andel_royk_inn andel_royk_inu)
+
+
+*******************
+	*** Bente, beregner andel sig fra ulike kilder av røyk siste 24t
+
+* 1. Antall dagligrøykere er allerede valgt gjennom keep if royk == 1
+keep if royk==1
+* 2. Beregner totalt antall sigaretter siste døgn: 
+egen n_royk_tot = rowtotal(As21 As22 As23 As24 As25 As26 As27 As28) if As19==0 // rowtotal pga missing
+* 3. andel per kilde for hvert individ:
+gen andel_royk_nor = (As21/n_royk_tot) if As19==0
+gen andel_royk_tax = (As22/n_royk_tot) if As19==0
+gen andel_royk_smu = (As23/n_royk_tot) if As19==0
+gen andel_royk_sve = (As24/n_royk_tot) if As19==0
+gen andel_royk_dan = (As25/n_royk_tot) if As19==0
+gen andel_royk_utl = (As26/n_royk_tot) if As19==0
+gen andel_royk_inn = (As27/n_royk_tot) if As19==0
+gen andel_royk_inu = (As28/n_royk_tot) if As19==0
+
+egen andel_royk = rowtotal(andel_royk_nor andel_royk_tax andel_royk_smu andel_royk_sve andel_royk_dan andel_royk_utl andel_royk_inn) if As19==0 
+
+/*
+foreach varlist andel_royk_nor andel_royk_tax andel_royk_smu andel_royk_sve andel_royk_dan andel_royk_utl andel_royk_inn andel_royk_inu {
+    collapse (mean) `k' [aw=W1], by(aar)
+}
+	*/
+	collapse (mean) andel_royk_nor andel_royk_tax andel_royk_smu andel_royk_sve andel_royk_dan andel_royk_utl andel_royk_inn andel_royk_inu [aw=W1], by(aar)
+	
+	collapse (mean) andel_royk_nor andel_royk_tax andel_royk_smu andel_royk_sve andel_royk_dan andel_royk_utl andel_royk_inn andel_royk_inu [aw=W1], by(aar)
+			
+/*
+** Bente tester, dette er mer riktig. 
+
+collapse (count) RespondentID (sum) As11 As12 As13 As14 As15 As16 As17 As18 As19 As21 As22 As23 As24 As25 As26 As27 As28, by(aar)
+
+gen n_royk = (As21+ As22+ As23+ As24+ As25+ As26+ As27+ As28)
+
+	
+gen n_royk_nor = (As21/n_royk)*100
 
 
 
