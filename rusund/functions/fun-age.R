@@ -302,8 +302,8 @@ group_age_standard <- function(dt, var, type = "standard", new_var = NULL,
       labels = c("16-17", "18-24", "25-34", "35-64", "65+")
     ),
     rusund = list(
-      breaks <- c(16, 25, 35, 45, 55, 65, Inf),
-      labels <- c("16-24", "25-34", "35-44", "45-54", "55-64", "65-79")
+      breaks = c(16, 25, 35, 45, 55, 65, Inf),
+      labels = c("16-24", "25-34", "35-44", "45-54", "55-64", "65-79")
     )
   )
 
