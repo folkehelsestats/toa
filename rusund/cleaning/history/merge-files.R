@@ -109,6 +109,11 @@ DD[["Rus2020"]][, (rusbrusVar1) := .SD, .SDcols = c("type4b_11_a", "type4b_21_a"
 DD[["Rus2020"]][, (rusbrusVar2) := .SD, .SDcols = c("type4c_11_a", "type4c_21_a")]
 DD[["Rus2021"]][, (rusbrusVar2[1]) := .SD, .SDcols = c("type4c_11")]
 
+## illegal rusmidler -----------------
+lapply(ComDD, function(x) grep("ans2sps", x, value = T)) # Andre stoffer spesifiser
+lapply(ComDD, function(x) grep("ans2_sp", x, value = T))
+DD[["Rus2016"]][, ans2sps := paste(trimws(ans2_sp1), trimws(ans2_sp2), trimws(ans2_sp3), sep = ", ")]
+DD[["Rus2017"]][, ans2sps := paste(trimws(ans2_sp1), trimws(ans2_sp2), trimws(ans2_sp3), sep = ", ")]
 
 ## Comman column names ------------------
 
@@ -135,9 +140,9 @@ c("nyvekt2", "helse", "drukket1", "drukket2", "drukk2a", "drukk2b",
 "can2", "can3", "can4", "can5", "can6", "can7_a", "can7_b", "can7_c",
 "can7_e", "can7sps", "can8", "can8sps", "can9", "can10", "can11",
 "can13", "can14", "ans1", "ans2_a", "ans2_b", "ans2_c", "ans2_d",
-"ans2_e", "ans2_f", "ans2_g", "ans2_h", "landsdel", "sentralitet",
-"yrkstat2", "siv", "sivstat", "antpers", "antbarn1", "antbarn2",
-"drukk1b")
+"ans2_e", "ans2_f", "ans2_g", "ans2_h", "ans2sps", "landsdel",
+"sentralitet", "yrkstat2", "siv", "sivstat", "antpers", "antbarn1",
+"antbarn2", "drukk1b")
 
 ## Find which vectors contain selected variable and show matches
 ## Alder --------------
