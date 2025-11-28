@@ -179,7 +179,7 @@ tabulate qintro_2_1_4_2024 // stor variasjon. Tar det videre i excel og copilot
 	
 	* Setter inn fjorårets tall for kommuner med missing og 0, salgsbevilling total:
 	replace tot_salg24 = tot_salg23_2023 if q1_1_sum_2024 == .
-	replace tot_salg24 = tot_salg23_2023 if q1_1_sum_2024 == 0
+/*	replace tot_salg24 = tot_salg23_2023 if q1_1_sum_2024 == 0*/
 	
 	list kommune_2024 q1_1_sum_2024 tot_salg23_2023 tot_salg24 if q1_1_sum_2024 == 0
 	list kommune_2024 q1_1_sum_2024 tot_salg23_2023 tot_salg24 if q1_1_sum_2024 == .
