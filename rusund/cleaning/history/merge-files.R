@@ -115,6 +115,15 @@ lapply(ComDD, function(x) grep("ans2_sp", x, value = T))
 DD[["Rus2016"]][, ans2sps := paste(trimws(ans2_sp1), trimws(ans2_sp2), trimws(ans2_sp3), sep = ", ")]
 DD[["Rus2017"]][, ans2sps := paste(trimws(ans2_sp1), trimws(ans2_sp2), trimws(ans2_sp3), sep = ", ")]
 
+## Narkotika spørsmål har ulike navn i 2012-2013
+## ---------------------------------------
+lapply(ComDD, \(x) grep("ans3_", x, value = T))
+
+ansNew <- paste0("ans3_", 1:8)
+ansOld2012 <- paste0("ans3_", letters[1:8])
+data.table::setnames(DD[["Rus2012"]], ansOld2012, ansNew, skip_absent = T)
+
+
 ## Comman column names ------------------
 
 nameDD <- vector("list", filnr)
@@ -140,9 +149,11 @@ c("nyvekt2", "helse", "drukket1", "drukket2", "drukk2a", "drukk2b",
 "can2", "can3", "can4", "can5", "can6", "can7_a", "can7_b", "can7_c",
 "can7_e", "can7sps", "can8", "can8sps", "can9", "can10", "can11",
 "can13", "can14", "ans1", "ans2_a", "ans2_b", "ans2_c", "ans2_d",
-"ans2_e", "ans2_f", "ans2_g", "ans2_h", "ans2sps", "landsdel",
+"ans2_e", "ans2_f", "ans2_g", "ans2_h", "ans2sps", "ans3_1",
+"ans3_2", "ans3_3", "ans3_4", "ans3_5", "ans3_6", "ans3_7", "landsdel",
 "sentralitet", "yrkstat2", "siv", "sivstat", "antpers", "antbarn1",
 "antbarn2", "drukk1b")
+
 
 ## Find which vectors contain selected variable and show matches
 ## Alder --------------
