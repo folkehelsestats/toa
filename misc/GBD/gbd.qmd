@@ -238,7 +238,7 @@ dt[!is.na(alkofrekvens), ikkedrk := fifelse(alkofrekvens != 0, 0, 1)]
 
 ikkDrk <- dt[, {
   calc_prevalence(.SD, "ikkedrk", weight = "nyvekt2")
-}, keyby = .(year, kjonnStr)]
+}, keyby = .(year, kjonnStr, age10)]
 
 ikkDrk <- ikkDrk[, lapply(.SD, \(x) if(is.numeric(x)) round(x, 2) else x)]
 
@@ -255,7 +255,7 @@ dt[!is.na(alkofrekvens), ikkedrknow := fifelse(alkofrekvens != 1, 0, 1)]
 
 ikkDrkNo <- dt[, {
   calc_prevalence(.SD, "ikkedrknow", weight = "nyvekt2")
-}, keyby = .(year, kjonnStr)]
+}, keyby = .(year, kjonnStr, age10)]
 
 ikkDrkNo <- ikkDrkNo[, lapply(.SD, \(x) if(is.numeric(x)) round(x, 2) else x)]
 
