@@ -127,7 +127,7 @@ dt[, drinkdays := fcase(
   drukket2 == 3 & drukk2b == 1, 42,  #Flere enn tre dager i måneden
   drukket2 == 3 & drukk2b == 2, 30,  #2-3 dager i måneden
   drukket2 == 3 & drukk2b == 3, 12,  #1 dag i måneden
-  drukket2 == 4 & drukk2c == 1, 7.5, #Flere enn tre dager i året (Hvordan få man 7.5 dager?)
+  drukket2 == 4 & drukk2c == 1, 7.5, #Flere enn tre dager i året
   drukket2 == 4 & drukk2c == 2, 2.5, #2-3 dager i året
   drukket2 == 4 & drukk2c == 3, 1,   #1 dag i året
   drukket2 == 9 |
