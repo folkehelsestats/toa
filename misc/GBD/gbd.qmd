@@ -246,7 +246,7 @@ makeDT(ikkDrk)
 
 ```
 
-# Tidligere drakk alkohol, men ikke lenger
+# Tidligere drakk alkohol, men har ikke drukket siste 12 måneder 
 
 ```{r ikk-no}
 #| echo: false
