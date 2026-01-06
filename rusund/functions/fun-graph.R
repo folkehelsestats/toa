@@ -30,6 +30,7 @@
 #' @param smooth Logical. Whether to create smooth spline curves for line charts.
 #'   When TRUE, uses "spline" type for curved lines between points. When FALSE,
 #'   uses straight line segments. Only applies when type="line". Default is TRUE.
+#' @param caption Character string. Caption text displayed below the chart.
 #'
 #' @return A highchart object that can be displayed or further customized.
 #'
@@ -138,7 +139,7 @@
 #' @import highcharter
 #' @importFrom viridis viridis
 make_hist <- function(d, x, y, group, n,
-                      title,
+                      title = "Title is here",
                       subtitle = NULL,
                       yint = 10,
                       ylim = NULL,
@@ -149,7 +150,8 @@ make_hist <- function(d, x, y, group, n,
                       line_symbols = NULL,
                       dot_size = 4,
                       smooth = TRUE,
-                      filename = NULL) {
+                      filename = NULL,
+                      caption = "Tall om alkohol") {
 
   # Convert arguments to character strings for consistent handling
   x <- as.character(substitute(x))
@@ -183,7 +185,7 @@ make_hist <- function(d, x, y, group, n,
 
   # Set default subtitle
   if (is.null(subtitle)) {
-    subtitle <- "Kilde: Rusundersøkelse 2024"
+    subtitle <- "Kilde: Rusundersøkelse"
   }
 
   # Set axis title text (empty string if NULL)
@@ -310,7 +312,7 @@ make_hist <- function(d, x, y, group, n,
         '<b>{point.', n, '} ({point.y}%)</b><br/>'
       )
     ) |>
-    highcharter::hc_caption(text = "Tall om alkohol") |>
+    highcharter::hc_caption(text = caption) |>
     highcharter::hc_legend(
       align = "left",
       verticalAlign = "bottom",
