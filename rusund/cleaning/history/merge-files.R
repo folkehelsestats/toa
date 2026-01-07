@@ -202,12 +202,15 @@ for (i in seq_len(filnr)){
   dd[[i]][, year := yr]
 }
 
-DT <- data.table::rbindlist(dd, use.names = TRUE, ignore.attr=TRUE, fill = TRUE)
+ddt <- data.table::rbindlist(dd, use.names = TRUE, ignore.attr=TRUE, fill = TRUE)
+source(here::here("rusund", "cleaning", "history", "history-cleaning.R"))
+
+DT <- data.table::copy(ddt)
 
 ## dataPath <- "O:\\Prosjekt\\Rusdata"
 ## source(file.path(dataPath, "folder-path.R"))
-## data.table::fwrite(DT, file.path(Rususdata, "Rusus_2012_2023", "data_2012_2024.csv"))
-## saveRDS(DT, file.path(Rususdata, "Rusus_2012_2023", "data_2012_2024.rds"))
+## data.table::fwrite(DT, file.path(Rususdata, "rusus_2012_2024.csv"))
+## saveRDS(DT, file.path(Rususdata, "rusus_2012_2024.rds"))
 
 
 ## --------------------

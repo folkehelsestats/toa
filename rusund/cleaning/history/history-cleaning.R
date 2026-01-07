@@ -1,9 +1,10 @@
 ## Clean longitudinal data
 
-## source("c:/Users/ykama/Git-hdir/toa/rusund/setup.R")
+## dataPath <- "O:\\Prosjekt\\Rusdata"
+## source(file.path(dataPath, "folder-path.R"))
 
-## spth <- "O:\\Prosjekt\\Rusdata/Rusundersøkelsen\\Rusus historiske data"
-## ddt <- readRDS(file.path(spth, "data_2012_2024.rds"))
+## source(here::here("rusund/setup.R"))
+## ddt <- readRDS(file.path(Rususdata, "data_2012_2024.rds"))
 
 ## pth <- "~/Git-hdir/toa/rusund"
 ## source(file.path(pth, "functions.R"))
