@@ -9,6 +9,7 @@
 #' @param y Unquoted variable name. The y-axis variable (values, typically percentages).
 #' @param group Unquoted variable name. The grouping variable for creating multiple series.
 #' @param n Unquoted variable name. The count variable to display in tooltips (raw numbers).
+#'   Default is NULL (no counts shown).
 #' @param title Character string. Main title for the chart.
 #' @param subtitle Character string, optional. Subtitle for the chart. If NULL,
 #'   defaults to "Kilde: Rusundersøkelse 2024". Default is NULL.
@@ -138,7 +139,8 @@
 #' @export
 #' @import highcharter
 #' @importFrom viridis viridis
-make_hist <- function(d, x, y, group, n,
+
+make_hist <- function(d, x, y, group, n = NULL,
                       title = "Title is here",
                       subtitle = NULL,
                       yint = 10,
@@ -154,14 +156,21 @@ make_hist <- function(d, x, y, group, n,
                       caption = "Tall om alkohol") {
 
   # Convert arguments to character strings for consistent handling
-  x <- as.character(substitute(x))
-  y <- as.character(substitute(y))
+  x     <- as.character(substitute(x))
+  y     <- as.character(substitute(y))
   group <- as.character(substitute(group))
-  n <- as.character(substitute(n))
 
-  # Input validation
-  required_vars <- c(x, y, group, n)
-  missing_vars <- setdiff(required_vars, names(d))
+  # Handle n flexibly (support missing/NULL)
+  n_raw <- substitute(n)
+  n <- if (missing(n) || is.null(n_raw) || identical(n_raw, quote(NULL))) {
+    NULL
+  } else {
+    as.character(n_raw)
+  }
+
+  # Input validation (require n only if provided)
+  required_vars <- c(x, y, group, if (!is.null(n)) n)
+  missing_vars  <- setdiff(required_vars, names(d))
   if (length(missing_vars) > 0) {
     stop("Variables not found in data: ", paste(missing_vars, collapse = ", "))
   }
@@ -194,11 +203,10 @@ make_hist <- function(d, x, y, group, n,
 
   # Handle x-axis based on variable type
   is_x_numeric <- is.numeric(d[[x]])
-
   if (is_x_numeric) {
     use_categories <- FALSE
     x_axis_config <- list(
-      title = list(text = " "),
+      title  = list(text = " "),
       labels = list(step = 1)
     )
   } else {
@@ -206,10 +214,10 @@ make_hist <- function(d, x, y, group, n,
     d$x_index <- match(d[[x]], x_levels) - 1
     use_categories <- TRUE
     x_axis_config <- list(
-      title = list(text = " "),
-      categories = x_levels,
-      tickInterval = 1,
-      labels = list(step = 1)
+      title       = list(text = " "),
+      categories  = x_levels,
+      tickInterval= 1,
+      labels      = list(step = 1)
     )
   }
 
@@ -232,7 +240,6 @@ make_hist <- function(d, x, y, group, n,
   # Set up line symbols if type is "line"
   if (type == "line") {
     available_symbols <- c("circle", "square", "diamond", "triangle", "triangle-down")
-
     if (is.null(line_symbols)) {
       line_symbols <- rep(available_symbols, length.out = gp)
     } else {
@@ -249,17 +256,17 @@ make_hist <- function(d, x, y, group, n,
     }
   }
 
-  if (is.null(filename)){
+  if (is.null(filename)) {
     filename <- "tall-om-alkohol"
   }
 
   # Create the base chart
-  chart <- highcharter::highchart() |>
+  chart <- highcharter::highchart() %>%
     highcharter::hc_chart(inverted = flip)
 
   # Configure y-axis
   if (!is.null(ylim)) {
-    chart <- chart |>
+    chart <- chart %>%
       highcharter::hc_yAxis(
         title = list(text = y_title_text),
         labels = list(format = "{value}%"),
@@ -268,7 +275,7 @@ make_hist <- function(d, x, y, group, n,
         max = ylim[2]
       )
   } else {
-    chart <- chart |>
+    chart <- chart %>%
       highcharter::hc_yAxis(
         title = list(text = y_title_text),
         labels = list(format = "{value}%"),
@@ -279,7 +286,7 @@ make_hist <- function(d, x, y, group, n,
 
   # Configure x-axis
   if (use_categories) {
-    chart <- chart |>
+    chart <- chart %>%
       highcharter::hc_xAxis(
         title = list(text = x_title_text),
         categories = unique(d[[x]]),
@@ -287,64 +294,74 @@ make_hist <- function(d, x, y, group, n,
         labels = list(step = 1)
       )
   } else {
-    chart <- chart |>
+    chart <- chart %>%
       highcharter::hc_xAxis(
         title = list(text = x_title_text),
         labels = list(step = 1)
       )
   }
 
-  chart <- chart |>
-    highcharter::hc_title(text = title) |>
-    highcharter::hc_subtitle(text = subtitle) |>
+  # Tooltip format (conditional on n)
+  point_fmt <- if (is.null(n)) {
+    paste0(
+      '<span style="color:{series.color}">\u25CF</span> ',
+      '<span style="color:black">{series.name}</span>: ',
+      '<b>{point.y}%</b><br/>'
+    )
+  } else {
+    paste0(
+      '<span style="color:{series.color}">\u25CF</span> ',
+      '<span style="color:black">{series.name}</span>: ',
+      '<b>{point.', n, '} ({point.y}%)</b><br/>'
+    )
+  }
+
+  chart <- chart %>%
+    highcharter::hc_title(text = title) %>%
+    highcharter::hc_subtitle(text = subtitle) %>%
     highcharter::hc_credits(
       enabled = TRUE,
       text = "Helsedirektoratet",
       href = "https://www.helsedirektoratet.no/"
-    ) |>
+    ) %>%
     highcharter::hc_tooltip(
       useHTML = TRUE,
       shared = TRUE,
       headerFormat = '<span style="font-size: 14px; font-weight: bold;">{point.key}</span><br/>',
-      pointFormat = paste0(
-        '<span style="color:{series.color}">\u25CF</span> ',
-        '<span style="color:black">{series.name}</span>: ',
-        '<b>{point.', n, '} ({point.y}%)</b><br/>'
-      )
-    ) |>
-    highcharter::hc_caption(text = caption) |>
+      pointFormat = point_fmt
+    ) %>%
+    highcharter::hc_caption(text = caption) %>%
     highcharter::hc_legend(
       align = "left",
       verticalAlign = "bottom",
       layout = "horizontal",
       x = 50,
       y = 0
-    ) |>
+    ) %>%
     highcharter::hc_exporting(
-                     accessibility = list(
-                       enabled = TRUE # default value is TRUE
-                     ),
-                     enabled = TRUE,
-                     filename = filename
-                   ) |>
+      accessibility = list(
+        enabled = TRUE # default value is TRUE
+      ),
+      enabled = TRUE,
+      filename = filename
+    ) %>%
     highcharter::hc_add_dependency(name = "modules/accessibility.js")
 
+  # Aesthetics mapping
   if (use_categories) {
     mapping <- highcharter::hcaes(x = x_index, y = !!rlang::sym(y))
   } else {
     mapping <- highcharter::hcaes(x = !!rlang::sym(x), y = !!rlang::sym(y))
   }
 
-  # Add series manually for both line and column charts
+  # Add series (line/column)
   group_levels <- unique(d[[group]])
   for (i in seq_along(group_levels)) {
     group_data <- d[d[[group]] == group_levels[i], ]
 
     if (type == "line") {
-      # Determine chart type based on smooth parameter
       chart_type <- if (smooth) "spline" else "line"
-
-      chart <- chart |>
+      chart <- chart %>%
         highcharter::hc_add_series(
           data = group_data,
           type = chart_type,
@@ -357,11 +374,7 @@ make_hist <- function(d, x, y, group, n,
           ),
           color = hdir[i],
           lineWidth = 2,
-          states = list(
-            hover = list(
-              lineWidth = 3
-            )
-          ),
+          states = list(hover = list(lineWidth = 3)),
           point = list(
             events = list(
               mouseOver = htmlwidgets::JS("function() {
@@ -384,17 +397,14 @@ make_hist <- function(d, x, y, group, n,
           )
         )
     } else {
-      # Column chart
-      chart <- chart |>
+      chart <- chart %>%
         highcharter::hc_add_series(
           data = group_data,
           type = "column",
           name = group_levels[i],
           mapping,
           color = hdir[i],
-          states = list(
-            hover = list(brightness = 0.2)
-          ),
+          states = list(hover = list(brightness = 0.2)),
           point = list(
             events = list(
               mouseOver = htmlwidgets::JS("function() {
