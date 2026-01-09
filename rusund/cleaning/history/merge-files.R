@@ -34,7 +34,7 @@ for (i in seq_len(filnr)){
 }
 
 ComDDx <- data.table::copy(ComDD) #original columnames
-lapply(DD, function(x) setnames(x, tolower(names(x))))
+invisible(lapply(DD, function(x) setnames(x, tolower(names(x)))))
 
 names(ComDD) <- names(DD)
 filNames <- names(DD)
@@ -115,6 +115,10 @@ lapply(ComDD, function(x) grep("ans2_sp", x, value = T))
 DD[["Rus2016"]][, ans2sps := paste(trimws(ans2_sp1), trimws(ans2_sp2), trimws(ans2_sp3), sep = ", ")]
 DD[["Rus2017"]][, ans2sps := paste(trimws(ans2_sp1), trimws(ans2_sp2), trimws(ans2_sp3), sep = ", ")]
 
+## Narkotika siste 12 måneder
+DD[["Rus2016"]][, ans3_8 := ans3_sp1]
+DD[["Rus2017"]][, ans3_8 := ans3_sp1]
+
 ## Narkotika spørsmål har ulike navn i 2012-2013
 ## ---------------------------------------
 lapply(ComDD, \(x) grep("ans3_", x, value = T))
@@ -150,9 +154,9 @@ c("nyvekt2", "helse", "drukket1", "drukket2", "drukk2a", "drukk2b",
 "can7_e", "can7sps", "can8", "can8sps", "can9", "can10", "can11",
 "can13", "can14", "ans1", "ans2_a", "ans2_b", "ans2_c", "ans2_d",
 "ans2_e", "ans2_f", "ans2_g", "ans2_h", "ans2sps", "ans3_1",
-"ans3_2", "ans3_3", "ans3_4", "ans3_5", "ans3_6", "ans3_7", "landsdel",
-"sentralitet", "yrkstat2", "siv", "sivstat", "antpers", "antbarn1",
-"antbarn2", "drukk1b")
+"ans3_2", "ans3_3", "ans3_4", "ans3_5", "ans3_6", "ans3_7", "ans3_8",
+"landsdel", "sentralitet", "yrkstat2", "siv", "sivstat", "antpers",
+"antbarn1", "antbarn2", "drukk1b")
 
 
 ## Find which vectors contain selected variable and show matches
