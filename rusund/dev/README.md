@@ -1,0 +1,1 @@
+Denne mappen inneholder filer for utvikling og testing av koder og analyser. Noen filer havner også her når de hører ikke hjemme i de eksisterende mappene. Derfor finnes det ingen struktur her 🥴
