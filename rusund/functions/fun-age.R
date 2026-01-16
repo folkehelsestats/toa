@@ -289,13 +289,17 @@ group_age_standard <- function(dt, var, type = "standard", new_var = NULL,
       breaks = c(0, 3, 6, 13, 18, Inf),
       labels = c("0-2", "3-5", "6-12", "13-17", "18+")
     ),
+    young = list(
+      breaks = c(16, 20, 25, 30, 34, Inf),
+      labels = c("16-20", "21-25", "26-30", "31-34", "35+")
+    ),
     geriatric = list(
       breaks = c(0, 65, 75, 85, Inf),
       labels = c("<65", "65-74", "75-84", "85+")
     ),
     working = list(
-      breaks = c(0, 18, 65, Inf),
-      labels = c("<18", "18-64", "65+")
+      breaks = c(0, 18, 68, Inf),
+      labels = c("<18", "18-67", "68+")
     ),
     unodc = list(
       breaks = c(16, 18, 25, 35, 65, Inf),
