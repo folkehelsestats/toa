@@ -289,8 +289,12 @@ group_age_standard <- function(dt, var, type = "standard", new_var = NULL,
       breaks = c(0, 3, 6, 13, 18, Inf),
       labels = c("0-2", "3-5", "6-12", "13-17", "18+")
     ),
-    young = list(
-      breaks = c(16, 20, 25, 30, 34, Inf),
+    young30 = list(
+      breaks = c(16, 21, 26, 31, Inf),
+      labels = c("16-20", "21-25", "26-30", "31+")
+    ),
+    young34 = list(
+      breaks = c(16, 21, 26, 31, 35, Inf),
       labels = c("16-20", "21-25", "26-30", "31-34", "35+")
     ),
     geriatric = list(
