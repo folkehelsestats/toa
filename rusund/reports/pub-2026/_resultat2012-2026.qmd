@@ -1,0 +1,508 @@
+
+```{r setup-hist}
+#| echo: false
+#| warning: false
+#| output: false
+
+### Clean only needed for raw data ie. in arkiv folder
+### If data is already cleaned, skip this step
+### -------------|------------------
+## cleanFile <- file.path("rusund", "cleaning", "history", "history-cleaning.R")
+## ## Datasettet ddt blir laget her
+## source(file.path(here::here(), cleanFile))
+
+## Alders kategorier ---
+ageBreak <- c(16, 25, 35, 45, 55, 65, Inf)
+ageLab <- c("16-24", "25-34", "35-44", "45-54", "55-64", "65-79")
+
+ddt <- group_age(dt = ddt, var = "alder", breaks = ageBreak,
+                 labels = ageLab, new_var = "agecat",
+                 right = FALSE, missing_values = c(999, 998))
+
+## Kjonn kodebook
+kjonnVal <- c("Menn" = 1, "Kvinner" = 2, "Alle" = 3)
+kjonnKB <- data.table(v1 = as.integer(kjonnVal),
+                      v2 = names(kjonnVal))
+
+```
+
+## Andel av alkoholbruk siste år 
+
+```{r cal-bruk}
+#| echo: false
+#| warning: false
+
+drkAlle <- proscat_weighted("year", "alkosistaar", d = ddt, weight = "nyvekt2", total = FALSE)
+drk <- proscat_weighted("year", "alkosistaar", z = "kjonn", d = ddt, weight = "nyvekt2",total = FALSE)
+
+## Bare de som svarte Ja
+drkAlle[, kjonn := 3] #totalt
+ drkAlleX <- drkAlle[alkosistaar == 1]
+                      
+drkX <- drk[alkosistaar == 1]
+
+drkDT <- data.table::rbindlist(list(drkAlleX, drkX), use.names = TRUE)
+drkDT[, kjonn := as.integer(kjonn)]
+
+drkDT[, kjonn := as.numeric(kjonn)]
+drkDT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
+setorder(drkDT, year, kjonn)
+
+drkMax <- drkAlle[alkosistaar == 1, max(percentage, na.rm = TRUE)]
+drkMin <- drkAlle[alkosistaar == 1, min(percentage, na.rm = TRUE)]
+```
+
+Andelen som rapporterte å ha konsumert alkohol i løpet av de siste 12 månedene
+  har vært relativt stabil i perioden 2012 til 2025, og har ligget mellom `r round(drkMin, digits = 1)`%
+og `r round(drkMax, digits = 1)`% av befolkningen.
+
+::: {.panel-tabset}
+### Figur
+```{r fig-bruk}
+
+make_hist(d = drkDT,
+          x = year,
+          y = percentage,
+          group = kjonn2,
+          n = count,
+          title = "Alkoholbruk siste 12 måneder 2012-2025",
+          subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
+          type = "line",
+          dot_size = 6,
+          flip = FALSE)
+```
+
+### Tabell
+
+```{r tab-bruk}
+
+drkDTT <- data.table::rbindlist(list(drkAlle, drk), use.names = TRUE)
+
+alkoVal <- c("Drukket" = 1, "Ikke drukket" = 2)
+alkoKB <- data.table(v1 = as.integer(alkoVal),
+                     v2 = names(alkoVal))
+
+drkDTT[alkoKB, on = c(alkosistaar = "v1"), alko := i.v2]
+drkDTT[, kjonn := as.numeric(kjonn)]
+drkDTT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
+
+cols <- c("alkosistaar", "sum", "kjonn")
+drkDT[, (cols) := NULL]
+
+colout <- c("alko", "year", "count", "percentage") #Column order
+colns <- c(" ", "year", "Antall", "Andel") #Columns rename
+setkey(drkDTT, year, alkosistaar, kjonn)
+setcolorder(drkDTT, colout)
+data.table::setnames(drkDTT, colout, colns)
+
+gt::gt(drkDTT)
+```
+:::
+<!-- Alkoholbruk siste år bland menn i ulike aldersgrupper, 2012-2025 -->
+
+```{r cal-bruk-age}
+#| echo: false
+#| warning: false
+#| output: false
+
+drukkMen <- proscat_weighted("year", "alkosistaar", d = ddt[kjonn == 1], weight = "nyvekt2", total = F, z = "agecat")
+drukkWom <- proscat_weighted("year", "alkosistaar", d = ddt[kjonn == 2], weight = "nyvekt2", total = F, z = "agecat")
+```
+
+::: {.panel-tabset}
+
+### Figur
+<!-- Menn drukket siste år -->
+```{r fig-bruk-age-men}
+make_hist(d = drukkMen[alkosistaar == 1],
+          x = year,
+          y = percentage,
+          group = agecat,
+          n = count,
+          title = "Alkoholbruk siste år bland menn i ulike aldersgrupper, 2012- 2025",
+          subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
+          type = "line",
+          dot_size = 6)
+```
+### Tabell
+
+```{r tab-bruk-age-men}
+drukkMen
+```
+:::
+
+<!-- For kvinner drukket siste år -->
+
+::: {.panel-tabset}
+
+### Figur
+```{r fig-bruk-age-wom}
+make_hist(d = drukkWom[alkosistaar == 1],
+          x = year,
+          y = percentage,
+          group = agecat,
+          n = count,
+          title = "Alkoholbruk siste år bland kvinner i ulike aldersgrupper, 2012- 2025",
+          subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
+          type = "line",
+          dot_size = 6)
+```
+### Tabell
+
+```{r tab-bruk-age-wom}
+drukkWom
+```
+:::
+
+
+## Drikkefrevens siste 12 måneder
+
+```{r cal-drikfreq}
+#| echo: false
+#| warning: false
+
+## Nevner inkluderer alle som også ikke har drukket dvs. drukket1=2
+ddt[, drukket2rec := fcase(drukket1 == 2, 0,
+                        drukket2 %in% 8:9, NA,
+                        default = as.numeric(drukket2))]
+
+drikkfreq <- proscat_weighted("year", "drukket2rec", d = ddt, weight = "nyvekt2", total = F)
+drikkfreqKjonn <- proscat_weighted("year", "drukket2rec", z="kjonn", d = ddt, weight = "nyvekt2", total = F)
+drikkfreqMen <- proscat_weighted("year", "drukket2rec", d = ddt[kjonn == 1], weight = "nyvekt2", total = F)
+drikkfreqWom <- proscat_weighted("year", "drukket2rec", d = ddt[kjonn == 2], weight = "nyvekt2", total = F)
+
+drikkfreq[, kjonn := 3]
+drikkFDT <- rbindlist(list(drikkfreq, drikkfreqKjonn), use.names = TRUE)
+
+drikkFDT[, kjonn := as.numeric(kjonn)]
+drikkFDT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
+setorder(drikkFDT, year, kjonn)
+
+## Finn differanse
+setkey(drikkfreqMen, year, drukket2rec)
+setkey(drikkfreqWom, year, drukket2rec)
+
+drikkDiff <- merge(drikkfreqMen, drikkfreqWom, by = c("year", "drukket2rec"))
+drikkDiff[, diff := abs(percentage.x - percentage.y)]
+
+drk01 <- drikkDiff[drukket2rec == 1, min(diff, na.rm = TRUE)]
+drk02 <- drikkDiff[drukket2rec == 2, min(diff, na.rm = TRUE)]
+drk03 <- drikkDiff[drukket2rec == 3, min(diff, na.rm = TRUE)]
+drk04 <- drikkDiff[drukket2rec == 4, min(diff, na.rm = TRUE)]
+
+```
+
+I perioden 2012–2025 har det vært små kjønnsforskjeller blant personer som
+rapporterer daglig eller månedlig alkoholkonsum, med gjennomsnitt forskjeller på
+henholdsvis `r drk01` prosent og `r drk03` prosent. I kontrast viser dataene
+tydelige og vedvarende forskjeller mellom kjønnene blant dem som drikker
+ukentlig eller sjeldnere enn månedlig, hvor gjennomsnitt forskjellene utgjør
+henholdsvis `r drk02` prosent og `r drk04` prosent. Disse forskjellene har vært
+stabile over tid, noe som indikerer et vedvarende mønster i drikkevaner mellom
+menn og kvinner.
+
+::: {.panel-tabset}
+
+### Daglig
+
+```{r dr-daglig}
+make_hist(d = drikkFDT[drukket2rec == 1],
+          x = year,
+          y = percentage,
+          group = kjonn2,
+          n = count,
+          title = "Alkoholbruk daglig siste 12 måneder 2012-2025",
+          subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
+          type = "line",
+          yint = 5,
+          dot_size = 4,
+          flip = FALSE,
+          ylim = c(0, 40))
+
+```
+
+### Ukenlig
+
+```{r dr-ukenlig}
+make_hist(d = drikkFDT[drukket2rec == 2],
+          x = year,
+          y = percentage,
+          group = kjonn2,
+          n = count,
+          title = "Alkoholbruk ukenlig siste 12 måneder 2012-2025",
+          subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
+          type = "line",
+          yint = 5,
+          dot_size = 4,
+          flip = FALSE,
+          ylim = c(0, 40))
+
+```
+
+### Månedlig
+
+```{r dr-manedlig}
+make_hist(d = drikkFDT[drukket2rec == 3],
+          x = year,
+          y = percentage,
+          group = kjonn2,
+          n = count,
+          title = "Alkoholbruk månedlig siste 12 måneder 2012-2025",
+          subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
+          type = "line",
+          yint = 5,
+          dot_size = 4,
+          flip = FALSE,
+          ylim = c(0, 40))
+
+```
+
+### Sjeldnere
+
+```{r dr-sjelden}
+make_hist(d = drikkFDT[drukket2rec == 4],
+          x = year,
+          y = percentage,
+          group = kjonn2,
+          n = count,
+          title = "Alkoholbruk sjeldnere enn månedlig siste 12 måneder 2012-2025",
+          subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
+          type = "line",
+          yint = 5,
+          dot_size = 4,
+          flip = FALSE,
+          ylim = c(0, 40))
+
+```
+:::
+
+
+## Alkoholbruk 6 eller mer alkoholenheter ved en og samme anledning
+
+Tallene som blir presentert her er for de som har drukket 6 eller mer alkoholenheter
+ved en og samme anledning minst en gang i det siste året.
+
+```{r cal-druk6}
+## Omkoding
+## Nevner inkluderer de som ikke har drukket siste år også dvs. drukket1=2(Nei)
+ddt[, drink6 := fcase(audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjeldenere
+                     audit3 == 5, 0, #aldri
+                     drukket1 == 2, 0,
+                     default = NA)]
+
+## ddt[, drink66 := fcase(audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjeldenere
+##                      audit3 == 5, 0, #aldri
+##                      drukket1 == 2, 0,
+##                      default = 0)]
+
+drk6 <- proscat_weighted(x = "year", y = "drink6", d = ddt, weight = "nyvekt2", total = FALSE)
+drk6kjonn <- proscat_weighted(x = "year", y = "drink6", z = "kjonn", d = ddt, weight = "nyvekt2", total = FALSE)
+
+drk6[, kjonn := 3] #total
+
+drk6DT <- rbindlist(list(drk6[drink6==1], drk6kjonn[drink6==1,]), use.names = TRUE)
+setkey(drk6DT,year, kjonn, drink6)
+
+drk6DT[, kjonn := as.integer(kjonn)]
+
+drk6DT[, kjonn := as.numeric(kjonn)]
+drk6DT[kjonnKB, on = c(kjonn = "v1"), kjonn2 := i.v2]
+setorder(drk6DT, year, kjonn)
+```
+
+::: {.panel-tabset}
+### Figur
+
+```{r fig-druk6}
+
+make_hist(d = drk6DT, x = year, y = percentage, n = count,  group = kjonn2,
+          title = "Drukket 6+ enheter ved en og samme anledning siste år",
+          subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
+          type = "line", yint = 5, dot_size = 6)
+```
+
+### Tabell
+
+```{r tab-druk6} 
+gt::gt(drk6)
+```
+
+:::
+
+<!-- Drukket 6+ alder og kjønn -->
+
+```{r cal-druk6-kjonn}
+#| echo: false
+#| warning: false
+#| output: false
+
+drk6Men <- proscat_weighted("year", "drink6", d = ddt[kjonn == 1], total = F, weight = "nyvekt2", z = "agecat")
+drk6Wom <- proscat_weighted("year", "drink6", d = ddt[kjonn == 2], total = F, weight = "nyvekt2", z = "agecat")
+```
+
+::: {.panel-tabset}
+
+### Figur
+```{r fig-druk6-men}
+make_hist(d = drk6Men[drink6 == 1],
+          x = year,
+          y = percentage,
+          group = agecat,
+          n = count,
+          title = "Drukket 6+ enheter ved en og samme anledning siste år",
+          subtitle = "Menn, 2012-2025",
+          type = "line", dot_size = 6)
+```
+### Tabell
+
+```{r tab-druk6-men}
+drk6Men
+```
+
+:::
+
+<!-- For kvinner -->
+
+::: {.panel-tabset}
+
+### Figur
+```{r fig-druk6-wom}
+make_hist(d = drk6Wom[drink6 == 1],
+          x = year,
+          y = percentage,
+          group = agecat,
+          n = count,
+          title = "Drukket 6+ enheter ved en og samme anledning siste år",
+          subtitle = "Kvinner, 2012-2025",
+          type = "line", dot_size = 6)
+```
+### Tabell
+
+```{r tab-druk6-wom}
+drk6Wom
+```
+:::
+
+## Alkoholenheter siste 4 uker
+
+Figuren nedenfor viser gjennomsnittlig alkoholbruk de siste fire ukene i
+perioden 2012 til 2025. Tallene er justert for forskjeller i kjønn og alder i
+befolkningen for å gjøre det sammenlignbare over tid. Det betyr at vi har tatt
+hensyn til hvordan sammensetningen av befolkningen har endret seg, slik at
+resultatene gir et mer rettferdig bilde av endringene over tid. Figuren
+illustrerer også usikkerheten i estimatene ved hjelp av 95 %
+konfidensintervaller, som angir det intervallet vi med 95 % sikkerhet forventer
+at den sanne verdien ligger innenfor.
+
+```{r cal-alko-enhet}
+#| echo: false
+#| warning: false
+#| output: false
+
+
+source(here::here("rusund/reports/pub-2025/analysis2012_2025/drikke-enhet-1224.R"))
+
+# Fit model by year and get adjusted mean for each year
+enhetTbl <- ddt[, {
+  model <- lm(totalcl ~ alder + kjonn, weights = nyvekt2, data = .SD)
+  em <- emmeans(model, ~ 1)
+  em_smry <- summary(em)
+  data.table(
+    adj_mean = em_smry$emmean,
+    SE = em_smry$SE,
+    lower_95CI = em_smry$lower.CL,
+    upper_95CI = em_smry$upper.CL,
+    adj_enhet = em_smry$emmean/1.5,
+    SE_enhet = em_smry$SE/1.5,
+    lower_enhet = em_smry$lower.CL/1.5,
+    upper_enhet = em_smry$upper.CL/1.5
+  )
+}, by = year]
+
+
+# Round enhet columns to 0 decimal place
+colnr <- ncol(enhetTbl)
+enhetTbl[, (6:colnr) := lapply(.SD, round, digits = 1), .SDcols = 6:colnr]
+enhetTbl[, .(year, adj_enhet, lower_enhet, upper_enhet)]
+
+## By gender 
+enhetKjonn <- ddt[, {
+  model <- lm(totalcl ~ alder, weights = nyvekt2, data = .SD)
+  em <- emmeans(model, ~ 1)
+  em_smry <- summary(em)
+  data.table(
+    adj_mean = em_smry$emmean,
+    SE = em_smry$SE,
+    lower_95CI = em_smry$lower.CL,
+    upper_95CI = em_smry$upper.CL,
+    adj_enhet = em_smry$emmean/1.5,
+    SE_enhet = em_smry$SE/1.5,
+    lower_enhet = em_smry$lower.CL/1.5,
+    upper_enhet = em_smry$upper.CL/1.5
+  )
+}, by = .(kjonn, year)]
+
+
+# Round enhet columns to 0 decimal place
+colnr <- ncol(enhetKjonn)
+enhetKjonn[, (7:colnr) := lapply(.SD, round, digits = 1), .SDcols = 7:colnr]
+enhetKjonn[, .(kjonn, year, adj_enhet, lower_enhet, upper_enhet)]
+
+# Diff mean
+enhetDiff <- enhetKjonn[, mean(adj_enhet), by = kjonn]
+kjonnDiff <- enhetDiff[, abs(round(diff(V1), digits = 0))]
+
+```
+
+```{r fig-alko-enhet}
+#| echo: false
+#| warning: false
+
+create_ci_graph(data = enhetTbl,
+                title = "Alkoholbruk siste 4 uker",
+                caption = "Helsedirektoratet, tall fra Rus- og tobakksundersøkelsen (SSB)",
+                y_axis_title = "Antall alkoholenheter",
+                ylim = c(0,35))
+```
+
+Figurene nedenfor illustrerer det aldersjusterte alkoholforbruket blant menn og
+kvinner. Beregningene viser at menn i gjennomsnitt inntar `r kjonnDiff` flere
+alkoholenheter enn kvinner siste fire uker i perioden fra 2012 til 2025.
+
+```{r fig-alko-enhet-menn}
+#| echo: false
+#| warning: false
+
+enhetMenn <- enhetKjonn[kjonn == 1]
+
+mtitle <- "Alkoholinntak blant menn over tid"
+msubt <- "Antall gjennomsnittlig inntak i alkoholenheter blant menn siste 4 uker\n med nedre og øvre grense for 95% konfidensintervall, 2012–2025"
+
+create_ci_graph(data = enhetMenn,
+                title = mtitle,
+                subtitle = msubt,
+                caption = "Helsedirektoratet, tall fra Rus- og tobakksundersøkelsen (SSB)",
+                y_axis_title = "Antall alkoholenheter",
+                ylim = c(0,35))
+```
+
+```{r fig-alko-enhet-kvinner}
+#| echo: false
+#| warning: false
+
+enhetKvinner <- enhetKjonn[kjonn == 2]
+
+ftitle <- "Alkoholinntak blant kvinner over tid"
+fsubt <- "Antall gjennomsnittlig inntak i alkoholenheter blant kvinner siste 4 uker\n med nedre og øvre grense for 95% konfidensintervall, 2012–2025"
+create_ci_graph(data = enhetKvinner,
+                title = ftitle,
+                subtitle = fsubt, 
+                caption = "Helsedirektoratet, tall fra Rus- og tobakksundersøkelsen (SSB)",
+                y_axis_title = "Antall alkoholenheter",
+                ylim = c(0,35)
+                )
+
+```
+
+<!-- {{< include _alkoenheter2012-2025.R >}} -->
+

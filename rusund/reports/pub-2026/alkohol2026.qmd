@@ -1,0 +1,64 @@
+---
+title: "Tall om alkohol"
+format:
+  html:
+    code-fold: true
+    toc: true
+    toc-title: "Innhold"
+    toc-location: right
+    toc-depth: 2
+    toc-expand: 1
+    number-sections: true
+execute:
+  echo: false
+---
+
+
+**Sist oppdatert:** `r format(Sys.Date(), "%d. %B %Y")`
+
+**NB!** Resultatene som vises er midlertidige og kan endres. Vennligst ikke referer til disse før endelig publisering.
+
+```{r setup}
+#| echo: false
+#| warning: false
+
+if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
+library("here")
+
+source(file.path(here::here(), "rusund/setup.R"))
+source(file.path(here::here(), "rusund/functions/fun-call.R"))
+
+dataPath <- "O:\\Prosjekt\\Rusdata"
+source(file.path(dataPath, "folder-path.R"))
+
+
+## Data 2024
+DT <- readRDS(file.path(Rususdata, "Rusus_2025", "rusus2025_20251126.rds"))
+dt <- as.data.table(DT)
+
+## Data 2012 - 2024
+## --------------------------------------------------
+## ddt <- readRDS(file.path(Rususdata, "Rusus_2012_2023/arkiv/data_2012_2024.rds")) #this need clean-history.R
+ddt <- readRDS(file.path(Rususdata, "rusus_2012_2025.rds")) # has been cleaned with clean-history.R 
+
+## Gir norsk tekster i highchart
+options(highcharter.lang = list(
+  contextButtonTitle = "Eksport figur",
+  downloadPNG = "Last ned PNG",
+  downloadJPEG = "Last ned JPEG",
+  downloadPDF = "Last ned PDF",
+  downloadSVG = "Last ned SVG",
+  downloadCSV = "Last ned CSV",
+  downloadXLS = "Last ned Excel-fil"
+))
+```
+# Alkoholbruk over tid
+
+{{< include _resultat2012-2025.qmd >}}
+
+# Alkoholbruk i 2024
+
+Ulike aspekter ved alkoholbruk, som drikkefrekvens, volum og drikkemønster, varierer mellom ulike befolkningsgrupper, som for eksempel kjønns- og aldersgrupper.
+
+{{< include _resultat2025.qmd >}}
+
