@@ -59,6 +59,7 @@ dtHis <- paste0("Rus", 2012:2015)
 for (i in dtHis)
   setnames(DD[[i]], "nyvekt_2", "nyvekt2", skip_absent = T)
 
+## Standardize weight variable for 2024 data
 mean2024 <- DD$Rus2024[, mean(vekt, na.rm = T)]
 DD$Rus2024[, nyvekt2 := vekt/mean2024]
 

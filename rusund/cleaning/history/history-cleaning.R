@@ -4,7 +4,7 @@
 ## source(file.path(dataPath, "folder-path.R"))
 
 ## source(here::here("rusund/setup.R"))
-## ddt <- readRDS(file.path(Rususdata, "data_2012_2024.rds"))
+## ddt <- readRDS(file.path(Rususdata, "Rusus_2012_2023/arkiv/data_2012_2024.rds"))
 
 ## pth <- "~/Git-hdir/toa/rusund"
 ## source(file.path(pth, "functions.R"))
