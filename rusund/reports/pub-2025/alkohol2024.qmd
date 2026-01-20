@@ -37,7 +37,9 @@ DT <- readRDS(file.path(Rususdata, "Rusus_2024", "rus2024.rds"))
 dt <- as.data.table(DT)
 
 ## Data 2012 - 2024
-ddt <- readRDS(file.path(Rususdata, "Rusus_2012_2023", "data_2012_2024.rds"))
+## --------------------------------------------------
+## ddt <- readRDS(file.path(Rususdata, "Rusus_2012_2023/arkiv/data_2012_2024.rds")) #this need clean-history.R
+ddt <- readRDS(file.path(Rususdata, "rusus_2012_2024.rds")) # has been cleaned with clean-history.R 
 
 ## Gir norsk tekster i highchart
 options(highcharter.lang = list(

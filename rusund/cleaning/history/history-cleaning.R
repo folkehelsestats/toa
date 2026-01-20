@@ -17,6 +17,13 @@ ddt[, alkosistaar := ifelse(drukket1 %in% 8:9, NA, drukket1)]
 ddt[year %in% c(2022,2024), kjonn := fcase(kjonn == 1, 2, #Kvinne
                                           kjonn == 0, 1)] #Mann
 
+ddt[, kjonn := as.integer(kjonn)]
+
+## Age
+## ----------------
+ddt[, alder := as.numeric(alder)]
+
+
 ## Exclude 2012 and 2013 since the answers are different for drukk2c than the others
 ## The recoding for frequency differ from Elin og Ingeborg. This one is the way Ingeborg defines it.
 ## Antall dager drukket alkohol siste år (blant siste års drikkere)

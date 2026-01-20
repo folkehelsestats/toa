@@ -4,17 +4,20 @@
 #| warning: false
 #| output: false
 
-cleanFile <- file.path("rusund", "cleaning", "history", "history-cleaning.R")
-## Datasettet ddt blir laget her
-source(file.path(here::here(), cleanFile))
+### Clean only needed for raw data ie. in arkiv folder
+### If data is already cleaned, skip this step
+### -------------|------------------
+## cleanFile <- file.path("rusund", "cleaning", "history", "history-cleaning.R")
+## ## Datasettet ddt blir laget her
+## source(file.path(here::here(), cleanFile))
 
 ## Alders kategorier ---
 ageBreak <- c(16, 25, 35, 45, 55, 65, Inf)
 ageLab <- c("16-24", "25-34", "35-44", "45-54", "55-64", "65-79")
 
-group_age(dt = ddt, var = "alder", breaks = ageBreak,
-          labels = ageLab, new_var = "agecat",
-          right = FALSE, missing_values = c(999, 998))
+ddt <- group_age(dt = ddt, var = "alder", breaks = ageBreak,
+                 labels = ageLab, new_var = "agecat",
+                 right = FALSE, missing_values = c(999, 998))
 
 ## Kjonn kodebook
 kjonnVal <- c("Menn" = 1, "Kvinner" = 2, "Alle" = 3)
@@ -34,7 +37,7 @@ drk <- proscat_weighted("year", "alkosistaar", z = "kjonn", d = ddt, weight = "n
 
 ## Bare de som svarte Ja
 drkAlle[, kjonn := 3] #totalt
-drkAlleX <- drkAlle[alkosistaar == 1]
+ drkAlleX <- drkAlle[alkosistaar == 1]
                       
 drkX <- drk[alkosistaar == 1]
 
@@ -396,7 +399,8 @@ at den sanne verdien ligger innenfor.
 #| warning: false
 #| output: false
 
-source("analysis2012_2024/drikke-enhet-1224.R")
+
+source(here::here("rusund/reports/pub-2025/analysis2012_2024/drikke-enhet-1224.R"))
 
 # Fit model by year and get adjusted mean for each year
 enhetTbl <- ddt[, {
