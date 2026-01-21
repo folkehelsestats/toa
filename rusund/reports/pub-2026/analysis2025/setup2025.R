@@ -8,7 +8,12 @@ data.table::setnames(dt, oldCols, newCols)
 
 
 ## Vekting
-dt[, nyvekt2 := vekt/mean(vekt, na.rm = T)]
+if (is.character(dt$vekt)) {
+  dt[, gsub(",", ".", vekt, fixed = TRUE)]
+  dt[, vekt := as.numeric(vekt)]
+}
+dt[, vektssb := vekt]
+dt[, vekt := vektssb/mean(vektssb, na.rm = T)]
 vekt <- "vekt" #use global object for weighting
 
 ## Gender values

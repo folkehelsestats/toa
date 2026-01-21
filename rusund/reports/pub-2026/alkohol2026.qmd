@@ -22,6 +22,9 @@ execute:
 #| echo: false
 #| warning: false
 
+curdir <- dirname(knitr::current_input())
+## pth2025 <- file.path(here::here("rusund/reports/pub-2025"))
+
 if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 library("here")
 
@@ -40,6 +43,9 @@ dt <- as.data.table(DT)
 ## --------------------------------------------------
 ## ddt <- readRDS(file.path(Rususdata, "Rusus_2012_2023/arkiv/data_2012_2024.rds")) #this need clean-history.R
 ddt <- readRDS(file.path(Rususdata, "rusus_2012_2025.rds")) # has been cleaned with clean-history.R 
+# Normaliserer vekt for 2005 til 1
+ddt[year == 2005, vekt  := vekt/mean(vekt, na.rm=TRUE)]
+
 
 ## Gir norsk tekster i highchart
 options(highcharter.lang = list(

@@ -140,11 +140,11 @@ ddt[, totalcl := olcl + vincl + brennevincl + rusbruscl]
 ## Adjust for kjønn og alder
 ## -------------------------
 
-## alkomod <- lm(totalcl ~ alder + kjonn, data = ddt, weights = nyvekt2)
+## alkomod <- lm(totalcl ~ alder + kjonn, data = ddt, weights = vekt)
 
-## alkocl <- ddt[, .(coef = coef(lm(totalcl ~ alder + kjonn, weights = nyvekt2))[1],
-##                   ll = confint(lm(totalcl ~ alder + kjonn, weights = nyvekt2))[1, 1],
-##                   ul = confint(lm(totalcl ~ alder + kjonn, weights = nyvekt2))[1, 2]), keyby = year]
+## alkocl <- ddt[, .(coef = coef(lm(totalcl ~ alder + kjonn, weights = vekt))[1],
+##                   ll = confint(lm(totalcl ~ alder + kjonn, weights = vekt))[1, 1],
+##                   ul = confint(lm(totalcl ~ alder + kjonn, weights = vekt))[1, 2]), keyby = year]
 
 ## alkocluv <- ddt[, .(coef = coef(lm(totalcl ~ alder + kjonn))[1],
 ##                   ll = confint(lm(totalcl ~ alder + kjonn))[1, 1],

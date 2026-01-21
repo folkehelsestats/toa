@@ -4,8 +4,7 @@
 #| echo: false
 #| warning: false
 
-pth2025 <- file.path(here::here("rusund/reports/pub-2025"))
-source(file.path(pth2025, "analysis2024/setup2024.R"))
+source(file.path(curdir, "analysis2025/setup2025.R"))
 
 ```
 
@@ -13,7 +12,7 @@ source(file.path(pth2025, "analysis2024/setup2024.R"))
 #| echo: false
 #| warning: false
 
-source(file.path(pth2025, "analysis2024/drukket-year.R"))
+source(file.path(curdir, "analysis2025/drukket-year.R"))
 ```
 
 ::: {.panel-tabset}
@@ -51,7 +50,7 @@ gt::gt(alko)
 #| echo: false
 #| warning: false
 
-source("analysis2024/drikk-frekvens.R")
+source(file.path(curdir, "analysis2025/drikk-frekvens.R"))
 ```
 
 ::: {.panel-tabset}
@@ -93,7 +92,7 @@ gt::gt(alkofreq)
 #| echo: false
 #| warning: false
 
-source("analysis2024/drikk6.R")
+source("analysis2025/drikk6.R")
 ```
 
 ::: {.panel-tabset}
@@ -129,7 +128,7 @@ gt::gt(drk6_24)
 #| echo: false
 #| warning: false
 
-source(file.path(pth2025,"analysis2024/drikk-enheter.R"))
+source(file.path(curdir,"analysis2025/drikk-enheter.R"))
 ```
 
 Mengden ren alkohol i en alkoholenhet varierer mellom 12 og 25 ml, avhengig av
