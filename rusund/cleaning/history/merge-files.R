@@ -63,6 +63,19 @@ for (i in dtHis)
 mean2024 <- DD$Rus2024[, mean(vekt, na.rm = T)]
 DD$Rus2024[, nyvekt2 := vekt/mean2024]
 
+## Rename unstandardized vekt
+DD[["Rus2012"]][, vekt2 := vekt_2numeric]
+DD[["Rus2013"]][, vekt2 := as.numeric(vekt2)]
+DD[["Rus2015"]][, vekt2 := as.numeric(vekt2)]
+DD[["Rus2018"]][, vekt2 := as.numeric(vekt_2org)]
+DD[["Rus2021"]][, vekt2 := as.numeric(vekt21_a)]
+DD[["Rus2022"]][, vekt2 := as.numeric(vektnr2)]
+DD[["Rus2024"]][, vekt2 := as.numeric(vekt)]
+
+## Sentralitet ------------
+(sentral <- lapply(ComDD, function(x) grep("sentral", x, value = T)))
+
+
 ## Drukket -------------
 ## Har noen gang drukket alkohol "drukk1b" finnes ikke i 2012 og 2013
 lapply(ComDD, function(x) grep("drukk1b", x, value = T))
@@ -157,8 +170,7 @@ c("nyvekt2", "helse", "drukket1", "drukket2", "drukk2a", "drukk2b",
 "ans2_e", "ans2_f", "ans2_g", "ans2_h", "ans2sps", "ans3_1",
 "ans3_2", "ans3_3", "ans3_4", "ans3_5", "ans3_6", "ans3_7", "ans3_8",
 "landsdel", "sentralitet", "yrkstat2", "siv", "sivstat", "antpers",
-"antbarn1", "antbarn2", "drukk1b")
-
+"antbarn1", "antbarn2", "vekt2", "drukk1b")
 
 ## Find which vectors contain selected variable and show matches
 ## Alder --------------
