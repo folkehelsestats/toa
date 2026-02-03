@@ -348,7 +348,7 @@ Med antall salgsbevillinger fra tidligere for kommunene med null salgsbevillinge
 Tabell som viser fordeling av salgsbevillinger for øl/rusbrus etter utsalgssted i 2024, blant kommuner som har salgsbevillinger:
 
 | Utsalgssted | Antall (n=`r length(which(kfa_oppdatert$tot_salg24 != 0 & !is.na(kfa_oppdatert$tot_salg24)))` | Prosent |
-|-----------------|-----------------|--------------------------------------|
+|------------------------|------------------------|------------------------|
 | Dagligvare | `r sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)` | `r round ((((sum(kfa_oppdatert$dagligvare24, na.rm = TRUE))/(sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)))*100) , 1)` |
 | Bryggeri | `r sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)` | `r round ((((sum(kfa_oppdatert$bryggeri24, na.rm = TRUE))/(sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)))*100) , 1)` |
 | Gårdsutsalg | `r sum(kfa_oppdatert$gaard24, na.rm = TRUE)` | `r round ((((sum(kfa_oppdatert$gaard24, na.rm = TRUE))/(sum(kfa_oppdatert$tot_salg24, na.rm = TRUE)))*100) , 1)` |
@@ -451,7 +451,6 @@ highchart() %>%
 `r highchart() %>% hc_chart(type = "column") %>% hc_title(text = "Antall kommuner etter salgsbevillingsgrupper") %>% hc_xAxis(categories = fordeling$salgsbevillingsgruppe, title = list(text = "Antall salgsbevillinger")) %>% hc_yAxis(title = list(text = "Antall kommuner")) %>% hc_series(list(name = "Antall kommuner", data = fordeling$N, color = "#025169")) %>%  hc_plotOptions(column = list(dataLabels = list(enabled = TRUE)))`
 
 #### Skjenkebevillinger
-
 
 ```{r}
 #| message: false
@@ -631,7 +630,7 @@ print(skjenkebevillinger_n)
 
 ##### Antall skjenkebevillinger i kommuner
 
-Antall kommuner med 100-max skjenkebevillinger: 
+Antall kommuner med 100-max skjenkebevillinger:
 
 ```{r}
 #| message: false
@@ -907,8 +906,7 @@ Fordelingen av vilkårene, 2024:
 
 ##### Salgsbevillinger
 
-Antall nye salgsbevillinger som ble innvilget i 2024: `r sum(kfa_oppdatert$q1_13a_1, na.rm = TRUE)`.
-Antall kommuner som rapportert innvilgelse: `r sum(kfa_oppdatert$q1_13a_1 > 0 & !is.na(kfa_oppdatert$q1_13a_1))`.
+Antall nye salgsbevillinger som ble innvilget i 2024: `r sum(kfa_oppdatert$q1_13a_1, na.rm = TRUE)`. Antall kommuner som rapportert innvilgelse: `r sum(kfa_oppdatert$q1_13a_1 > 0 & !is.na(kfa_oppdatert$q1_13a_1))`.
 
 Antall nye salgsbevillinger som ble avslått: `r sum(kfa_oppdatert$q1_13a_2, na.rm = TRUE)`, av `r sum(kfa_oppdatert$q1_13a_2 > 0 & !is.na(kfa_oppdatert$q1_13a_2))` kommuner. Årsak til avslag:
 
@@ -1444,16 +1442,7 @@ highchart() %>%
 
 # Kodebok KFA 2024_2025
 
-<table style="width:92%;">
-<colgroup>
-<col style="width: 11%" />
-<col style="width: 23%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-</colgroup>
+<table>
 <thead>
 <tr>
 <th><p>Org. variabelnavn 2025</p></th>
