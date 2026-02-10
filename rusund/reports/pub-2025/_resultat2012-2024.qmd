@@ -400,7 +400,7 @@ at den sanne verdien ligger innenfor.
 #| output: false
 
 
-source(here::here("rusund/reports/pub-2025/analysis2012_2024/drikke-enhet-1224.R"))
+source(here::here("rusund/reports/pub-2025/analysis2012_2024/drikke-enhet-panel.R"))
 
 # Fit model by year and get adjusted mean for each year
 enhetTbl <- ddt[, {
