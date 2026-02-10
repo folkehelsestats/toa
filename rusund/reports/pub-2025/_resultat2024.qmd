@@ -254,7 +254,7 @@ genderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = kjonn]
 ageAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = agecat]
 ageGenderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = .(kjonn, agecat)]
 
-ageAlk[, kjonn := 2]
+ageAlk[, kjonn := 3] #Alle
 tblAlk <- data.table::rbindlist(list(ageAlk, ageGenderAlk), use.names = TRUE, ignore.attr = TRUE)
 tblAlk[, Alkohol := round(V1, 1)][, V1 := NULL]
 
