@@ -1,0 +1,395 @@
+## Andel som har drukket siste år i 2025
+
+```{r setup-2024}
+#| echo: false
+#| warning: false
+
+source(file.path(curdir, "scripts/vintage/setup2025.R"))
+
+```
+
+```{r cal2-druk}
+#| echo: false
+#| warning: false
+
+source(file.path(curdir, "scripts/vintage/drukket-year.R"))
+```
+
+::: {.panel-tabset}
+
+## Figur
+
+```{r cal2-druk-fig}
+make_hist(d = alko,
+          x = gender,
+          y = percentage,
+          group = alkoyr,
+          n = count,
+          title = "Alkohol siste 12 måneder")
+```
+
+## Tabell
+
+```{r cal2-druk-tab}
+cols <- c("kj", "alkosistaar", "sum", "weighted_count")
+alko[, (cols) := NULL]
+
+colout <- c("alkoyr", "gender", "count", "percentage")
+colns <- c(" ", "Kjønn", "Antall", "Andel")
+setcolorder(alko, colout)
+data.table::setnames(alko, colout, colns, skip_absent = TRUE)
+
+gt::gt(alko)
+```
+:::
+
+
+## Drikkefrekvens siste år
+
+```{r cal2-drikk-freq}
+#| echo: false
+#| warning: false
+
+source(file.path(curdir, "scripts/vintage/drikk-frekvens.R"))
+```
+
+::: {.panel-tabset}
+## Figur
+
+```{r cal2-drikk-freq-fig}
+alkofreq[, alkofrekvens := as.numeric(alkofrekvens)]
+
+make_hist(d = alkofreq,
+          x = gender,
+          y = percentage,
+          group = alkof,
+          n = count,
+          title = "Drikkerfrekvens siste 12 måneder")
+
+```
+
+## Tabell
+
+```{r cal2-drikk-freq-tab}
+cols <- c("kj", "alkofrekvens", "sum", "weighted_count")
+alkofreq[, (cols) := NULL]
+
+colout <- c("alkof", "gender", "count", "percentage")
+colns <- c(" ", "Kjønn", "Antall", "Andel")
+setcolorder(alkofreq, colout)
+data.table::setnames(alkofreq, colout, colns)
+
+gt::gt(alkofreq)
+```
+
+:::
+
+
+## Alkoholbruk 6 eller mer alkoholenheter ved en og samme anledning siste år
+
+
+```{r cal2-druk6}
+#| echo: false
+#| warning: false
+
+source(file.path(curdir, "scripts/vintage/drikk6.R"))
+```
+
+::: {.panel-tabset}
+
+## Figur
+```{r cal2-druk6-fig}
+make_hist(d = drk6_24,
+          x = gender,
+          y = percentage,
+          group = alko,
+          n = count,
+          title = "Andel drukket 6 eller mer alkoholenheter en og samme anledning siste år")
+```
+
+## Tabell
+```{r cal2-druk6-tab}
+cols <- c("kj", "drink6", "sum", "weighted_count")
+drk6_24[, (cols) := NULL]
+
+colout <- c("alko", "gender", "count", "percentage")
+colns <- c(" ", "Kjønn", "Antall", "Andel")
+setcolorder(drk6_24, colout)
+data.table::setnames(drk6_24, colout, colns)
+
+gt::gt(drk6_24)
+```
+:::
+
+
+## Hvor mye og hva drikker vi?
+
+```{r cal2-drikk-enhet}
+#| echo: false
+#| warning: false
+
+source(file.path(curdir,"scripts/vintage/drikk-enheter.R"))
+```
+
+Mengden ren alkohol i en alkoholenhet varierer mellom 12 og 25 ml, avhengig av
+definisjon. I denne rapporten er en alkoholenhet definert som 15 ml (tilsvarende
+12,8 gram) ren alkohol. Dette tilsvarer omtrent `r round(1.5/0.12, digits = 1)`
+cl for vin, `r round(1.5/0.045, digits = 1)` cl for øl og rusbrus, og
+`r round(1.5/0.40, digits = 0)` cl for brennevin, basert på henholdsvis 12%, 4,5%
+og 40% alkoholinnhold.
+
+### Øl 
+
+```{r cal2-beer}
+#| echo: false
+#| warning: false
+
+# 33cl øl 1.485 cl ren alkohol
+beer <- convert_cl(dt, "olcl", cl = 1.485, unit = "enhet")
+kjonncl <- beer$gender
+
+```
+
+Gjennomsnittlig ølkonsum i en fire uke periode i 2025 var `r kjonncl[kjonn == 0, V1]`
+enheter (0.33cl) blant menn og `r kjonncl[kjonn == 1, V1]` enheter blant kvinner.
+
+```{r cal2-beer-fig}
+#| echo: false
+#| warning: false
+
+simple_hist(beer$both,
+            x = agecat,
+            y = enhet,
+            group = gender,
+            title = "Antall øl enheter drukket siste 4 uker (33cl)")
+
+```
+
+### Vin
+
+```{r cal2-vin}
+#| echo: false
+#| warning: false
+
+# En enhet vin 12.5cl er 1.5 cl ren alkohol
+wine <- convert_cl(dt, "vincl", cl = 1.5, unit = "vinglass")
+
+```
+
+En enhet tilsvarer 1.25dl vin. Et gjennomsnitt antall vin enheter drukket i siste fire uker var
+`r wine$gender[kjonn == 0, V1]` for menn og `r wine$gender[kjonn == 1, V1]` for kvinner.
+
+
+```{r cal2-vin-fig}
+#| echo: false
+#| warning: false
+
+simple_hist(wine$both,
+            x = agecat,
+            y = vinglass,
+            group = gender,
+            title = "Antall vin enheter drukket siste 4 uker (12.5cl)")
+```
+
+
+### Brennevin
+
+```{r cal2-brennevin}
+#| echo: false
+#| warning: false
+
+# Et glass 4cl brennevin er 1.6cl ren alkohol
+brenn <- convert_cl(dt, "brennevincl", cl = 1.6, unit = "glass")
+
+```
+
+Menn hadde i gjennomsnitt `r brenn$gender[kjonn == 0, V1]` glass brennevin sammenlikne med kvinner som hadde
+`r brenn$gender[kjonn == 1, V1]` glass i siste 4 uker.
+
+```{r cal2-brennevin-fig}
+#| echo: false
+#| warning: false
+
+simple_hist(brenn$both,
+            x = agecat,
+            y = glass,
+            group = gender,
+            title = "Antall brennevin enheter drukket siste 4 uker (4cl)")
+
+```
+
+### Rusbrus og alkoholholdig cider
+
+```{r cal2-rusbrus}
+#| echo: false
+#| warning: false
+
+## En flaske 0.33 L er 1.485 cl ren alkohol
+rusbrus <- convert_cl(dt, "rusbruscl", cl = 1.485, "flaske")
+```
+
+Beregningen her er basert på at en flaske rusbrus er 0,33 liter. Gjennomsnittlig antall flasker for menn
+`r rusbrus$gender[kjonn == 0, V1]` og for kvinner `r rusbrus$gender[kjonn == 1, V1]`.
+
+```{r cal2-rusbrus-fig}
+#| echo: false
+#| warning: false
+
+simple_hist(rusbrus$both,
+            x = agecat,
+            y = flaske,
+            group = gender,
+            title = "Antall rusbrus enheter drukket siste 4 uker (33cl)")
+
+```
+
+### Ren alkohol 
+
+```{r cal2-renalko}
+#| echo: false
+#| warning: false
+
+genderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = kjonn]
+ageAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = agecat]
+ageGenderAlk <- dt[, round(mean(totalcl, na.rm = T), digits = 1), keyby = .(kjonn, agecat)]
+
+ageAlk[, kjonn := 3] #Alle
+tblAlk <- data.table::rbindlist(list(ageAlk, ageGenderAlk), use.names = TRUE, ignore.attr = TRUE)
+tblAlk[, Alkohol := round(V1, 1)][, V1 := NULL]
+
+## kjonnkb can be found in file setup2025.R
+tblAlk[kjonnkb, on = c(kjonn = "v1"), gender := i.v2]
+tblAlk[, kjonn := NULL]
+data.table::setcolorder(tblAlk, c("gender", "agecat", "Alkohol"))
+```
+
+Gjennomsnittlig konsum av ren alkohol var `r genderAlk[kjonn == 0, V1]` cl blant menn og
+`r genderAlk[kjonn == 1, V1]` cl blant kvinner.
+
+```{r cal2-renalko-fig}
+#| echo: false
+#| warning: false
+
+simple_hist(tblAlk,
+            x = agecat,
+            y = Alkohol,
+            yint = 5,
+            ytitle = "Centiliter ren alkohol",
+            group = gender,
+            title = "Total mengde alkohol konsumet siste 4 uker (cl)")
+```
+
+```{r cal2-rensort}
+#| echo: false
+#| warning: false
+
+drikksortcl <- dt[, .(ol = mean(olcl, na.rm = T),
+                      vin = mean(vincl, na.rm = T),
+                      brenn = mean(brennevincl, na.rm = T),
+                      rusbrus = mean(rusbruscl, na.rm = T)),
+                  keyby = kjonn]
+
+drikksortcl[, 2:5 := lapply(.SD, round, 1), .SDcols = 2:5]
+drikksortcl[kjonnkb, on = c(kjonn = "v1"), gender := i.v2][, kjonn := NULL]
+drikkOld <- c("ol", "vin", "brenn", "rusbrus")
+drikkNew <-  c("Øl", "Vin", "Brennevin", "Rusbrus")
+data.table::setcolorder(drikksortcl, c("gender", drikkOld))
+data.table::setnames(drikksortcl, drikkOld, drikkNew)
+
+drikkTbl <- melt(drikksortcl,
+                 id.vars = "gender",
+                 measure.vars = c("Øl", "Vin", "Brennevin", "Rusbrus"))
+
+drikkTbl[, pros := round(value/sum(value)*100, digits = 1), keyby = .(gender)]
+```
+
+Kjønnsforskjeller i alkoholkonsum vises også i figuren nedenfor, der
+fordelingen per drikkesort basert på ren alkohol illustreres. Blant kvinner
+utgjorde vin `r drikkTbl[gender == "Kvinner" & variable == "Vin", pros]`% 
+av det totale alkoholkonsumet siste fire uker, mens øl utgjorde tilsvarende
+andel blant menn (`r drikkTbl[gender == "Menn" & variable == "Øl", pros]`%).
+
+```{r cal2-rensort-fig}
+#| echo: false
+#| warning: false
+
+make_hist(drikkTbl,
+          x = gender,
+    
+      y = pros,
+          group = variable,
+          n = value,
+          yint = 10,
+          title = "Andel alkoholkonsum i centiliter ren alkohol siste 4 uker fordelt på drikkesort")
+```
+
+## Drikkemønster: Ukedager og helgedager
+
+Respondenter som oppga å drikke alkohol månedlig eller oftere, ble stilt
+følgende spørsmål:
+
+ - Hvor mange av ukedagene (mandag til torsdag) drikker du vanligvis alkohol?
+ - Hvor mange av helgedagene (fredag til søndag) drikker du vanligvis alkohol?
+
+```{r cal2-dager}
+#| echo: false
+#| warning: false
+
+alx <- paste0("al", 2:5, 2:5)
+dt[, (alx) := lapply(.SD, function(x) fifelse(x %in% c(8,9), NA, x)), .SDcols = paste0("al", 2:5)]
+
+ukeCols <- c("ukedag", "ukedagenhet", "helge", "helgeenhet")
+data.table::setnames(dt, paste0("al", 2:5, 2:5), ukeCols)
+
+for (x in ukeCols)
+  set(dt, j = x, value = as.numeric(dt[[x]]))
+
+ukeDT <- proscat("ukedag", "helge", d = dt[!is.na(ukedag)], total = F)
+
+ukedagVals <- c("Alle 4 ukedagene" = 1,
+                "3 av 4 ukedager" = 2,
+                "2 av 4 ukedager" = 3,
+                "1 av 4 ukedager" = 4,
+                "Ingen av ukedagene" = 5)
+
+ukedagkb <- data.table(v1 = as.integer(ukedagVals),
+                       v2 = names(ukedagVals))
+
+
+helgeVals <- c("Alle 3 helgdagene" = 1,
+               "2 av 3 helgdager" = 2,
+               "1 av 3 helgdager" = 3,
+               "Ingen av helgdagene" = 4)
+
+helgekb <- data.table(v1 = as.integer(helgeVals),
+                      v2 = names(helgeVals))
+
+ukeDT[ukedagkb, on = c(ukedag = "v1"), ukedager := i.v2]
+ukeDT[helgekb, on = c(helge = "v1"), helger := i.v2]
+
+# Hvor mange drikker i hverdager
+bb <- dt[!is.na(ukedag), .N, keyby = ukedag]
+bb[, tot :=  N/sum(N)*100]
+```
+
+Analysen viser en tydelig korrelasjon mellom alkoholforbruk i ukedager og
+helgedager. Over 80 prosent av dem som rapporterer alkoholforbruk alle tre
+helgedagene (fredag til søndag), oppgir også at de drikker alkohol hver ukedag
+(mandag til torsdag). Videre viser dataene at mer enn halvparten av dem som
+drikker to dager i ukedagene, også drikker alkohol to av helgedagene. Til tross
+for dette, har de fleste (`r bb[ukedag == 5, round(tot, digits=1)]` prosent)
+svart at de ikke drikker alkohol på ukedagene fra mandag til torsdag.
+
+```{r cal2-dager-fig}
+#| echo: false
+#| warning: false
+
+make_hist(ukeDT,
+          x = ukedager,
+          y = percentage,
+          group = helger,
+          xtitle = "Ukedager fra mandag til torsdag",
+          n = count,
+          title = "Drikkemønster: Ukedager og helgedager")
+
+```
