@@ -92,19 +92,37 @@ gt::gt(alkofreq)
 #| echo: false
 #| warning: false
 
-source(file.path(curdir, "scripts/vintage/drikk6.R"))
+## source(file.path(curdir, "scripts/vintage/drikk6.R"))
+
+gender <- c("Menn", "Kvinner", "Alle")
+alko <- c("Siste år", "Månedlig eller oftere")
+
+drk6_25 <- data.table(
+ gender = rep(gender, each = length(alko)),
+ alko   = rep(rep(alko, times = length(gender)))
+ )
+
+# Lag data.table hvor alko gjentas 3 ganger per kjønn
+drk6_25 <- data.table(
+  gender = rep(gender, each = length(alko)),
+  alko   = rep(rep(alko, times = length(gender))),
+  n = c(1358, 542, 1031, 272, 2389, 814),
+  pros = c(63.1, 24.0, 43.7, 11.0, 53.5, 17.6)
+)
+
+
 ```
 
 ::: {.panel-tabset}
 
 ## Figur
 ```{r cal2-druk6-fig}
-make_hist(d = drk6_24,
+make_hist(d = drk6_25,
           x = gender,
-          y = percentage,
+          y = pros,
           group = alko,
-          n = count,
-          title = "Andel drukket 6 eller mer alkoholenheter en og samme anledning siste år")
+          n = n,
+          title = "Andel som har drukket 6 eller flere alkoholenheter ved en og samme anledning, 2025")
 ```
 
 ## Tabell
