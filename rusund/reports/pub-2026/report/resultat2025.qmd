@@ -1,6 +1,21 @@
+
+# Alkoholbruk i 2025
+
+Ulike aspekter ved alkoholbruk, som drikkefrekvens, volum og drikkemønster, varierer mellom ulike befolkningsgrupper, som for eksempel kjønns- og aldersgrupper.
+
+
+```{r setup-vintage}
+#| echo: false
+#| warning: false
+#| include: false
+
+source("setup.R")
+
+```
+
 ## Andel som har drukket siste år i 2025
 
-```{r setup-2024}
+```{r setup-2025}
 #| echo: false
 #| warning: false
 
@@ -97,10 +112,10 @@ gt::gt(alkofreq)
 gender <- c("Menn", "Kvinner", "Alle")
 alko <- c("Siste år", "Månedlig eller oftere")
 
-drk6_25 <- data.table(
- gender = rep(gender, each = length(alko)),
- alko   = rep(rep(alko, times = length(gender)))
- )
+## drk6_25 <- data.table(
+##  gender = rep(gender, each = length(alko)),
+##  alko   = rep(rep(alko, times = length(gender)))
+##  )
 
 # Lag data.table hvor alko gjentas 3 ganger per kjønn
 drk6_25 <- data.table(
@@ -127,15 +142,15 @@ make_hist(d = drk6_25,
 
 ## Tabell
 ```{r cal2-druk6-tab}
-cols <- c("kj", "drink6", "sum", "weighted_count")
-drk6_24[, (cols) := NULL]
+## cols <- c("kj", "drink6", "sum", "weighted_count")
+## drk6_25[, (cols) := NULL]
 
-colout <- c("alko", "gender", "count", "percentage")
+colout <- c("alko", "gender", "n", "pros")
 colns <- c(" ", "Kjønn", "Antall", "Andel")
-setcolorder(drk6_24, colout)
-data.table::setnames(drk6_24, colout, colns)
+setcolorder(drk6_25, colout)
+data.table::setnames(drk6_25, colout, colns)
 
-gt::gt(drk6_24)
+gt::gt(drk6_25)
 ```
 :::
 

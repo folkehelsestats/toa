@@ -1,3 +1,14 @@
+```{r}
+#| label: setup-panel
+#| echo: false
+#| warning: false
+#| include: false
+
+source("setup.R")
+
+```
+
+# Alkoholbruk over tid
 
 ```{r setup-hist}
 #| echo: false
@@ -6,7 +17,7 @@
 
 ### Clean only needed for raw data ie. in arkiv folder
 ### If data is already cleaned, skip this step
-### -------------|------------------
+### -------------------------------
 ## cleanFile <- file.path("rusund", "cleaning", "history", "history-cleaning.R")
 ## ## Datasettet ddt blir laget her
 ## source(file.path(here::here(), cleanFile))
@@ -35,8 +46,8 @@ kjonnKB <- data.table(v1 = as.integer(kjonnVal),
 #| echo: false
 #| warning: false
 
-drkAlle <- proscat_weighted("year", "alkosistaar", d = ddt, weight = "vekt", total = FALSE)
-drk <- proscat_weighted("year", "alkosistaar", z = "kjonn", d = ddt, weight = "vekt",total = FALSE)
+drkAlle <- proscat_weighted("year", "alkosistaar", d = ddt, weight = "vekt2", total = FALSE)
+drk <- proscat_weighted("year", "alkosistaar", z = "kjonn", d = ddt, weight = "vekt2",total = FALSE)
 
 ## Bare de som svarte Ja
 drkAlle[, kjonn := 3] #totalt
@@ -108,8 +119,8 @@ gt::gt(drkDTT)
 #| warning: false
 #| output: false
 
-drukkMen <- proscat_weighted("year", "alkosistaar", d = ddt[kjonn == 1], weight = "vekt", total = F, z = "agecat")
-drukkWom <- proscat_weighted("year", "alkosistaar", d = ddt[kjonn == 2], weight = "vekt", total = F, z = "agecat")
+drukkMen <- proscat_weighted("year", "alkosistaar", d = ddt[kjonn == 1], weight = "vekt2", total = F, z = "agecat")
+drukkWom <- proscat_weighted("year", "alkosistaar", d = ddt[kjonn == 2], weight = "vekt2", total = F, z = "agecat")
 ```
 
 ::: {.panel-tabset}
@@ -169,10 +180,10 @@ ddt[, drukket2rec := fcase(drukket1 == 2, 0,
                         drukket2 %in% 8:9, NA,
                         default = as.numeric(drukket2))]
 
-drikkfreq <- proscat_weighted("year", "drukket2rec", d = ddt, weight = "vekt", total = F)
-drikkfreqKjonn <- proscat_weighted("year", "drukket2rec", z="kjonn", d = ddt, weight = "vekt", total = F)
-drikkfreqMen <- proscat_weighted("year", "drukket2rec", d = ddt[kjonn == 1], weight = "vekt", total = F)
-drikkfreqWom <- proscat_weighted("year", "drukket2rec", d = ddt[kjonn == 2], weight = "vekt", total = F)
+drikkfreq <- proscat_weighted("year", "drukket2rec", d = ddt, weight = "vekt2", total = F)
+drikkfreqKjonn <- proscat_weighted("year", "drukket2rec", z="kjonn", d = ddt, weight = "vekt2", total = F)
+drikkfreqMen <- proscat_weighted("year", "drukket2rec", d = ddt[kjonn == 1], weight = "vekt2", total = F)
+drikkfreqWom <- proscat_weighted("year", "drukket2rec", d = ddt[kjonn == 2], weight = "vekt2", total = F)
 
 drikkfreq[, kjonn := 3]
 drikkFDT <- rbindlist(list(drikkfreq, drikkfreqKjonn), use.names = TRUE)
@@ -298,8 +309,8 @@ ddt[, drink6 := fcase(audit3 %in% 1:4, 1, #Daglig, ukenlig, månedlig og sjelden
 ##                      drukket1 == 2, 0,
 ##                      default = 0)]
 
-drk6 <- proscat_weighted(x = "year", y = "drink6", d = ddt, weight = "vekt", total = FALSE)
-drk6kjonn <- proscat_weighted(x = "year", y = "drink6", z = "kjonn", d = ddt, weight = "vekt", total = FALSE)
+drk6 <- proscat_weighted(x = "year", y = "drink6", d = ddt, weight = "vekt2", total = FALSE)
+drk6kjonn <- proscat_weighted(x = "year", y = "drink6", z = "kjonn", d = ddt, weight = "vekt2", total = FALSE)
 
 drk6[, kjonn := 3] #total
 
@@ -339,8 +350,8 @@ gt::gt(drk6)
 #| warning: false
 #| output: false
 
-drk6Men <- proscat_weighted("year", "drink6", d = ddt[kjonn == 1], total = F, weight = "vekt", z = "agecat")
-drk6Wom <- proscat_weighted("year", "drink6", d = ddt[kjonn == 2], total = F, weight = "vekt", z = "agecat")
+drk6Men <- proscat_weighted("year", "drink6", d = ddt[kjonn == 1], total = F, weight = "vekt2", z = "agecat")
+drk6Wom <- proscat_weighted("year", "drink6", d = ddt[kjonn == 2], total = F, weight = "vekt2", z = "agecat")
 ```
 
 ::: {.panel-tabset}
@@ -407,7 +418,7 @@ source(file.path(curdir, "scripts/panel/drikke-enhet-panel.R"))
 
 # Fit model by year and get adjusted mean for each year
 enhetTbl <- ddt[, {
-  model <- lm(totalcl ~ alder + kjonn, weights = vekt, data = .SD)
+  model <- lm(totalcl ~ alder + kjonn, weights = vekt2, data = .SD)
   em <- emmeans(model, ~ 1)
   em_smry <- summary(em)
   data.table(
@@ -430,7 +441,7 @@ enhetTbl[, .(year, adj_enhet, lower_enhet, upper_enhet)]
 
 ## By gender 
 enhetKjonn <- ddt[, {
-  model <- lm(totalcl ~ alder, weights = vekt, data = .SD)
+  model <- lm(totalcl ~ alder, weights = vekt2, data = .SD)
   em <- emmeans(model, ~ 1)
   em_smry <- summary(em)
   data.table(
