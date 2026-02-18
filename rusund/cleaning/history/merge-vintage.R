@@ -47,16 +47,12 @@ setdiff(names(DT1224), names(DT25))
 DT25[, landsdel := landsdel_2025]
 DT1224[, landsdel := as.numeric(landsdel)]
 
-
 comVars <- intersect(names(DT1224), names(DT25))
 
-# Merge kun på felles kolonner
-DT1225 <- merge(
-  DT1224,
-  DT25,
-  by = comVars,
-  all = TRUE       # full join; bruk all.x/all.y hvis du vil styre retningen
-)
+DT1225 <- data.table::rbindlist(list(DT1224, DT25[, ..comVars]),
+                                use.names = TRUE,
+                                fill = TRUE,
+                                ignore.attr = TRUE)
 
 ## saveRDS(DT1225, file.path(Rususdata, "rusus_2012_2025.rds"))
 ## rio::export(DT1225, file.path(Rususdata, "rusus_2012_2025.dta"))
