@@ -1,2 +1,7 @@
-repo-actions-edit: "Rediger denne siden"
-repo-actions-issue: "Meld en feil"
+ui:
+  toc-title-document: "Innhold"
+  search-placeholder: "Søk"
+  code-copy-button: "Kopier"
+  code-copied-button: "Kopiert!"
+  repo-actions-edit: "Rediger denne siden"
+  repo-actions-issue: "Meld inn ønsker eller feil"
