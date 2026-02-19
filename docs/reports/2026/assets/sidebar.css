@@ -2,7 +2,7 @@
 /* Force logo to appear at the top of the sidebar */
 .sidebar-logo {
   display: block;
-  width: 80px;       /* small */
+  width: 180px;       /* small */
   height: auto;      /* Preserve proportions */
   margin: 10px auto; /* Center it nicely */
 }

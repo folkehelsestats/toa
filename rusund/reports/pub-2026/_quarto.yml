@@ -13,11 +13,14 @@ website:
   repo-url: https://github.com/folkehelsestats/toa
   repo-actions: [edit, issue]
 
-  page-footer: "Helsedirektoratet . 2026"
+  page-footer:
+    right: "Resultatene som vises er midlertidige. Vennligst ikke referer til disse."
+    left: "&copy; Copyright 2026, Helsedirektoratet"
+    background: "#B9E3E4"
 
   sidebar:
-    background: "#A9E3E4"
-    logo: "assets/hdir-symbol.png"
+    background: "#B9E3E4"
+    logo: "assets/hdir-logo.png"
     pinned: true
     align: center
     tools:
