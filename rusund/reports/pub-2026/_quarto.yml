@@ -13,7 +13,8 @@ website:
   page-footer: "Helsedirektoratet . 2026"
 
   sidebar:
-    logo: https://github.com/user-attachments/assets/2ee5d148-1886-4a2b-b180-5a9ee0a6c958
+    background: "#A9E3E4"
+    logo: "assets/hdir-symbol.png"
     pinned: true
     align: center
     tools:
@@ -46,7 +47,9 @@ format:
       dark: [cosmo, theme-dark.scss]
     code-background: true
     code-copy: true
-    css: styles.css
+    css:
+      - styles.css
+      - assets/sidebar.css
     code-fold: true
     toc: true
     toc-title: "Innhold"
