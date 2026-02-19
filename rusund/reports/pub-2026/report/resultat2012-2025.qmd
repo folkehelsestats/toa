@@ -71,7 +71,9 @@ Andelen som rapporterte å ha konsumert alkohol i løpet av de siste 12 måneden
 og `r round(drkMax, digits = 1)`% av befolkningen.
 
 ::: {.panel-tabset}
-### Figur
+
+## Figur
+
 ```{r fig-bruk}
 
 make_hist(d = drkDT,
@@ -86,7 +88,7 @@ make_hist(d = drkDT,
           flip = FALSE)
 ```
 
-### Tabell
+## Tabell
 
 ```{r tab-bruk}
 
@@ -125,8 +127,9 @@ drukkWom <- proscat_weighted("year", "alkosistaar", d = ddt[kjonn == 2], weight 
 
 ::: {.panel-tabset}
 
-### Figur
+## Figur
 <!-- Menn drukket siste år -->
+
 ```{r fig-bruk-age-men}
 make_hist(d = drukkMen[alkosistaar == 1],
           x = year,
@@ -138,7 +141,7 @@ make_hist(d = drukkMen[alkosistaar == 1],
           type = "line",
           dot_size = 6)
 ```
-### Tabell
+## Tabell
 
 ```{r tab-bruk-age-men}
 drukkMen
@@ -149,7 +152,8 @@ drukkMen
 
 ::: {.panel-tabset}
 
-### Figur
+## Figur
+
 ```{r fig-bruk-age-wom}
 make_hist(d = drukkWom[alkosistaar == 1],
           x = year,
@@ -161,7 +165,7 @@ make_hist(d = drukkWom[alkosistaar == 1],
           type = "line",
           dot_size = 6)
 ```
-### Tabell
+## Tabell
 
 ```{r tab-bruk-age-wom}
 drukkWom
@@ -325,7 +329,7 @@ setorder(drk6DT, year, kjonn)
 ```
 
 ::: {.panel-tabset}
-### Figur
+## Figur
 
 ```{r fig-druk6}
 
@@ -335,7 +339,7 @@ make_hist(d = drk6DT, x = year, y = percentage, n = count,  group = kjonn2,
           type = "line", yint = 5, dot_size = 6)
 ```
 
-### Tabell
+## Tabell
 
 ```{r tab-druk6} 
 gt::gt(drk6)
@@ -356,7 +360,7 @@ drk6Wom <- proscat_weighted("year", "drink6", d = ddt[kjonn == 2], total = F, we
 
 ::: {.panel-tabset}
 
-### Figur
+## Figur
 ```{r fig-druk6-men}
 make_hist(d = drk6Men[drink6 == 1],
           x = year,
@@ -367,7 +371,7 @@ make_hist(d = drk6Men[drink6 == 1],
           subtitle = "Menn, 2012-2025",
           type = "line", dot_size = 6)
 ```
-### Tabell
+## Tabell
 
 ```{r tab-druk6-men}
 drk6Men
@@ -379,7 +383,7 @@ drk6Men
 
 ::: {.panel-tabset}
 
-### Figur
+## Figur
 ```{r fig-druk6-wom}
 make_hist(d = drk6Wom[drink6 == 1],
           x = year,
@@ -390,7 +394,7 @@ make_hist(d = drk6Wom[drink6 == 1],
           subtitle = "Kvinner, 2012-2025",
           type = "line", dot_size = 6)
 ```
-### Tabell
+## Tabell
 
 ```{r tab-druk6-wom}
 drk6Wom
