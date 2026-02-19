@@ -34,17 +34,24 @@ website:
     style: "docked"
     search: true
     collapse-level: 2
-
     contents:
-      - section: "ToA"
-        contents:
-          - report/index.qmd
-      - section: "Panel data"
-        contents:
-          - report/resultat2012-2025.qmd
-      - section: "2025 Data"
-        contents:
-          - report/resultat2025.qmd
+      - href: report/index.qmd
+        text: "Tall om alkohol"
+      - href: report/resultat2012-2025.qmd
+        text: "Paneldata 2012–2025"
+      - href: report/resultat2025.qmd
+        text: "2025 Data"
+
+    # contents:
+    #   - section: "ToA"
+    #     contents:
+    #       - report/index.qmd
+    #   - section: "Panel data"
+    #     contents:
+    #       - report/resultat2012-2025.qmd
+    #   - section: "2025 Data"
+    #     contents:
+    #       - report/resultat2025.qmd
 
 format:
   html:
