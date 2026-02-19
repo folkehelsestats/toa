@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: outputs/publication
+  output-dir: ../../../docs/reports/2026
 
 website:
   page-navigation: true
