@@ -2,6 +2,9 @@ project:
   type: website
   output-dir: ../../../docs/reports/2026
 
+lang: nb
+language: _language-nb.yml
+
 website:
   page-navigation: true
   title: "Tall om alkohol 2025"
