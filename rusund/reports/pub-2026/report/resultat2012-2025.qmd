@@ -74,15 +74,17 @@ og `r round(drkMax, digits = 1)`% av befolkningen.
 
 ## Figur
 
-```{r fig-bruk}
+```{r}
+#| label: bruk-fig
+#| fig-cap: "Figur 1: Alkoholbruk over tid"
 
 make_hist(d = drkDT,
           x = year,
           y = percentage,
           group = kjonn2,
           n = count,
-          title = "Alkoholbruk siste 12 måneder 2012-2025",
-          subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
+          title = "Figur 1: Alkoholbruk over tid",
+          subtitle = "Andel som har drukket alkohol minst én gang de siste 12 måneder, 2012–2025",
           type = "line",
           dot_size = 6,
           flip = FALSE)
@@ -114,6 +116,7 @@ data.table::setnames(drkDTT, colout, colns)
 gt::gt(drkDTT)
 ```
 :::
+
 <!-- Alkoholbruk siste år bland menn i ulike aldersgrupper, 2012-2025 -->
 
 ```{r cal-bruk-age}
@@ -130,7 +133,10 @@ drukkWom <- proscat_weighted("year", "alkosistaar", d = ddt[kjonn == 2], weight 
 ## Figur
 <!-- Menn drukket siste år -->
 
-```{r fig-bruk-age-men}
+```{r}
+#| label: bruk-age-men-fig
+
+
 make_hist(d = drukkMen[alkosistaar == 1],
           x = year,
           y = percentage,
@@ -154,7 +160,7 @@ drukkMen
 
 ## Figur
 
-```{r fig-bruk-age-wom}
+```{r bruk-age-wom-fig}
 make_hist(d = drukkWom[alkosistaar == 1],
           x = year,
           y = percentage,
@@ -331,7 +337,7 @@ setorder(drk6DT, year, kjonn)
 ::: {.panel-tabset}
 ## Figur
 
-```{r fig-druk6}
+```{r druk6-fig}
 
 make_hist(d = drk6DT, x = year, y = percentage, n = count,  group = kjonn2,
           title = "Drukket 6+ enheter ved en og samme anledning siste år",
@@ -361,7 +367,7 @@ drk6Wom <- proscat_weighted("year", "drink6", d = ddt[kjonn == 2], total = F, we
 ::: {.panel-tabset}
 
 ## Figur
-```{r fig-druk6-men}
+```{r druk6-men-fig}
 make_hist(d = drk6Men[drink6 == 1],
           x = year,
           y = percentage,
@@ -384,7 +390,7 @@ drk6Men
 ::: {.panel-tabset}
 
 ## Figur
-```{r fig-druk6-wom}
+```{r druk6-wom-fig}
 make_hist(d = drk6Wom[drink6 == 1],
           x = year,
           y = percentage,
@@ -472,7 +478,7 @@ kjonnDiff <- enhetDiff[, abs(round(diff(V1), digits = 0))]
 
 ```
 
-```{r fig-alko-enhet}
+```{r alko-enhet-fig}
 #| echo: false
 #| warning: false
 
@@ -487,7 +493,7 @@ Figurene nedenfor illustrerer det aldersjusterte alkoholforbruket blant menn og
 kvinner. Beregningene viser at menn i gjennomsnitt inntar `r kjonnDiff` flere
 alkoholenheter enn kvinner siste fire uker i perioden fra 2012 til 2025.
 
-```{r fig-alko-enhet-menn}
+```{r alko-enhet-menn-fig}
 #| echo: false
 #| warning: false
 
@@ -504,7 +510,7 @@ create_ci_graph(data = enhetMenn,
                 ylim = c(0,35))
 ```
 
-```{r fig-alko-enhet-kvinner}
+```{r alko-enhet-kvinner-fig}
 #| echo: false
 #| warning: false
 
