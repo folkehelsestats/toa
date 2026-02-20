@@ -12,7 +12,6 @@
 #| include: false
 
 source("setup.R")
-
 ```
 
 Denne rapporten, Tall om alkohol, presenterer bruk og bruksmønster for alkohol i den norske befolkningen, inkludert problemfylt alkoholbruk. Den viser også hvordan bruken fordeler seg mellom ulike befolkningsgrupper etter alder, kjønn, fødeland og utdanningsnivå. Videre presenterer rapporten noen tall knyttet til forvaltning av alkoholloven, samt holdninger til og kunnskap om alkohol i befolkningen.
