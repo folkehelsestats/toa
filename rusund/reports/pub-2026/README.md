@@ -7,7 +7,10 @@ To compile the report, run the following command in your terminal:
 quarto render
 `
 
+Working directory will be where the *index.qmd* is located.
+
 ## Important
 Datasets and variable definitions are specific to each file inside the *report*
 folder. Any datasets or analysis components that must be shared across multiple
 files should be placed in *setup.R* and sourced where needed.
+
