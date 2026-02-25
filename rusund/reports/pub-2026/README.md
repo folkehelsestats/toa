@@ -1,9 +1,13 @@
-# Analyser for 2025 data
+# Analysis for 2025 data
 
-Denne mappen inneholder analyser for Rusundersøkelsen samplet i 2025
+This folder contains all analyses for Rusundersøkelsen 2025.
+To compile the report, run the following command in your terminal:
 
-To compile the report, run `quarto render` in terminal.
+`
+quarto render
+`
 
-OBS!! Dataset and variables will be specific to each file in **report** folder.
-All dataset and analysis that need to be shared in all files must be placed in
-*setup.R* and sourced in each files.
+## Important
+Datasets and variable definitions are specific to each file inside the *report*
+folder. Any datasets or analysis components that must be shared across multiple
+files should be placed in *setup.R* and sourced where needed.
