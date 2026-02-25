@@ -16,7 +16,7 @@ source("setup.R")
 #| echo: false
 #| warning: false
 
-source(file.path(curdir, "scripts/vintage/setup2025.R"))
+source("../scripts/vintage/setup2025.R")
 
 ```
 
@@ -24,7 +24,7 @@ source(file.path(curdir, "scripts/vintage/setup2025.R"))
 #| echo: false
 #| warning: false
 
-source(file.path(curdir, "scripts/vintage/drukket-year.R"))
+source("../scripts/vintage/drukket-year.R")
 ```
 
 ::: {.panel-tabset}
@@ -61,7 +61,7 @@ gt::gt(alko)
 #| echo: false
 #| warning: false
 
-source(file.path(curdir, "scripts/vintage/drikk-frekvens.R"))
+source("../scripts/vintage/drikk-frekvens.R")
 ```
 
 ::: {.panel-tabset}
@@ -157,7 +157,7 @@ gt::gt(drk6_25)
 #| echo: false
 #| warning: false
 
-source(file.path(curdir,"scripts/vintage/drikk-enheter.R"))
+source("../scripts/vintage/drikk-enheter.R")
 ```
 
 Mengden ren alkohol i en alkoholenhet varierer mellom 12 og 25 ml, avhengig av
@@ -179,8 +179,8 @@ kjonncl <- beer$gender
 
 ```
 
-Gjennomsnittlig ølkonsum i en fire uke periode i 2025 var `r kjonncl[kjonn == 0, V1]`
-enheter (0.33cl) blant menn og `r kjonncl[kjonn == 1, V1]` enheter blant kvinner.
+Gjennomsnittlig ølkonsum i en fire uke periode i 2025 var `r kjonncl[kjonn == 1, V1]`
+enheter (0.33cl) blant menn og `r kjonncl[kjonn == 2, V1]` enheter blant kvinner.
 
 ```{r cal2-beer-fig}
 #| echo: false
@@ -206,7 +206,7 @@ wine <- convert_cl(dt, "vincl", cl = 1.5, unit = "vinglass")
 ```
 
 En enhet tilsvarer 1.25dl vin. Et gjennomsnitt antall vin enheter drukket i siste fire uker var
-`r wine$gender[kjonn == 0, V1]` for menn og `r wine$gender[kjonn == 1, V1]` for kvinner.
+`r wine$gender[kjonn == 1, V1]` for menn og `r wine$gender[kjonn == 2, V1]` for kvinner.
 
 
 ```{r cal2-vin-fig}
@@ -232,8 +232,8 @@ brenn <- convert_cl(dt, "brennevincl", cl = 1.6, unit = "glass")
 
 ```
 
-Menn hadde i gjennomsnitt `r brenn$gender[kjonn == 0, V1]` glass brennevin sammenlikne med kvinner som hadde
-`r brenn$gender[kjonn == 1, V1]` glass i siste 4 uker.
+Menn hadde i gjennomsnitt `r brenn$gender[kjonn == 1, V1]` glass brennevin sammenlikne med kvinner som hadde
+`r brenn$gender[kjonn == 2, V1]` glass i siste 4 uker.
 
 ```{r cal2-brennevin-fig}
 #| echo: false
@@ -258,7 +258,7 @@ rusbrus <- convert_cl(dt, "rusbruscl", cl = 1.485, "flaske")
 ```
 
 Beregningen her er basert på at en flaske rusbrus er 0,33 liter. Gjennomsnittlig antall flasker for menn
-`r rusbrus$gender[kjonn == 0, V1]` og for kvinner `r rusbrus$gender[kjonn == 1, V1]`.
+`r rusbrus$gender[kjonn == 1, V1]` og for kvinner `r rusbrus$gender[kjonn == 2, V1]`.
 
 ```{r cal2-rusbrus-fig}
 #| echo: false
@@ -292,8 +292,8 @@ tblAlk[, kjonn := NULL]
 data.table::setcolorder(tblAlk, c("gender", "agecat", "Alkohol"))
 ```
 
-Gjennomsnittlig konsum av ren alkohol var `r genderAlk[kjonn == 0, V1]` cl blant menn og
-`r genderAlk[kjonn == 1, V1]` cl blant kvinner.
+Gjennomsnittlig konsum av ren alkohol var `r genderAlk[kjonn == 1, V1]` cl blant menn og
+`r genderAlk[kjonn == 2, V1]` cl blant kvinner.
 
 ```{r cal2-renalko-fig}
 #| echo: false
