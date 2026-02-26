@@ -32,6 +32,8 @@ source("../scripts/vintage/drukket-year.R")
 ## Figur
 
 ```{r cal2-druk-fig}
+#| fig-cap: "Figure 17: Alkohol siste 12 måneder"
+
 make_hist(d = alko,
           x = gender,
           y = percentage,
@@ -68,6 +70,8 @@ source("../scripts/vintage/drikk-frekvens.R")
 ## Figur
 
 ```{r cal2-drikk-freq-fig}
+#| fig-cap: "Figur 18: Drikkerfrekvens siste 12 måneder"
+
 alkofreq[, alkofrekvens := as.numeric(alkofrekvens)]
 
 make_hist(d = alkofreq,
@@ -128,6 +132,8 @@ drk6_25 <- data.table(
 
 ## Figur
 ```{r cal2-druk6-fig}
+#| fig-cap: "Figur 19: Andel som har drukket 6 eller flere alkoholenheter ved en og samme anledning, 2025"
+
 make_hist(d = drk6_25,
           x = gender,
           y = pros,
@@ -185,6 +191,7 @@ enheter (0.33cl) blant menn og `r kjonncl[kjonn == 2, V1]` enheter blant kvinner
 ```{r cal2-beer-fig}
 #| echo: false
 #| warning: false
+#| fig-cap: "Figur 20: Antall øl enheter drukket siste 4 uker (33cl)"
 
 simple_hist(beer$both,
             x = agecat,
@@ -212,6 +219,7 @@ En enhet tilsvarer 1.25dl vin. Et gjennomsnitt antall vin enheter drukket i sist
 ```{r cal2-vin-fig}
 #| echo: false
 #| warning: false
+#| fig-cap: "Figur 21: Antall vin enheter drukket siste 4 uker (12.5cl)"
 
 simple_hist(wine$both,
             x = agecat,
@@ -238,6 +246,7 @@ Menn hadde i gjennomsnitt `r brenn$gender[kjonn == 1, V1]` glass brennevin samme
 ```{r cal2-brennevin-fig}
 #| echo: false
 #| warning: false
+#| fig-cap: "Figur 22: Antall brennevin enheter drukket siste 4 uker (4cl)"
 
 simple_hist(brenn$both,
             x = agecat,
@@ -263,6 +272,7 @@ Beregningen her er basert på at en flaske rusbrus er 0,33 liter. Gjennomsnittli
 ```{r cal2-rusbrus-fig}
 #| echo: false
 #| warning: false
+#| fig-cap: "Figur 23: Antall rusbrus enheter drukket siste 4 uker (33cl)"
 
 simple_hist(rusbrus$both,
             x = agecat,
@@ -298,6 +308,7 @@ Gjennomsnittlig konsum av ren alkohol var `r genderAlk[kjonn == 1, V1]` cl blant
 ```{r cal2-renalko-fig}
 #| echo: false
 #| warning: false
+#| fig-cap: "Figur 24: Total mengde alkohol konsumet siste 4 uker (cl)"
 
 simple_hist(tblAlk,
             x = agecat,
@@ -341,6 +352,7 @@ andel blant menn (`r drikkTbl[gender == "Menn" & variable == "Øl", pros]`%).
 ```{r cal2-rensort-fig}
 #| echo: false
 #| warning: false
+#| fig-cap: "Figur 25: Andel alkoholkonsum i centiliter ren alkohol siste 4 uker fordelt på drikkesort"
 
 make_hist(drikkTbl,
           x = gender,
@@ -412,6 +424,7 @@ svart at de ikke drikker alkohol på ukedagene fra mandag til torsdag.
 ```{r cal2-dager-fig}
 #| echo: false
 #| warning: false
+#| fig-cap: "Figur 26: Drikkemønster: Ukedager og helgedager"
 
 make_hist(ukeDT,
           x = ukedager,
