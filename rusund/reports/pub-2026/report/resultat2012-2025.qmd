@@ -40,6 +40,113 @@ kjonnKB <- data.table(v1 = as.integer(kjonnVal),
 
 ```
 
+```{r}
+#| label: drikk-tid
+#| echo: false
+
+## alko population
+ddt[, alkopop := fifelse(drukket1 %in% 1:2, 1, NA)]
+
+## Drukket noen gang
+ddt[, alkonoengang := fcase(
+    drukket1 == 1, 1,
+    drukk1b == 1, 1
+)]
+
+ddt[, alkonoengang := fifelse(is.na(alkonoengang) & alkopop == 1, 2, alkonoengang)]
+drkNoengang <- proscat_weighted("year", "alkonoengang", d = ddt, weight = "vekt2", total = FALSE)
+data.table::setnames(drkNoengang, "alkonoengang", "status")
+drkNoengang[, type := "Noen gang"]
+drkNoengangKjonn <- proscat_weighted("year", "alkonoengang", z = "kjonn", d = ddt, weight = "vekt2", total = FALSE)
+drkNoengangKjonn[, type := "Noen gang"]
+data.table::setnames(drkNoengangKjonn, "alkonoengang", "status")
+
+## Drukket siste år
+ddt[, alkosist12 := fifelse(is.na(alkosistaar) & alkopop == 1, 2, alkosistaar)]
+
+drkSist12 <- proscat_weighted("year", "alkosist12", d = ddt, weight = "vekt2", total = FALSE)
+drkSist12[, type := "Siste 12 måneder"]
+data.table::setnames(drkSist12, "alkosist12", "status")
+drkSist12Kjonn <- proscat_weighted("year", "alkosist12", z = "kjonn", d = ddt, weight = "vekt2", total = FALSE)
+drkSist12Kjonn[, type := "Siste 12 måneder"]
+data.table::setnames(drkSist12Kjonn, "alkosist12", "status")
+
+## Drukket siste 4 uker
+## drukket == 3 gjelder bare for 2013 - ikke drukket siste 12 mnd.
+ddt[, alkosistaar4uker := fifelse(drukket3 %in% c(3, 8:9), NA, drukket3)]
+ddt[, alkosistaar4uker := as.numeric(alkosistaar4uker)]
+ddt[, alkosistaar4uker := fifelse(is.na(alkosistaar4uker) & alkopop == 1, 2, alkosistaar4uker)]
+
+drkSist4uker <- proscat_weighted("year", "alkosistaar4uker", d = ddt, weight = "vekt2", total = FALSE)
+drkSist4uker[, type := "Siste 4 uker"]
+data.table::setnames(drkSist4uker, "alkosistaar4uker", "status")
+drkSist4ukerKjonn <- proscat_weighted("year", "alkosistaar4uker", z = "kjonn", d = ddt, weight = "vekt2", total = FALSE)
+drkSist4ukerKjonn[, type := "Siste 4 uker"]
+data.table::setnames(drkSist4ukerKjonn, "alkosistaar4uker", "status")
+
+alkoHist <- rbindlist(list(drkNoengang, drkSist12, drkSist4uker), use.names = TRUE)
+alkoHistKjonn <- rbindlist(list(drkNoengangKjonn, drkSist12Kjonn, drkSist4ukerKjonn), use.names = TRUE)
+
+```
+
+Andelen av befolkningen som rapporterte å ha drukket alkohol noen gang, de siste
+12 månedene eller siste 4 uker har vært relativt stabil i perioden 2012
+til 2025. Det er små forskjeller mellom aldersgrupper og kjønn, men menn har
+jevnt over et noe høyere konsum.
+
+```{r}
+#| label: drikk-tid-fig-all
+#| fig-cap: "Figur 1: Alkoholbruk over tid"
+
+make_hist(d = alkoHist[status == 1],
+          x = year,
+          y = percentage,
+          n = count,
+          group = type,
+          title = "Figur 1: Alkoholbruk over tid",
+          subtitle = "Andel som har drukket alkohol noen gang, siste 12 måneder eller siste 4 uker, 2012–2025",
+          type = "line",
+          ylim = c(0, 120),
+          dot_size = 6,
+          flip = FALSE)
+```
+
+```{r}
+#| label: drikk-tid-fig-menn
+
+make_hist(d = alkoHistKjonn[status == 1 & kjonn == 1],
+          x = year,
+          y = percentage,
+          n = count,
+          group = type,
+          title = "Figur 2: Alkoholbruk over tid bland menn",
+          subtitle = "Andel som har drukket alkohol noen gang, siste 12 måneder eller siste 4 uker, 2012–2025",
+          type = "line",
+          ylim = c(0, 120),
+          dot_size = 6,
+          flip = FALSE)
+
+```
+
+```{r}
+#| label: drikk-tid-fig-kvinner
+
+make_hist(d = alkoHistKjonn[status == 1 & kjonn == 2],
+          x = year,
+          y = percentage,
+          n = count,
+          group = type,
+          title = "Figur 3: Alkoholbruk over tid bland kvinner",
+          subtitle = "Andel som har drukket alkohol noen gang, siste 12 måneder eller siste 4 uker, 2012–2025",
+          type = "line",
+          ylim = c(0, 120),
+          dot_size = 6,
+          flip = FALSE)
+
+```
+
+
+
 ## Andel av alkoholbruk siste år 
 
 ```{r cal-bruk}
@@ -76,15 +183,15 @@ og `r round(drkMax, digits = 1)`% av befolkningen.
 
 ```{r}
 #| label: bruk-fig
-#| fig-cap: "Figur 1: Alkoholbruk over tid"
+#| fig-cap: "Figur 4: Alkoholbruk over tid"
 
 make_hist(d = drkDT,
           x = year,
           y = percentage,
           group = kjonn2,
           n = count,
-          title = "Figur 1: Alkoholbruk over tid",
-          subtitle = "Andel som har drukket alkohol minst én gang de siste 12 måneder, 2012–2025",
+          title = "Figur 4: Alkoholbruk de siste 12 månedene",
+          subtitle = "Andel som har drukket alkohol minst én gang de siste 12 månedene, 2012–2025",
           type = "line",
           dot_size = 6,
           flip = FALSE)
@@ -142,7 +249,7 @@ make_hist(d = drukkMen[alkosistaar == 1],
           y = percentage,
           group = agecat,
           n = count,
-          title = "Alkoholbruk siste år bland menn i ulike aldersgrupper, 2012- 2025",
+          title = "Figur 5: Alkoholbruk siste 12 måneder bland menn i ulike aldersgrupper, 2012- 2025",
           subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
           type = "line",
           dot_size = 6)
@@ -166,7 +273,7 @@ make_hist(d = drukkWom[alkosistaar == 1],
           y = percentage,
           group = agecat,
           n = count,
-          title = "Alkoholbruk siste år bland kvinner i ulike aldersgrupper, 2012- 2025",
+          title = "Figur 6: Alkoholbruk siste år bland kvinner i ulike aldersgrupper, 2012- 2025",
           subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
           type = "line",
           dot_size = 6)
@@ -235,7 +342,7 @@ make_hist(d = drikkFDT[drukket2rec == 1],
           y = percentage,
           group = kjonn2,
           n = count,
-          title = "Alkoholbruk daglig siste 12 måneder 2012-2025",
+          title = "Figur 7: Alkoholbruk daglig siste 12 måneder 2012-2025",
           subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
           type = "line",
           yint = 5,
@@ -253,7 +360,7 @@ make_hist(d = drikkFDT[drukket2rec == 2],
           y = percentage,
           group = kjonn2,
           n = count,
-          title = "Alkoholbruk ukenlig siste 12 måneder 2012-2025",
+          title = "Figur 8: Alkoholbruk ukenlig siste 12 måneder 2012-2025",
           subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
           type = "line",
           yint = 5,
@@ -271,7 +378,7 @@ make_hist(d = drikkFDT[drukket2rec == 3],
           y = percentage,
           group = kjonn2,
           n = count,
-          title = "Alkoholbruk månedlig siste 12 måneder 2012-2025",
+          title = "Figur 9: Alkoholbruk månedlig siste 12 måneder 2012-2025",
           subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
           type = "line",
           yint = 5,
@@ -289,7 +396,7 @@ make_hist(d = drikkFDT[drukket2rec == 4],
           y = percentage,
           group = kjonn2,
           n = count,
-          title = "Alkoholbruk sjeldnere enn månedlig siste 12 måneder 2012-2025",
+          title = "Figur 10: Alkoholbruk sjeldnere enn månedlig siste 12 måneder 2012-2025",
           subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
           type = "line",
           yint = 5,
@@ -340,7 +447,7 @@ setorder(drk6DT, year, kjonn)
 ```{r druk6-fig}
 
 make_hist(d = drk6DT, x = year, y = percentage, n = count,  group = kjonn2,
-          title = "Drukket 6+ enheter ved en og samme anledning siste år",
+          title = "Figur 11: Drukket 6+ enheter ved en og samme anledning siste år",
           subtitle = "Kilde: Rusundersøkelse 2012-2025 ",
           type = "line", yint = 5, dot_size = 6)
 ```
@@ -373,7 +480,7 @@ make_hist(d = drk6Men[drink6 == 1],
           y = percentage,
           group = agecat,
           n = count,
-          title = "Drukket 6+ enheter ved en og samme anledning siste år",
+          title = "Figur 12: Drukket 6+ enheter ved en og samme anledning siste år",
           subtitle = "Menn, 2012-2025",
           type = "line", dot_size = 6)
 ```
@@ -396,7 +503,7 @@ make_hist(d = drk6Wom[drink6 == 1],
           y = percentage,
           group = agecat,
           n = count,
-          title = "Drukket 6+ enheter ved en og samme anledning siste år",
+          title = "Figur 13: Drukket 6+ enheter ved en og samme anledning siste år",
           subtitle = "Kvinner, 2012-2025",
           type = "line", dot_size = 6)
 ```
@@ -483,7 +590,7 @@ kjonnDiff <- enhetDiff[, abs(round(diff(V1), digits = 0))]
 #| warning: false
 
 create_ci_graph(data = enhetTbl,
-                title = "Alkoholbruk siste 4 uker",
+                title = "Figur 14: Alkoholbruk siste 4 uker",
                 caption = "Helsedirektoratet, tall fra Rus- og tobakksundersøkelsen (SSB)",
                 y_axis_title = "Antall alkoholenheter",
                 ylim = c(0,35))
@@ -499,7 +606,7 @@ alkoholenheter enn kvinner siste fire uker i perioden fra 2012 til 2025.
 
 enhetMenn <- enhetKjonn[kjonn == 1]
 
-mtitle <- "Alkoholinntak blant menn over tid"
+mtitle <- "Figur 15: Alkoholinntak blant menn over tid"
 msubt <- "Antall gjennomsnittlig inntak i alkoholenheter blant menn siste 4 uker\n med nedre og øvre grense for 95% konfidensintervall, 2012–2025"
 
 create_ci_graph(data = enhetMenn,
@@ -516,7 +623,7 @@ create_ci_graph(data = enhetMenn,
 
 enhetKvinner <- enhetKjonn[kjonn == 2]
 
-ftitle <- "Alkoholinntak blant kvinner over tid"
+ftitle <- "Figur 16: Alkoholinntak blant kvinner over tid"
 fsubt <- "Antall gjennomsnittlig inntak i alkoholenheter blant kvinner siste 4 uker\n med nedre og øvre grense for 95% konfidensintervall, 2012–2025"
 create_ci_graph(data = enhetKvinner,
                 title = ftitle,

@@ -37,7 +37,7 @@ make_hist(d = alko,
           y = percentage,
           group = alkoyr,
           n = count,
-          title = "Alkohol siste 12 måneder")
+          title = "Figure 17: Alkohol siste 12 måneder")
 ```
 
 ## Tabell
@@ -75,7 +75,7 @@ make_hist(d = alkofreq,
           y = percentage,
           group = alkof,
           n = count,
-          title = "Drikkerfrekvens siste 12 måneder")
+          title = "Figur 18: Drikkerfrekvens siste 12 måneder")
 
 ```
 
@@ -133,7 +133,7 @@ make_hist(d = drk6_25,
           y = pros,
           group = alko,
           n = n,
-          title = "Andel som har drukket 6 eller flere alkoholenheter ved en og samme anledning, 2025")
+          title = "Figur 19: Andel som har drukket 6 eller flere alkoholenheter ved en og samme anledning, 2025")
 ```
 
 ## Tabell
@@ -190,7 +190,7 @@ simple_hist(beer$both,
             x = agecat,
             y = enhet,
             group = gender,
-            title = "Antall øl enheter drukket siste 4 uker (33cl)")
+            title = "Figur 20: Antall øl enheter drukket siste 4 uker (33cl)")
 
 ```
 
@@ -217,7 +217,7 @@ simple_hist(wine$both,
             x = agecat,
             y = vinglass,
             group = gender,
-            title = "Antall vin enheter drukket siste 4 uker (12.5cl)")
+            title = "Figur 21: Antall vin enheter drukket siste 4 uker (12.5cl)")
 ```
 
 
@@ -243,7 +243,7 @@ simple_hist(brenn$both,
             x = agecat,
             y = glass,
             group = gender,
-            title = "Antall brennevin enheter drukket siste 4 uker (4cl)")
+            title = "Figur 22: Antall brennevin enheter drukket siste 4 uker (4cl)")
 
 ```
 
@@ -268,7 +268,7 @@ simple_hist(rusbrus$both,
             x = agecat,
             y = flaske,
             group = gender,
-            title = "Antall rusbrus enheter drukket siste 4 uker (33cl)")
+            title = "Figur 23: Antall rusbrus enheter drukket siste 4 uker (33cl)")
 
 ```
 
@@ -305,7 +305,7 @@ simple_hist(tblAlk,
             yint = 5,
             ytitle = "Centiliter ren alkohol",
             group = gender,
-            title = "Total mengde alkohol konsumet siste 4 uker (cl)")
+            title = "Figur 24: Total mengde alkohol konsumet siste 4 uker (cl)")
 ```
 
 ```{r cal2-rensort}
@@ -349,7 +349,7 @@ make_hist(drikkTbl,
           group = variable,
           n = value,
           yint = 10,
-          title = "Andel alkoholkonsum i centiliter ren alkohol siste 4 uker fordelt på drikkesort")
+          title = "Figur 25: Andel alkoholkonsum i centiliter ren alkohol siste 4 uker fordelt på drikkesort")
 ```
 
 ## Drikkemønster: Ukedager og helgedager
@@ -419,6 +419,6 @@ make_hist(ukeDT,
           group = helger,
           xtitle = "Ukedager fra mandag til torsdag",
           n = count,
-          title = "Drikkemønster: Ukedager og helgedager")
+          title = "Figur 26: Drikkemønster: Ukedager og helgedager")
 
 ```

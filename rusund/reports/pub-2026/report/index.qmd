@@ -24,3 +24,26 @@ For å kunne arbeide målrettet for å forebygge og redusere alkoholrelatert ska
 
 Tall om alkohol samler data fra flere ulike kilder. Disse omtales under metode. Rapporten er dynamisk og vil oppdateres etter hvert som nye data blir tilgjengelige. Det er mulig å motta varsel om oppdateringer via en abonnementsfunksjon som ligger nederst på rapportens forside. Rapporten er en del av en serie på tre ulike publikasjoner om rusmiddel- og tobakksbruk, der de andre publikasjonene er Tal om tobakk og Tall om illegale rusmidler.  
 Tall om alkohol er en videreføring av Folkehelseinstituttets rapport [Alkohol i Norge](https://www.fhi.no/le/alkohol/alkoholinorge/), en oppgave som ble overført fra FHI til Helsedirektoratet i 2024. Denne rapporten inneholder ikke akkurat det samme som Alkohol i Norge, men viderefører sentral statistikk og bidrar med ny statistikk som ikke har blitt publisert tidligere. 
+
+# Hovedbudskap
+
+## Bruk og trender
+- De fleste drikker alkohol, både menn og kvinner, og dette mønsteret er stabilt over tid, i ulike aldersgrupper. 
+- Generelt drikker menn oftere og mer enn kvinner. 
+- Veldig få oppgir å drikke alkohol daglig.
+- Flere menn enn kvinner rapporterer å drikke seks enheter eller mer ved én og samme anledning siste år. De siste to årene har imidlertid en økende andel kvinner rapportert å drikke seks enheter eller mer ved én og samme anledning. 
+- Færre eldre (65–79 år) enn yngre (opp til 64 år) og færre kvinner enn menn drikker seks eller flere enheter ved én og samme anledning. 
+- De siste 12 årene har det gjennomsnittlige antall alkoholenheter siste fire uker variert mellom 19 og 27 enheter for menn og mellom 11 og 14 for kvinner. 
+- Menn drikker øl og brennevin oftere enn kvinner. 
+- Yngre (16–24 år) menn og kvinner drikker oftere brennevin enn de andre aldersgruppene. I tillegg velger yngre oftere rusbrus og alkoholholdig sider. 
+
+## Forvaltning av alkoholloven
+- Det ble avdekket totalt 3358 brudd på alkoholloven i kommunene i 2024. Av disse var 454 knyttet til salgsbevillinger og 2904 til skjenkebevillinger. 
+- De mest hyppige avdekkede overtredelsene knyttet til salgsbevillinger var mangel ved internkontroll, brudd på reklamebestemmelsene og brudd på reglene om plassering av alkoholholdig drikk på salgsstedet.
+- De hyppigste overtredelsene knyttet til skjenkesteder var manglende betaling av bevillingsgebyr innen kommunens frist, manglende levering av omsetningsoppgave innen kommunens frist, og mangel ved internkontrollsystemet.
+- I 2024 var det én permanent inndragning og én midlertidig inndragning av salgsbevillinger. For skjenkebevillinger var tilsvarende henholdsvis 10 og 21 inndragninger.
+
+## Holdninger og kunnskap
+- I 2025 var tre av fire helt eller delvis enig i at alkoholholdige varer bør merkes med innholdsdeklarasjon som for andre varer og nesten 70 % var helt eller delvis enig i at promillegrensen for fritidsbåter bør bli strengere. (Over 50 % er helt eller delvis enig i at alkohol er for dyrt i Norge, at taxfree-ordningen bør bestå, at alkoholholdige varer bør merkes med helseinformasjon og at fastleger rutinemessig bør spørre pasienter om alkoholbruk.) 
+- Over 60 % av befolkningen tror i svært og ganske stor grad at grensesetting fra foreldre, promillegrenser for bilkjøring, aldersgrense for kjøp av alkohol, og informasjon og holdningsskapende arbeid begrenser skadevirkningene av alkohol.
+
