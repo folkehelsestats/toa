@@ -67,7 +67,7 @@ format:
     toc: true
     toc-title: "Innhold"
     toc-location: right
-    toc-depth: 2
+    toc-depth: 3
     toc-expand: 1
     number-sections: true
 
