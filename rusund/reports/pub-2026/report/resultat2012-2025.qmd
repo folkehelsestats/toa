@@ -98,7 +98,8 @@ jevnt over et noe høyere konsum.
 #| label: drikk-tid-fig-all
 #| fig-cap: "Figur 1: Alkoholbruk over tid"
 
-make_hist(d = alkoHist[status == 1],
+## druk1b finnes ikke i 2012 og 2013 datasettet
+make_hist(d = alkoHist[status == 1 & year > 2013],
           x = year,
           y = percentage,
           n = count,
@@ -115,7 +116,8 @@ make_hist(d = alkoHist[status == 1],
 #| label: drikk-tid-fig-menn
 #| fig-cap: "Figur 2: Alkoholbruk over tid bland menn"
 
-make_hist(d = alkoHistKjonn[status == 1 & kjonn == 1],
+## druk1b finnes ikke i 2012 og 2013 datasettet
+make_hist(d = alkoHistKjonn[status == 1 & kjonn == 1 & year > 2013],
           x = year,
           y = percentage,
           n = count,
@@ -133,7 +135,8 @@ make_hist(d = alkoHistKjonn[status == 1 & kjonn == 1],
 #| label: drikk-tid-fig-kvinner
 #| fig-cap: "Figur 3: Alkoholbruk over tid bland kvinner"
 
-make_hist(d = alkoHistKjonn[status == 1 & kjonn == 2],
+## druk1b finnes ikke i 2012 og 2013 datasettet
+make_hist(d = alkoHistKjonn[status == 1 & kjonn == 2 & year > 2013],
           x = year,
           y = percentage,
           n = count,
