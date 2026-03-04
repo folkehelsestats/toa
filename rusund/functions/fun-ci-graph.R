@@ -217,7 +217,7 @@ create_ci_graph <- function(data,
   hc4 <- hc3 |>
     highcharter::hc_tooltip(shared = TRUE) |>
     highcharter::hc_exporting(enabled = TRUE) |>
-    highcharter::hc_add_dependency(name = "modules/accessibility.js")
+    highcharter::hc_add_dependency(name = "plugins/accessibility.js")
 
   if (save){
     filn <- "graph_med_ci.html"

@@ -345,7 +345,7 @@ make_hist <- function(d, x, y, group, n = NULL,
       enabled = TRUE,
       filename = filename
     ) %>%
-    highcharter::hc_add_dependency(name = "modules/accessibility.js")
+    highcharter::hc_add_dependency(name = "plugins/accessibility.js")
 
   # Aesthetics mapping
   if (use_categories) {
