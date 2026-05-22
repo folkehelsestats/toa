@@ -4,23 +4,98 @@ format: html
 editor: visual
 ---
 
-## Quarto
+## Befolkningsundersøkelsen
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Om undersøkelsen er beskrevet under Wiki på Github: <https://github.com/folkehelsestats/toa/wiki/Befolkningsunders%C3%B8kelsen-om-alkohol-og-cannabis>.
 
-## Running Code
+## N over tid
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
 
 ```{r}
+#| include: false
+#| echo: false
+#| output: false
+#| message: false
+#| 
+# Importere fil og konvertere til data.table
+Sys.setlocale("LC_ALL", "nb-NO.UTF-8")
+
+library(data.table)
+library(haven)
+library(labelled)
+library(DT)
+library(skimr)
+library(ggplot2)
+
+
+# Importere data med og uten labels:
+bef_2025 <- read_sav("O:/Prosjekt/Rusdata/Befolkningsundersøkelser alkohol og cannabis/Leveranse 2025/Helsedirektoratet_Alkohol_2015–2025.sav")
+
+dt <- as.data.table(bef_2025) # Gjør datasettet til data.table
+
+# Behold labels som attributter i dt-settet.
+# Variabel-labels:
+var_labels <- sapply(bef_2025, function(x) attr(x, "label"))
+
+# Verdilabels (for kategoriske variabler):
+val_labels <- lapply(bef_2025, function(x) attr(x, "labels"))
+
+
+# konverter alle labelled variabler til faktor med labels:
+dt[] <- lapply(dt, to_factor)  
+
 
 ```
 
-You can add options to executable code like this
+
 
 ```{r}
-#| echo: false
-2 * 2
+
+
 ```
 
 The `echo: false` option disables the printing of code (only output is displayed).
+
+
+```{r}
+
+
+```
+
+
+
+```{r}
+
+
+```
+
+
+
+```{r}
+
+
+```
+
+
+
+```{r}
+
+
+```
+
+
+## Kodebok
+
+```{r}
+#| echo: false
+#| message: false
+
+# For å lage codebook fra Yusmans kode:
+source("https://raw.githubusercontent.com/folkehelsestats/rusus/refs/heads/main/fun-codebook.R")
+
+# Lager kodeboka som eksporteres manuelt:
+create_codebook(bef_2025)
+
+```
+
