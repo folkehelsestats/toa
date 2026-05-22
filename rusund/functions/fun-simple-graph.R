@@ -85,7 +85,7 @@ simple_hist <- function(d, x, y, group,
 
   # Set default subtitle
   if (is.null(subtitle)) {
-    subtitle <- "Kilde: Rusundersøkelse 2024"
+    subtitle <- ": Helsedirektoratet, tall fra Rus- og tobakksundersøkelsen (SSB)"
   }
 
   # Set axis title text (empty string if NULL)

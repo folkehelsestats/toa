@@ -48,3 +48,7 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 .positai
+
+# Unsynced files to stay locally
+unsynced/
+

@@ -7,7 +7,7 @@ convert_cl <- function(dt, type, cl, unit, digits = 1){
   age <- dt[, round(mean(get(type), na.rm = T)/cl, digits = digits), keyby = agecat]
   ageGender <- dt[, round(mean(get(type), na.rm = T)/cl, digits = digits), keyby = .(kjonn, agecat)]
 
-  age[, kjonn := 2]
+  age[, kjonn := 3] #Alle
   tbl <- data.table::rbindlist(list(age, ageGender), use.names = TRUE, ignore.attr = TRUE)
   tbl[, (unit) := round(V1, digits)][, V1 := NULL]
 

@@ -102,9 +102,14 @@ hc3 <- hc2 |>
   )
 
 hc4 <- hc3 |>
-  hc_tooltip(shared = TRUE) |>
-  hc_exporting(enabled = TRUE) |>
-  hc_add_dependency(name = "modules/accessibility.js")
+    hc_tooltip(shared = TRUE) |>
+    hc_exporting(enabled = TRUE) |>
+    hc_add_dependency("plugins/accessibility.js")
+
+args(highcharter::hc_add_dependency)
+# function (hc, name)     ← older versions
+# function (hc, ...)      ← 0.9.4 changed how it accepts the path
+
 
 ## hc3 <- hc2 |>
 ##   hc_tooltip(
@@ -168,3 +173,7 @@ hchart(
   hcaes(x = flipper_length_mm, y = bill_length_mm, group = species)
 ) |>
   hc_exporting(enabled = TRUE)
+
+
+highcharter::hchart(iris, "scatter",
+                    highcharter::hcaes(Sepal.Length, Sepal.Width, group = Species))

@@ -229,6 +229,7 @@ DT <- data.table::copy(ddt)
 ## data.table::fwrite(DT, file.path(Rususdata, "rusus_2012_2024.csv"))
 ## saveRDS(DT, file.path(Rususdata, "rusus_2012_2024.rds"))
 
+## DT1224 <- readRDS(file.path(Rususdata, "rusus_2012_2024.rds"))
 
 ## --------------------
 ## Codebook -----------

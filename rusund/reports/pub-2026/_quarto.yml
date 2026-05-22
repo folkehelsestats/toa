@@ -1,0 +1,76 @@
+project:
+  type: website
+  output-dir: ../../../docs/reports/2026
+
+lang: nb
+language: _language-nb.yml
+
+website:
+  page-navigation: true
+  title: "Tall om alkohol 2025"
+  site-url: https://www.helsedirektoratet.no/rapporter/tall-om-alkohol
+
+  repo-url: https://github.com/folkehelsestats/toa
+  repo-actions: [edit, issue]
+
+  page-footer:
+    right: "Resultatene som vises er midlertidige. Vennligst ikke referer til disse."
+    left: "&copy; Copyright 2026, Helsedirektoratet"
+    background: "#B9E3E4"
+
+  sidebar:
+    background: "#B9E3E4"
+    logo: "assets/hdir-logo.png"
+    pinned: true
+    align: center
+    tools:
+      - icon: globe
+        href: https://www.hdir.no
+        text: "Helsedirektoratet hjemmeside"
+      - icon: github
+        href: https://github.com/folkehelsestats/toa
+        text: "ToA repo"
+
+    style: "docked"
+    search: true
+    collapse-level: 2
+    contents:
+      - href: report/index.qmd
+        text: "Tall om alkohol"
+      - href: report/resultat2012-2025.qmd
+        text: "Paneldata 2012–2025"
+      - href: report/resultat2025.qmd
+        text: "2025 Data"
+
+    # contents:
+    #   - section: "ToA"
+    #     contents:
+    #       - report/index.qmd
+    #   - section: "Panel data"
+    #     contents:
+    #       - report/resultat2012-2025.qmd
+    #   - section: "2025 Data"
+    #     contents:
+    #       - report/resultat2025.qmd
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: [cosmo, theme-dark.scss]
+    code-background: true
+    code-copy: true
+    css:
+      - styles.css
+      - assets/sidebar.css
+    code-fold: true
+    toc: true
+    toc-title: "Innhold"
+    toc-location: right
+    toc-depth: 3
+    toc-expand: 1
+    number-sections: true
+
+execute:
+  freeze: auto
+  echo: false
