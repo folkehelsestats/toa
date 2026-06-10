@@ -1,11 +1,10 @@
 *******************************************************************************
-*	Fila er opprettet/oppdatert 2025
+*	Fila er opprettet 2025-
 *	Fila klargjør ARN-data for 2023, 2024 og 2025.
 *	Oppdatert versjon av ARN_2022-2025.do
-*	Endringer fra forrige versjon:
-*		- 2025-leveransen er aktivert (ikke lenger utkommentert)
-*		- Samleseksjonen inkluderer nå ARN_2025.dta
+
 *	Fila er opprettet av Bente Øvrebø, Hdir.
+* 	Benyttet CLaude og Copilot til å strukturere og utforme kode.
 *******************************************************************************
 
 
@@ -89,6 +88,8 @@ replace antall_leveranse = 1 if Varegruppe == "220 - Liquor"
 label var antall_leveranse "1 = kun antall, mangler liter"
 
 replace l = 0 if l == . & antall_leveranse == 0
+replace enhet_antall = 0 if enhet_antall == . & antall_leveranse == 0
+
 
 drop kg /* Ikke relevant siden tobakk droppes*/
 
@@ -103,7 +104,7 @@ label var Lufthavn "Lufthavn"
 
 
 ********************************************************************************
-** STEG 2: Legger til estimater for Q1 og Q2 for Haugesund siden vi kun har antall
+** STEG 2: Legger til liter-estimater for Q1 og Q2 for Haugesund siden vi kun har antall
 ********************************************************************************
 merge m:m Lufthavn Kvt Gruppe antall_leveranse using "temp_M1_referanse.dta", keep(master match) nogenerate
 sort Lufthavn Kvt 
@@ -114,7 +115,7 @@ drop k_nr faktor_vektet
 replace l = l_est_M1 if antall_leveranse == 1
 drop antall_leveranse l_est_M1
 
-
+/* Kollapser så jeg får kun en observasjon per kvartal per varegruppe per flyplass*/
 collapse (sum) l enhet_antall, by(Lufthavn Utsalg Gruppe Kvt)
 
 
@@ -123,8 +124,6 @@ label var Antall "Antall i liter"
 label var enhet_antall "Antall i enhet"
 sort Lufthavn Utsalg Gruppe Kvt
 order Lufthavn Utsalg Kvt Gruppe Antall
-
-
 
 *******************************************************************************
 ** STEG 3: Visuell sjekk
@@ -202,6 +201,8 @@ save "ARN_2023-2025.dta", replace
 **      av tidligere do-filer (ARN_total.do). Kun 2023-2025 er inkludert
 **      i denne filen.
 ********************************************************************************
+/* OBS på at dette ikke er en god sammenlikning pga varegruppeendinger fra 
+tidligere år clear */
 
 clear all
 

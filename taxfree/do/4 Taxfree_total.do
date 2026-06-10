@@ -1,8 +1,11 @@
 *******************************************************************************
 *	Fil opprettet/oppdatert 2026
 *	Kobler taxfree-omsetning fra ARN og TRN til én komplett fil.
-*		- Sluttfil heter nå Tax-Free 2025.dta
+*		- Sluttfil heter nå Tax-Free 2023-2025.dta
 *	Filen er opprettet av Bente Øvrebø, Hdir.
+
+* 	Benyttet CLaude og Copilot til å strukturere og utforme kode.
+
 *******************************************************************************
 
 clear all
@@ -11,7 +14,7 @@ cd "O:\Prosjekt\Rusdata\Omsetning\Taxfree_originalfiler\"
 
 
 ********************************************************************************
-** DEL 1: Les inn og kombiner rådata fra alle ARN og TRN
+** DEL 1: Les inn og kombiner data fra ARN og TRN
 ********************************************************************************
 
 use "Airport Retail Norway\ARN_2023-2025.dta", clear
@@ -134,13 +137,12 @@ reshape long Antall, i(Kvt Lufthavn Utsalg) j(Gruppe) string
 label var Gruppe "Gruppe"
 
 
-
 ********************************************************************************
-** DEL 4: Legger til utenlandspassasjerer 
+** DEL 4: Legger til utenlandspassasjerer, fil laget tidligere.
 ** Estimer totalomsetning etter liter per utenlandspassasjer. 
 ********************************************************************************
 ********************************************************************************
-/* Legger til Passasjerdata som inkluderer andel ankomst*/
+/* Legger til Passasjerdata */
 reshape wide Antall, i(Kvt Lufthavn Gruppe) j(Utsalg) string
 
 merge m:1 Kvt Lufthavn using "Passasjerer\Passasjerer SSB 2023-2025.dta"
@@ -158,14 +160,8 @@ replace Antall = 0 if Utland == 0
 
 reshape wide Antall Utland, i(Kvt Lufthavn Gruppe) j(Utsalg) string
 
-
-
 *******************************************************************************
-*******************************************************************************
-
 /* Ser på figurer for antall liter per utenlandspassasjer for å se etter feil*/
-
-*******************************************************************************
 *******************************************************************************
 /*
 
@@ -270,9 +266,11 @@ reshape wide
 
 *******************************************************************************
 ** Dersom det er noen tydelige feil i Antall / AntPas som synes fra grafene, 
-** må de erstattes til missing for de Kvt, flyplassene og gruppene det gjelder.
+** bør de vurderes videre og ev. erstattes til missing for de Kvt, flyplassene 
+** og gruppene det gjelder.
 *******************************************************************************
 */
+
 
 ********************************************************************************
 ** DEL 5: Estimerer ANKOMST og AVGANG for flyplasser som ikke har dette
@@ -280,7 +278,6 @@ reshape wide
 ** Her brukes den valgte metoden: m2b
 ********************************************************************************
 ********************************************************************************
-
 
 *------- 0. Datapreparering -------*
 
@@ -300,7 +297,6 @@ gen pax_andel_ank = UtlandAnkomst/UtlandTotal
 replace pax_andel_ank = 0 if UtlandAnkomst == 0 | UtlandTotal == 0
 
 
-
 *=============================================================*
 * Endelig prediksjon med metode m2b                           *
 * fracreg logit med gruppe + kvartal + passasjerandel         *
@@ -318,12 +314,6 @@ replace pax_andel_ank = 0 if UtlandAnkomst == 0 | UtlandTotal == 0
 fracreg logit andel_ank i.grp i.kvt pax_andel_ank ///
     if andel_ank != ., vce(robust)
 	
-
-/* Kun til test 
-	regress AntallAnkomst AntallTotal i.grp i.kvt pax_andel_ank if andel_ank != ., vce(robust)
-	predict sh_pred2, xb 
-	
-	*/
 
 predict sh_pred
 
@@ -357,8 +347,6 @@ label var AntallAvgang_final  "Liter avgang (inkl. estimert v/ M2b)"
 *--- Konsistenssjekk: ankomst + avgang = total ---*
 gen diff = (abs(AntallAnkomst_final + AntallAvgang_final) - AntallTotal)
 
-
-
 di _n "=== Konsistenssjekk: differanse mellom (ank+avg) og total ==="
 sum diff
 list Lufthavn Kvt Gruppe AntallTotal AntallAnkomst_final AntallAvgang_final ///
@@ -387,18 +375,13 @@ table Gruppe Lufthavn if training==1, stat(mean andel_ank) // faktisk observert 
 di _n "=== Range for predikert andel (testflyplasser) ==="
 sum sh_pred if training==0, detail
 
-
 drop sh_pred
-
-
-
 
 
 
 ********************************************************************************
 *---- LAGER FIGURER -------*
 ********************************************************************************
-*--- Lag tidsserievariabel hvis du ikke har den ---*
 
 ** Alle flyplsser i en figur:
 * Brennevin
@@ -445,9 +428,8 @@ drop sh_pred
 	   legend(order(1 "Ankomst" 2 "Avgang" 3 "Total")) ///
 		xlabel(, angle(45)) 
 
-
-
-** Ferdigstiller fila for å sikre kobling til SSB mm:
+********************************************************************************
+** Ferdigstiller fila for videre arbeid:
 
 replace AntallAnkomst = AntallAnkomst_final if AntallAnkomst ==.
 replace AntallAvgang = AntallAvgang_final if AntallAvgang ==.

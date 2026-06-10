@@ -1,12 +1,11 @@
 *******************************************************************************
-*	Fil opprettet/oppdatert 2025
-*	Lager kvartalsvise rapporttabeller om taxfree-omsetning.
-*	Oppdatert versjon av Rapport_Kvt.do
-*	Endringer fra forrige versjon:
-*		- Peker nå på Tax-Free 2025.dta (tidligere Tax-Free 2024.dta)
-*		- Inkluderer data fra 2023, 2024 og 2025
-*		- Befolkningstall over 15 år er lagt inn for 2024 og 2025
+*	Fil opprettet/oppdatert 2026
+*	Filer med tall som skal inn i ToA.
+*******************************************************************************
+*	Fila lager filer med tall relevante inn i ToA.
+
 *	Filen er opprettet av Bente Øvrebø, Hdir.
+* 	Benyttet CLaude og Copilot til å strukturere og utforme kode.
 *******************************************************************************
 cd "O:\Prosjekt\Rusdata\Omsetning\"
 
@@ -16,10 +15,11 @@ cd "O:\Prosjekt\Rusdata\Omsetning\"
 
 use "Taxfree_originalfiler\Tax-Free 2023-2025.dta", clear
 
-collapse (sum) Antall Utland, by(Kvt Gruppe Utsalg) // trenger ikke Lufthavn lenger
+drop Utland 
+collapse (sum) Antall, by(Kvt Gruppe Utsalg) // trenger ikke Lufthavn lenger
 
-reshape wide Antall Utland, i(Gruppe Kvt) j(Utsalg) string
-*reshape wide Antall* Utland*, i(Gruppe) j(Kvt) // kolonner for Antall og Utland etter ankomst, avgang og total (med Kvt femst)
+reshape wide Antall, i(Gruppe Kvt) j(Utsalg) string
+*reshape wide Antall*, i(Gruppe) j(Kvt) // kolonner for Antall og Utland etter ankomst, avgang og total (med Kvt)
 
 ********************************************************************************
 	/* Bregne mengde ren alkohol per varegruppe (alkohol % er like SSB sine) */
@@ -53,7 +53,7 @@ replace AntallRenTotal      = AntallTotal     * 0.0447 if Gruppe == "Øl"
 
 /* ANKOMST-tabell fra taxfree i 1000 vareliter og ren alkohol */
 
-preserve 
+
 gen År = year(dofq(Kvt))
 collapse (sum) AntallAnkomst AntallRenAnkomst, by(År Gruppe)
 gen Ankomst = AntallAnkomst / 1000
@@ -72,12 +72,19 @@ rename AnkomstØl Øl
 gen VinHetvin = Vin + Hetvin 
 order År Øl Vin Hetvin VinHetvin Brennevin RenAlkohol
 
+/* Ren alkohol per innbygger */
+gen over15aar = 4572917 // 2023
+replace over15aar = 4639075 if År == 2024  
+replace over15aar = 4691770 if År == 2025
+gen over15Ankomst = (RenAlkohol / over15aar)*1000 // for å få i liter per pers
+
+
 /* Exporter fil */
 export excel using "O:\Prosjekt\Rusdata\Omsetning\Rapporter_mm_org\Til ToA\Taxfree ankomstomsetning 2023-2025.xlsx", firstrow(variables) replace
 
-restore
+
 	
-	
+	/* Ikke lenger aktuell, lagt inn over.
 ********************************************************************************
 ** DEL 4: Beregn per-passasjer lite
 ** 		  Befolkning over 15 år (per kalenderår) (OBS - ikke 1000 liter)
@@ -125,7 +132,7 @@ gen over15Ankomst = (RenAlkohol1000 / over15aar)*1000
 list År RenAlkohol1000 over15Ankomst
 restore
 
-
+*/
 ********************************************************************************
 ** DEL 5: SSB-tall
 ** 		  Avgiftbasert omsetning i samme format
@@ -133,7 +140,6 @@ restore
 
 clear all
 cd "O:\Prosjekt\Rusdata\Omsetning\"
-
 
 use "SSB_originalfiler\Omsetningsstatistikk\SSB_Alkoholstatistikk.dta"
 

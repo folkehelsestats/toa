@@ -1,12 +1,9 @@
 *******************************************************************************
 *	Fil opprettet/oppdatert 2026
-*	Oppdatert versjon av TRN_total.do
-*	Endringer fra forrige versjon:
-*		- Sigaretter fra Q1 2023: data er nå i kg — ingen omregning nødvendig
-*		- Halvering av tobakkskvote fra Q1 2023 er eksplisitt dokumentert
-*		  (sigaretter: kvoten er halvert, men selve salget i kg er reelt)
-*		- Samleseksjonen inkluderer TRN 2023-2025.dta korrekt
+*	Oppdatert versjon av TRN_2023-2025.do
+*
 *	Filen er opprettet av Bente Øvrebø, Hdir.
+* 	Benyttet CLaude og Copilot til å strukturere og utforme kode.
 *******************************************************************************
 
 clear all
@@ -57,10 +54,11 @@ replace Lufthavn = "Stavanger" if Lufthavn == "SVG"
 replace Lufthavn = "Trondheim" if Lufthavn == "TRD"
 
 * #-tegnet i ankomst kommer fordi Y/N er ukjent - systemet fanger det ikke opp. 
-list Sted StrongWine-Tobacco if Ankomst == "#"
+list Sted Kvt StrongWine-Tobacco if Ankomst == "#"
 
 
-/* Der dette mangler, så kan vi beregne Y/N basert på tall vi har*/
+/* Der dette mangler, så kan vi estimere Y/N basert på tall vi har. Gjelder ikke høye salgstall og kun en butikk på Oslo lufthavn og kun deler av den */
+
 preserve
 keep if Sted == "OSL Oslo T2 Departure North" & Kvt == tq(2025q4)
 
@@ -112,7 +110,7 @@ gen unknown = 1 if Sted == "OSL Oslo T2 Departure North" & Kvt == tq(2025q4)
 
 compress
 
-
+/* Rydder i navn mm*/
 gen Utsalg = ""
 replace Utsalg = "Ankomst" if Ankomst == "Y" 
 replace Utsalg = "Avgang" if Ankomst == "N" 
@@ -147,11 +145,7 @@ replace Antall = Antalll if Gruppe =="Brennevin"
 replace Antall = Antalll if Gruppe =="Hetvin" 
 replace Antall = Antallkg if Gruppe =="Sigarer" 
 replace Antall = Antallkg if Gruppe=="Sigaretter" 
-/* 	Før brukte vi antall sigaretter, nå har vi det i kg så bruker det
-	Senere vil vi regne om kg sigaretter til stk ved beregningsfaktor:
-	1 sigarett veier 1 gram.
 
-*/
 replace Antall = Antallkg if Gruppe =="Snus" 
 replace Antall = Antallkg if Gruppe == "NikotinfriSnus"
 replace Antall = Antallkg if Gruppe =="Tobakk" 
@@ -159,6 +153,7 @@ replace Antall = Antalll if Gruppe =="Vin"
 replace Antall = Antalll if Gruppe =="Øl" 
 drop Antallkg Antalll Antallpc
 
+/* Beholder kun alkohol */
 keep if inlist(Gruppe, "Øl", "Vin", "Hetvin", "Brennevin")
 
 save "TRN 2023-2025.dta", replace
@@ -236,12 +231,11 @@ save "TRN 2023-2025.dta", replace
 /*
 ********************************************************************************
 ** EXTRA: Koble alle TRN-år (2010-2025) til én fil
-** OBS: Forutsetter at ARN2010-2021.dta og ARN_2022.dta allerede er laget
-**      av tidligere do-filer (ARN_total.do). Kun 2023-2025 er inkludert
-**      i denne filen.
-**		Under brukes det til å se trenger over tid, for å se nærmere på Torp.
+**		  Forutsetter at filene er laget.
 ********************************************************************************
 
+/* OBS på at dette ikke er en god sammenlikning pga varegruppeendinger fra 
+tidligere år clear */
 
 
 

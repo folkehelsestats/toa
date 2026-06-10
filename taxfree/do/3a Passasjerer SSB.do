@@ -1,9 +1,12 @@
 ********************************************************************************
-	* Fila bygger videre på Daniels v/FHIs fil om passasjerer
-	* Legger til for 2024, samt 2023-data for Kristiansand i Excel-fil SSB2021-2023
-	
+	* Fil opprettet 2025
+	* Fila bygger videre på FHIs fil om passasjerer
+	* Interessert i passasjerer for 2023-2024
+	* Tallene er hetet fra SSBs luftsfartstatistikk, passasjertall.
 
-
+*	Filen er opprettet av Bente Øvrebø, Hdir.
+* 	Benyttet CLaude og Copilot til å strukturere og utforme kode.
+*******************************************************************************
 ********************************************************************************
 
 
@@ -54,6 +57,7 @@ reshape wide Antall, i(Kvt Flyplass Utsalg) j(Type Rute Charter) string
 gen AntallTotalt = AntallRute + AntallCharter
 label var Utsalg "Utsalg"
 
+/* Justerer variabelnavn mm*/
 replace Flyplass = "Bergen" if Flyplass == "Bergen Flesland"
 replace Flyplass = "Evenes" if Flyplass == "Harstad/Narvik Evenes"
 replace Flyplass = "Haugesund" if Flyplass == "Haugesund Karmøy"
@@ -76,7 +80,7 @@ sort Lufthavn Utsalg Kvt
 
 rename AntallTotalt AntallTotal
 
-********************************************************************************
+
 rename AntallTotal SSB
 label var SSB "Passasjerer SSB"
 drop Antall*

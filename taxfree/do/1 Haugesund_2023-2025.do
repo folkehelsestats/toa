@@ -1,6 +1,6 @@
 *******************************************************************************
 *	Importere ARN-omsetning fra Excel, klargjøre fil samt,
-*	estimere omsetning for Haugesund.
+*	estimere omsetning for Haugesund hvor det ikke er i liter.
 *
 *  Formål:  Importere tall fra ARN-omsetning. Fila estimerer også omsetning 
 *			for ved å sammenligne tre estimeringsmetoder 
@@ -9,8 +9,8 @@
 *  Metoder:
 *    M1  — Sesongfaktor: l/enhet_antall beregnet fra kjente perioder,
 *           multiplisert med faktisk enhet_antall for ukjente perioder.
-*           enhet_antall finnes for alle kvartal og alle år. Estimatene er for
-*			brennevin estimert med vekter for omsetning etter undergrupper.
+*           enhet_antall finnes for alle kvartal og alle år. Estimatene for
+*			brennevin er estimert med vekter for omsetning etter undergrupper.
 *    M2  — Tidsserieregresjon på Haugesunds egne data:
 *           ln(l) = Gruppe-FE + beta*t + sesongdummies
 *    M3  — Proxymodell med Ålesund:
@@ -19,7 +19,6 @@
 *  Validering av M1, M2 og M3:
 *    Modellene estimeres på 2024-data og predikerer Q3/Q4 2023
 *    som vi har faktiske observasjoner for.
-*    Predikasjonsfeil måles med MAPE per Gruppe.
 *
 *  Opprettet av: Bente Øvrebø, Hdir, 2025.
 *  Utarbeidet ved hjelp av Claude.ai og Copilot.
@@ -90,6 +89,7 @@ replace antall_leveranse = 1 if Varegruppe == "220 - Liquor"
 label var antall_leveranse "1 = kun antall, mangler liter"
 
 replace l = 0 if l == . & antall_leveranse == 0
+replace enhet_antall = 0 if enhet_antall == . & antall_leveranse == 0
 
 /* Retter i Utsalgsvariabel og renamer variabler */
 replace Utsalg = "Ankomst" if Utsalg == "Arrival"
@@ -107,7 +107,7 @@ label var k_nr "Kvartalsnummer (1–4)"
 ** DEL A1: Stabil flaskestørrelse per underkategori (Varegruppe-nivå)
 **
 **  For alle ARN-rader med antall_leveranse == 0 (faktisk liter tilgjengelig):
-**  beregn gjennomsnittlig l/enhet_antall per Varegruppe.
+**  beregn gjennomsnittlig l/enhet_antall per Varegruppe for Brennevin.
 **  Disse er svært stabile og trenger ikke sesongkorrigering.
 ********************************************************************************
 /*
@@ -125,36 +125,6 @@ tab Varegruppe
     display as text _newline "=== Flaskestørrelse per underkategori (alle) ==="
     list Varegruppe n_obs faktor_sub, noobs
 
-		/*
-		=== Flaskestørrelse per underkategori (alle) ===
-
-		. 
-		.     list Varegruppe n_obs faktor_sub, noobs
-
-		  +---------------------------------------------------+
-		  |                     Varegruppe   n_obs   faktor~b |
-		  |---------------------------------------------------|
-		  |                        Aquavit     145   .7295182 |
-		  |                       Armagnac       1         .7 |
-		  |                         Brandy     133   .8109812 |
-		  | Clear Spirits (with additives)      11          1 |
-		  |                         Cognac     145   .5988428 |
-		  |---------------------------------------------------|
-		  |            Digestif & Aperitif     144   .3954996 |
-		  |           Fruitbrandy & Grappa      79   .8864012 |
-		  |  Fruity Spirits & Other Premix     100   .9942978 |
-		  |                  Gin & Genever     143   .6220987 |
-		  |                        Liqueur     145   .5554313 |
-		  |---------------------------------------------------|
-		  |                            Rum     139   .8351377 |
-		  |                        Tequila      95   .9029561 |
-		  |                          Vodka     144   .6750152 |
-		  |                      Whisk(e)y     145   .7067462 |
-		  |           miscellaneous spirit     135   .9048043 |
-		  +---------------------------------------------------+
-
-		*/
-	
 restore 
 
 */
@@ -183,17 +153,6 @@ drop if l == .
 
     display as text _newline "=== Flaskestørrelse per Gruppe (Haugesund) ==="
     list Gruppe n_obs faktor_sub, noobs
-
-		/*
-
-		  | Gruppe   n_obs   faktor~b |
-		  |---------------------------|
-		  | Hetvin      14   .9535293 |
-		  |    Vin      21   .7616849 |
-		  |     Øl       7    1.90611 |
-		  +---------------------------+
-
-		*/
 		
 	save "faktor_vektet_vin", replace	
 
@@ -205,13 +164,6 @@ restore
 **
 **  For Haugesund-rader med antall_leveranse == 0 (faktisk liter tilgjengelig):
 **  beregn gjennomsnittlig l/enhet_antall per Varegruppe.
-**  Disse er svært stabile og trenger ikke sesongkorrigering.
-**  alle tall fra 2023 og 2024 hvor vi har liter og antall.
-
-** Siden det er litt forskjell i faktorene ved ulike flyplasser, så må det tas 
-** et valg. Basert på at det kan være forskjell i hvem som handler på de ulike 
-** flyplassene, benytter jeg i hovedsak tall fra Haugesund der faktorene kan 
-** beregnes. Dvs estimater fra DEL A2.
 ********************************************************************************
 
 preserve
@@ -227,37 +179,6 @@ tab Varegruppe
 
     display as text _newline "=== Flaskestørrelse per underkategori (Haugesund) ==="
     list Varegruppe n_obs faktor_sub, noobs
-
-		/*
-		
-		
-		=== Flaskestørrelse per underkategori (Haugesund) ===
-
-		.     list Varegruppe n_obs faktor_sub, noobs
-
-		  +--------------------------------------------------+
-		  |                    Varegruppe   n_obs   faktor~b |
-		  |--------------------------------------------------|
-		  |                       Aquavit       7   .7388789 |
-		  |                        Brandy       7   .8076129 |
-		  |                        Cognac       7   .6615113 |
-		  |           Digestif & Aperitif       7   .3608862 |
-		  |          Fruitbrandy & Grappa       5          1 |
-		  |--------------------------------------------------|
-		  | Fruity Spirits & Other Premix       7          1 |
-		  |                 Gin & Genever       7   .7229071 |
-		  |                       Liqueur       7   .5516176 |
-		  |                           Rum       7   .8240599 |
-		  |                       Tequila       7   .9912698 |
-		  |--------------------------------------------------|
-		  |                         Vodka       7   .7593357 |
-		  |                     Whisk(e)y       7    .683444 |
-		  |          miscellaneous spirit       7          1 |
-		  +--------------------------------------------------+
-
-
-		*/
-	
 	
     save "faktor_sub", replace
 
@@ -269,11 +190,12 @@ restore
 
 ********************************************************************************
 ** DEL B: Sesongmessig omsetningsandel av underkategoriene (per kvartalsnummer)
+**		  For Brennevin.
 **
 **  For Haugesund-rader med antall_leveranse == 0:
 **  beregn andel av total Brennevin-antall per underkategori per k_nr.
 **  Eksempel: i Q1 er 25 % av Brennevin-enhetene Vodka, 15 % Aquavit osv.
-**  Disse andelene brukes til å vekte flaskestørrelsene i Del C.
+**  Disse andelene brukes til å vekte flaskestørrelsene i DEL C.
 ********************************************************************************
 
 preserve
@@ -302,80 +224,6 @@ preserve
     display as text _newline "=== Sesongandel per underkategori og kvartalsnummer ==="
     list k_nr Varegruppe andel, sepby(k_nr) noobs
 
-	/*
-		
-	=== Sesongandel per underkategori og kvartalsnummer ===
-
-	. 
-	.     list k_nr Varegruppe andel, sepby(k_nr) noobs
-
-  +--------------------------------------------------+
-  | k_nr                       Varegruppe      andel |
-  |--------------------------------------------------|
-  |    1                              Rum   .0226112 |
-  |    1                          Tequila   .0038293 |
-  |    1              Digestif & Aperitif   .0747629 |
-  |    1                    Gin & Genever   .0762217 |
-  |    1             miscellaneous spirit   .0065646 |
-  |    1                          Liqueur   .3322392 |
-  |    1                          Aquavit   .0532458 |
-  |    1                           Brandy   .0175055 |
-  |    1   Clear Spirits (with additives)          0 |
-  |    1                            Vodka   .1477024 |
-  |    1                           Cognac   .0822392 |
-  |    1    Fruity Spirits & Other Premix   .0045587 |
-  |    1             Fruitbrandy & Grappa          0 |
-  |    1                        Whisk(e)y   .1785193 |
-  |--------------------------------------------------|
-  |    2                          Liqueur   .3476295 |
-  |    2             miscellaneous spirit   .0087284 |
-  |    2                          Aquavit   .0524333 |
-  |    2    Fruity Spirits & Other Premix   .0040816 |
-  |    2             Fruitbrandy & Grappa   .0000628 |
-  |    2   Clear Spirits (with additives)          0 |
-  |    2                           Brandy   .0129984 |
-  |    2                            Vodka   .1351334 |
-  |    2              Digestif & Aperitif   .0702669 |
-  |    2                    Gin & Genever   .1100785 |
-  |    2                          Tequila   .0034537 |
-  |    2                        Whisk(e)y   .1365777 |
-  |    2                           Cognac   .0807535 |
-  |    2                              Rum   .0378022 |
-  |--------------------------------------------------|
-  |    3                    Gin & Genever   .1074938 |
-  |    3                          Tequila   .0026161 |
-  |    3    Fruity Spirits & Other Premix   .0069182 |
-  |    3                        Whisk(e)y   .1474333 |
-  |    3                              Rum    .038428 |
-  |    3                           Cognac   .0728446 |
-  |    3                           Brandy   .0093599 |
-  |    3                          Aquavit   .0512761 |
-  |    3             miscellaneous spirit   .0093599 |
-  |    3                            Vodka   .1404569 |
-  |    3   Clear Spirits (with additives)          0 |
-  |    3                          Liqueur   .3448637 |
-  |    3             Fruitbrandy & Grappa   .0001163 |
-  |    3              Digestif & Aperitif   .0688332 |
-  |--------------------------------------------------|
-  |    4                          Tequila   .0014586 |
-  |    4                            Vodka   .1166861 |
-  |    4                              Rum   .0262544 |
-  |    4             Fruitbrandy & Grappa   .0004376 |
-  |    4                           Brandy   .0165548 |
-  |    4                           Cognac    .082993 |
-  |    4                          Aquavit   .0918903 |
-  |    4             miscellaneous spirit    .010283 |
-  |    4    Fruity Spirits & Other Premix    .003063 |
-  |    4   Clear Spirits (with additives)          0 |
-  |    4                        Whisk(e)y   .1764148 |
-  |    4                          Liqueur   .3178967 |
-  |    4                    Gin & Genever   .0802946 |
-  |    4              Digestif & Aperitif    .075773 |
-  +--------------------------------------------------+
-
-
-	  */
-    
 
 	keep Varegruppe k_nr andel
 	
@@ -409,21 +257,6 @@ label var faktor_vektet "Sesongvektet l/enhet_antall for Brennevin"
 display as text _newline "=== Vektet Brennevin-faktor per kvartalsnummer ==="
 list k_nr faktor_vektet, noobs
 
-/* 
-		=== Vektet Brennevin-faktor per kvartalsnummer ===
-
-		. list k_nr faktor_vektet, noobs
-
-		  +-----------------+
-		  | k_nr   faktor~t |
-		  |-----------------|
-		  |    1    .640949 |
-		  |    2   .6427549 |
-		  |    3   .6444864 |
-		  |    4   .6429531 |
-		  +-----------------+
-
-*/
 
 save "faktor_vektet_brennevin", replace
 
@@ -443,8 +276,6 @@ save "faktor_vektet_brennevin", replace
 ** Resultatet gir empirisk støtte (eller ikke) for å bruke samme metode til å 
 ** estimere manglende liter i Q1 og Q2 2023.
 
-** Forslag til test, men obs på at Q3 og Q4 har mer detaljerte varegrupper enn 
-** Q1 og Q2.
 ********************************************************************************
 /*
 clear 
@@ -664,21 +495,14 @@ preserve
 
     display as text _newline "=== Validering Q3/Q4 2023 — vektet Brennevin-faktor ==="
     list Kvt l_faktisk l_pred_val avvik_pst, noobs
-	/* Avvik i % - positiv = overestimert.
-	  +------------------------------------------+
-	  |    Kvt   l_fakt~k   l_pred~l   avvik_pst |
-	  |------------------------------------------|
-	  | 2023q3    6570.09   6451.809   -1.800301 |
-	  | 2023q4    5179.31   5212.742    .6454856 |
-	  +------------------------------------------+
-	*/
+
     display as text "(Avvik i % — positiv = overestimert)"
 
 restore
 
 */
 ********************************************************************************
-** DEL E: Estimer liter for Haugesund Q1 og Q2-del1 (Brennevin)
+** DEL E: Estimer liter for Haugesund Q1 og Q2-del1 (Brennevin) med faktor-metode.
 **
 **  Hent ant_uk fra "220 - Liquor"-raden (antall_leveranse == 1)
 **  og multipliser med faktor_vektet for tilhørende k_nr.
@@ -748,6 +572,7 @@ replace antall_leveranse = 1 if Varegruppe == "220 - Liquor"
 label var antall_leveranse "1 = kun antall, mangler liter"
 
 replace l = 0 if l == . & antall_leveranse == 0
+replace enhet_antall = 0 if enhet_antall == . & antall_leveranse == 0
 
 /* Retter i Utsalgsvariabel og renamer variabler */
 replace Utsalg = "Ankomst" if Utsalg == "Arrival"
@@ -801,11 +626,14 @@ sort Kvt
 ** Metode 1 er estimert ferdig
 ** Fortsetter her å jobbe videre med metode 2 og 3.
 
-* Siden metoden er bestemt, er det ikke poeng å gå videre her /*
+* Siden metoden er bestemt, er det ikke poeng å gå videre her 
 
 ********************************************************************************
 ********************************************************************************
 	
+	
+	
+	/*
 clear all
 
 cd "O:\Prosjekt\Rusdata\Omsetning\Taxfree_originalfiler\Airport Retail Norway\"
@@ -821,6 +649,7 @@ import excel "ARN 2023-2025.xlsx", sheet("Ark1") firstrow clear
 * 		Hvis variabelen År finnes i datasettet, lag en kvartalsdato (Kvt) basert
 *		på År og Kvartal, og slett deretter År og Kvartal. Hvis År ikke finnes, 
 *		gjør ingenting. */
+/*
 
 capture confirm variable År
 if !_rc {
@@ -1060,27 +889,7 @@ list Gruppe Kvt l_kj l_pred_M2v val_feil_M2 ///
     if Lufthavn == "Haugesund" & inlist(Kvt, tq(2023q3), tq(2023q4)) & l_kj > 0, ///
     noobs sepby(Gruppe)
 	
-	/* Tallene predikert fra 2024 til Q3/Q4 viser at modellen underestimerer,
-	** sammenliknet med faktiske tall (l_kj). 
-	  +------------------------------------------------------+
-  |    Gruppe      Kvt       l_kj   l_pre~2v   val_fei~2 |
-  |------------------------------------------------------|
-  | Brennevin   2023q3    6570.09   4912.394   -25.23095 |
-  | Brennevin   2023q4    5179.31   4569.323   -11.77738 |
-  |------------------------------------------------------|
-  |    Hetvin   2023q3     136.05   129.7653   -4.619392 |
-  |    Hetvin   2023q4        172   120.7029   -29.82392 |
-  |------------------------------------------------------|
-  |       Vin   2023q3   7421.296   5266.582   -29.03421 |
-  |       Vin   2023q4   5588.446   4898.775   -12.34101 |
-  |------------------------------------------------------|
-  |        Øl   2023q3    5897.13   4383.426   -25.66848 |
-  |        Øl   2023q4    3952.66   4077.298    3.153261 |
-  +------------------------------------------------------+
-  
-  Modellen underestimerer ganske mye for Q3 og Q4, sammenliknet med faktiske tall.
-  
-	*/
+
 	
 
 /* Hent estimert verdi for manglende perioder fra fullmodell */
@@ -1167,23 +976,7 @@ list Gruppe Kvt l_H l_pred_M3v val_feil_M3 ///
     if inlist(Kvt, tq(2023q3), tq(2023q4)) & l_H > 0, ///
     noobs sepby(Gruppe)
 	
-	/*
-	 +------------------------------------------------------+
-  |    Gruppe      Kvt        l_H   l_pre~3v   val_fei~3 |
-  |------------------------------------------------------|
-  | Brennevin   2023q3    6570.09   5562.877   -15.33027 |
-  | Brennevin   2023q4    5179.31   4959.526   -4.243493 |
-  |------------------------------------------------------|
-  |    Hetvin   2023q3     136.05   170.0194    24.96829 |
-  |    Hetvin   2023q4        172   159.2673   -7.402748 |
-  |------------------------------------------------------|
-  |       Vin   2023q3   7421.296   5477.771   -26.18848 |
-  |       Vin   2023q4   5588.446   4723.571   -15.47612 |
-  |------------------------------------------------------|
-  |        Øl   2023q3    5897.13    4599.59   -22.00291 |
-  |        Øl   2023q4    3952.66   3896.443   -1.422258 |
-  +------------------------------------------------------+
-	*/
+
 	
 
 /* Estimat for manglende perioder */
@@ -1297,18 +1090,6 @@ tabstat ape_M2 ape_M3 ///
     if inlist(Kvt, tq(2023q3), tq(2023q4)) & l_H > 0, ///
     stat(mean) col(stat)
 	
-	/*
-	. tabstat ape_M2 ape_M3 ///
-	>     if inlist(Kvt, tq(2023q3), tq(2023q4)) & l_H > 0, ///
-	>     stat(mean) col(stat)
-
-		Variable |      Mean
-	-------------+----------
-		  ape_M2 |  17.70607
-		  ape_M3 |  14.62932
-	------------------------
-
-	*/
 
 display as text "(Lavere = bedre prediksjon av faktiske Q3/Q4 2023-tall)"
 display as text ""
