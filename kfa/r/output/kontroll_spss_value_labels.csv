@@ -1,0 +1,86 @@
+﻿variabel,etikett,kode
+q1_3b,Samtlige,1
+q1_3b,"Hvis ikke samtlige, oppgi antall bevillinger med maksimaltid",2
+q1_6,Ja,1
+q1_6,Nei,2
+q1_6c,Ingen overtredelser avdekket i kontroll,1
+q1_6c,Kommunen har ikke gjennomført kontroll/manglet ressurser til kontroll,2
+q1_6c,Prioritert annen veiledning overfor bevillingshaver,3
+q1_6c,Annet,4
+q1_7,Ja,1
+q1_7,Nei,2
+q1_8,Ja,1
+q1_8,Nei,2
+q1_9,Ja,1
+q1_9,Nei,2
+q1_9,Ikke aktuelt,3
+q1_10,Ja,1
+q1_10,Nei,2
+q1_10,Ikke aktuelt,3
+q1_11,Ja,1
+q1_11,Nei,2
+q1_12a,Ja,1
+q1_12a,Nei,2
+q1_12a,Ikke aktuelt,3
+q1_12b,Ja,1
+q1_12b,Nei,2
+q1_12b,Ikke aktuelt,3
+q2_2,Ja,1
+q2_2,Nei,2
+q2_5,Ja,1
+q2_5,Nei,2
+q2_6a,00:00,1
+q2_6a,00:30,2
+q2_6a,01:00,3
+q2_6a,01:30,4
+q2_6a,02:00,5
+q2_6a,02:30,6
+q2_6a,03:00,7
+q2_6b,Samtlige,1
+q2_6b,"Hvis ikke samtlige, oppgi antall bevillinger med maksimaltid",2
+q2_7a,00:00,1
+q2_7a,00:30,2
+q2_7a,01:00,3
+q2_7a,01:30,4
+q2_7a,02:00,5
+q2_7a,02:30,6
+q2_7a,03:00,7
+q2_7b,Samtlige,1
+q2_7b,"Hvis ikke samtlige, oppgi antall bevillinger med maksimaltid",2
+q2_11,Ja,1
+q2_11,Nei,2
+q2_12,Ja,1
+q2_12,Nei,2
+q2_13,Ja,1
+q2_13,Nei,2
+q2_14,Ja,1
+q2_14,Nei,2
+q2_14,Ikke aktuelt,3
+q2_15,Ja,1
+q2_15,Nei,2
+q2_15,Ikke aktuelt,3
+q2_16,Ja,1
+q2_16,Nei,2
+q2_17a,Ja,1
+q2_17a,Nei,2
+q2_17a,Ikke aktuelt,3
+q2_17b,Ja,1
+q2_17b,Nei,2
+q2_17b,Ikke aktuelt,3
+q4_3,Ja,1
+q4_3,Nei,2
+q5_2,Ja,1
+q5_2,Nei,2
+q5_3,Ja,1
+q5_3,Nei,2
+q2_18,Ja,1
+q2_18,Nei,2
+q2_18,Det er under behandling,3
+q2_18,Vet ikke,4
+q1_3a_1,18:00,1
+q1_3a_1,19:00,2
+q1_3a_1,20:00,3
+q1_3a_2,15:00,1
+q1_3a_2,16:00,2
+q1_3a_2,17:00,3
+q1_3a_2,18:00,4

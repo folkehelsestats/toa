@@ -136,6 +136,9 @@ reshape long
 reshape long Antall, i(Kvt Lufthavn Utsalg) j(Gruppe) string
 label var Gruppe "Gruppe"
 
+/* Eksporterer til senere: 
+export delimited using O:\Prosjekt\Rusdata\Omsetning\Taxfree_originalfiler\toa_2023-2025.csv
+*/
 
 ********************************************************************************
 ** DEL 4: Legger til utenlandspassasjerer, fil laget tidligere.

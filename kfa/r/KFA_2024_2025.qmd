@@ -337,13 +337,13 @@ Med antall salgsbevillinger fra tidligere for kommunene med null salgsbevillinge
 
 ##### Fordeling av salgsbevilling for øl/rusbrus etter utsalgssted
 
--   Salgsbevillinger dagligvare 2024: `r sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)`.
--   Salgsbevillinger bryggeri 2024: `r sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)`.
--   Salgsbevillinger gårdsutsalg 2024: `r sum(kfa_oppdatert$gaard24, na.rm = TRUE)`.
--   Salgsbevillinger nettsalg 2024: `r sum(kfa_oppdatert$nettsalg24, na.rm = TRUE)`.
--   Salgsbevillinger øl- og mineralvannutsalg 2024: `r sum(kfa_oppdatert$olutsalg24, na.rm = TRUE)`.
--   Salgsbevillinger kultur 2024: `r sum(kfa_oppdatert$kultur24, na.rm = TRUE)`.
--   Salgsbevillinger andre 2024: `r sum(kfa_oppdatert$andre24, na.rm = TRUE)`.
+- Salgsbevillinger dagligvare 2024: `r sum(kfa_oppdatert$dagligvare24, na.rm = TRUE)`.
+- Salgsbevillinger bryggeri 2024: `r sum(kfa_oppdatert$bryggeri24, na.rm = TRUE)`.
+- Salgsbevillinger gårdsutsalg 2024: `r sum(kfa_oppdatert$gaard24, na.rm = TRUE)`.
+- Salgsbevillinger nettsalg 2024: `r sum(kfa_oppdatert$nettsalg24, na.rm = TRUE)`.
+- Salgsbevillinger øl- og mineralvannutsalg 2024: `r sum(kfa_oppdatert$olutsalg24, na.rm = TRUE)`.
+- Salgsbevillinger kultur 2024: `r sum(kfa_oppdatert$kultur24, na.rm = TRUE)`.
+- Salgsbevillinger andre 2024: `r sum(kfa_oppdatert$andre24, na.rm = TRUE)`.
 
 Tabell som viser fordeling av salgsbevillinger for øl/rusbrus etter utsalgssted i 2024, blant kommuner som har salgsbevillinger:
 
@@ -910,10 +910,10 @@ Antall nye salgsbevillinger som ble innvilget i 2024: `r sum(kfa_oppdatert$q1_13
 
 Antall nye salgsbevillinger som ble avslått: `r sum(kfa_oppdatert$q1_13a_2, na.rm = TRUE)`, av `r sum(kfa_oppdatert$q1_13a_2 > 0 & !is.na(kfa_oppdatert$q1_13a_2))` kommuner. Årsak til avslag:
 
--   Manglende vandelskrav: `r sum(kfa_oppdatert$q1_13b_1, na.rm = TRUE)`.
--   Lokalpolitiske hensyn: `r sum(kfa_oppdatert$q1_13b_2, na.rm = TRUE)`.
--   Manglende dokumentasjon fra søker: `r    sum(kfa_oppdatert$q1_13b_3, na.rm = TRUE)`.
--   Annet: `r sum(kfa_oppdatert$q1_13b_4, na.rm = TRUE)`.
+- Manglende vandelskrav: `r sum(kfa_oppdatert$q1_13b_1, na.rm = TRUE)`.
+- Lokalpolitiske hensyn: `r sum(kfa_oppdatert$q1_13b_2, na.rm = TRUE)`.
+- Manglende dokumentasjon fra søker: `r    sum(kfa_oppdatert$q1_13b_3, na.rm = TRUE)`.
+- Annet: `r sum(kfa_oppdatert$q1_13b_4, na.rm = TRUE)`.
 
 ```{r}
 #| message: false
@@ -951,11 +951,11 @@ Antall nye skjenkebevillinger som ble innvilget: `r sum(kfa_oppdatert$q2_8a_1, n
 
 Antall nye skjenkebevillinger som ble avslått: `r sum(kfa_oppdatert$q2_8a_2, na.rm = TRUE)`. Av de som ble avslått var årsakene:
 
--   Manglende vandelskrav: `r sum(kfa_oppdatert$q2_8b_1_1, na.rm = TRUE)`.
--   Lokalpolitiske hensyn: `r sum(kfa_oppdatert$q2_8b_1_2, na.rm = TRUE)`.
--   Manglende dokumentasjon fra søker: `r sum(kfa_oppdatert$q2_8b_1_3, na.rm = TRUE)`.
--   Manglende godkjenning fra andre offentlige myndigheter: `r sum(kfa_oppdatert$q2_8b_1_4, na.rm = TRUE)`.
--   Annet: `r sum(kfa_oppdatert$q2_8b_1_5, na.rm = TRUE)`.
+- Manglende vandelskrav: `r sum(kfa_oppdatert$q2_8b_1_1, na.rm = TRUE)`.
+- Lokalpolitiske hensyn: `r sum(kfa_oppdatert$q2_8b_1_2, na.rm = TRUE)`.
+- Manglende dokumentasjon fra søker: `r sum(kfa_oppdatert$q2_8b_1_3, na.rm = TRUE)`.
+- Manglende godkjenning fra andre offentlige myndigheter: `r sum(kfa_oppdatert$q2_8b_1_4, na.rm = TRUE)`.
+- Annet: `r sum(kfa_oppdatert$q2_8b_1_5, na.rm = TRUE)`.
 
 ```{r}
 #| message: false
@@ -1289,10 +1289,10 @@ Det var `r sum(kfa_oppdatert$q2_11 == "Ja", na.rm = TRUE)` kommuner som rapporte
 
 ## Inndragninger av bevillinger
 
--   Salg, permanent: `r sum(kfa_oppdatert$q1_7_1, na.rm = TRUE)`.
--   Salg, midlertidig: `r sum(kfa_oppdatert$q1_8_1, na.rm = TRUE)`.
--   Skjenke, permanent: `r sum(kfa_oppdatert$q2_12_1, na.rm = TRUE)`.
--   Skjenke, midlertidig: `r sum(kfa_oppdatert$q2_13_1, na.rm = TRUE)`.
+- Salg, permanent: `r sum(kfa_oppdatert$q1_7_1, na.rm = TRUE)`.
+- Salg, midlertidig: `r sum(kfa_oppdatert$q1_8_1, na.rm = TRUE)`.
+- Skjenke, permanent: `r sum(kfa_oppdatert$q2_12_1, na.rm = TRUE)`.
+- Skjenke, midlertidig: `r sum(kfa_oppdatert$q2_13_1, na.rm = TRUE)`.
 
 ```{r}
 #| message: false
@@ -1431,11 +1431,17 @@ highchart() %>%
 
 ```
 
+
+## EKSPORT AV FIL
+
 ```{r}
 #| message: false
 #| echo: false
 #| output: false
 
+saveRDS(
+  kfa_oppdatert,
+  "O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Analyser 2024_2025/kfa_resultater_2024_2025.rds")
 
 
 ```

@@ -55,22 +55,45 @@ replace AntallRenTotal      = AntallTotal     * 0.0447 if Gruppe == "Øl"
 
 
 gen År = year(dofq(Kvt))
-collapse (sum) AntallAnkomst AntallRenAnkomst, by(År Gruppe)
+collapse (sum) AntallAnkomst AntallRenAnkomst AntallAvgang AntallRenAvgang AntallTotal AntallRenTotal, by(År Gruppe)
 gen Ankomst = AntallAnkomst / 1000
 gen AnkomstRen = AntallRenAnkomst / 1000
 
+gen Avgang = AntallAvgang / 1000
+gen AvgangRen = AntallRenAvgang / 1000
+
+gen Total = AntallTotal / 1000
+gen TotalRen = AntallRenTotal / 1000
+
+* Sanity check
+	gen sjekk = Total - Avgang 
+	gen sjekk2 = abs(sjekk-Ankomst) 
+	drop sjekk sjekk2
+	
 drop Antall*
-reshape wide Ankomst*, i(År) j(Gruppe) string
 
-gen RenAlkohol = AnkomstRenBrennevin+ AnkomstRenHetvin+ AnkomstRenVin+ AnkomstRenØl
+reshape wide Ankomst* Avgang* Total*, i(År) j(Gruppe) string
+
+gen RenAlkoholAnkomst = AnkomstRenBrennevin+ AnkomstRenHetvin+ AnkomstRenVin+ AnkomstRenØl
 drop AnkomstRen*
+gen RenAlkoholAvgang = AvgangRenBrennevin+ AvgangRenHetvin+ AvgangRenVin+ AvgangRenØl
+drop AvgangRen*
+gen RenAlkoholTotal = TotalRenBrennevin+ TotalRenHetvin+ TotalRenVin+ TotalRenØl
+drop TotalRen*
 
+/*
 rename AnkomstBrennevin Brennevin
 rename AnkomstHetvin Hetvin
 rename AnkomstVin Vin
 rename AnkomstØl Øl
-gen VinHetvin = Vin + Hetvin 
-order År Øl Vin Hetvin VinHetvin Brennevin RenAlkohol
+*/
+gen AnkomstVinHetvin = AnkomstVin + AnkomstHetvin 
+gen AvgangVinHetvin = AvgangVin + AvgangHetvin 
+gen TotalVinHetvin = TotalVin + TotalHetvin 
+
+export excel using "O:\Prosjekt\Rusdata\Omsetning\Rapporter_mm_org\Til ToA\Taxfree ankomstomsetning 2023-2025.xlsx_tilSSB", firstrow(variables) replace
+drop Avgang* Total*
+*order År Øl Vin Hetvin VinHetvin Brennevin RenAlkohol
 
 /* Ren alkohol per innbygger */
 gen over15aar = 4572917 // 2023
