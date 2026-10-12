@@ -12,7 +12,7 @@ format:
     code-fold: true
     code-summary: "Vis kode"
     df-print: paged
-    embed-resources: true
+    embed-resources: false
 execute:
   echo: true
   warning: false
