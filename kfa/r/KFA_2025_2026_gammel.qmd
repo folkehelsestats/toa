@@ -1,0 +1,63 @@
+---
+title: "KFA_2025_2026"
+format: html
+editor: visual
+---
+
+
+```{r}
+#| include: false
+#| output: false
+#| message: false
+
+# Pakker
+
+library(haven)
+library(labelled)
+library(readr)
+library(data.table)
+library(DT)
+
+```
+
+
+
+```{r}
+KFA_2025_2026 <- as.data.table(
+  read_spss("O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Leveranse 2025_2026/KFA_0210.sav"))
+
+# kodebok: 
+source("https://raw.githubusercontent.com/folkehelsestats/rusus/refs/heads/main/fun-codebook.R")
+
+# Lager kodeboka som eksporteres manuelt:
+create_codebook(KFA_2025_2026)
+
+
+# 5. Sjekk datastruktur
+str(KFA_2025_2026)
+# mangler kommnuenr
+# 6. Sjekk for duplikater og manglende ID
+anyDuplicated(KFA_2025_2026$kommunenummer)
+sum(is.na(KFA_2025_2026$kommunenummer))
+```
+
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).

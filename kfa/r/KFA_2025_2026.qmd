@@ -1,63 +1,3097 @@
 ---
-title: "KFA_2025_2026"
-format: html
-editor: visual
+title: "Kommunenes forvaltning av alkoholloven i 2025"
+subtitle: "Kvalitetskontroll, oversikt og figurer"
+author: "Helsedirektoratet"
+lang: nb
+date: last-modified
+
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: true
+    code-summary: "Vis kode"
+    df-print: paged
+    embed-resources: false
+    
+execute:
+  echo: true
+  warning: false
+  message: false
+  error: false
+  freeze: auto
+params:
+  survey_file: "O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Leveranse 2025_2026/KFA_0210.sav"
+  municipality_file: "O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Analyser 2025_2026/kommuneinfo.xlsx"
+  municipality_sheet: 1
+  previous_file: "data/kfa_tidligere.xlsx"
+  previous_sheet: 1
+  year: 2025
+  use_previous_for_nonresponse: false
+  output_dir: "output"
 ---
 
+# OBS OBS!
+[ Tall under er ikke publisert og er kun foreløpige. Tallene må ikke deles.]{.mark}
+
+
+# Formål og avgrensning
+
+Dette dokumentet gir en reproduserbar oversikt over kommunenes forvaltning av alkoholloven i 2025, basert på undersøkelsen som besvares i 2026. Oppsettet følger hovedtemaene i *Tall om alkohol*: salgs- og skjenkebevillinger, salgs- og skjenketider, kontroll og overtredelser, inndragninger, nye bevillinger og kommunens alkoholpolitikk. I tillegg er enklere oversikter over andre spørsmål i skjema lagt inn også.
+
+Undersøkelsesdata leses fra SPSS-format (`.sav`). ID-variabelen `kommuneid` i SAV-filen får umiddelbart navnet `kommunenummer`. Kommuneinformasjonsfilen skal ha `kommunenummer` som ID. I resten av analysen brukes bare navnet `kommunenummer`.
+
+## Undersøkelsen kommunenes forvaltning av alkoholloven
+Data om kommunenes forvaltning av alkoholloven kommer fra spørreskjema som kommunene besvarer. Kommunene plikter etter anmodning å gi opplysninger om kommunens forvaltning, jf. alkoholforskriften § 7-3. Opinion, på vegne av Helsedirektoratet, har gjennomført undersøkelsen.
+
+# Oppsett
 
 ```{r}
+#| label: setup
 #| include: false
-#| output: false
-#| message: false
 
-# Pakker
+Sys.setlocale("LC_ALL", "nb-NO.UTF-8")
 
-library(haven)
-library(labelled)
-library(readr)
 library(data.table)
-library(DT)
+library(haven)
+library(readxl)
+library(highdir)
+library(knitr)
+
+options(
+  scipen = 999,
+# OutDec = ",", # tar ut denne da den påvirker figurvisning
+  datatable.print.nrows = 50
+)
+
+YEAR <- params$year
+IDVAR <- "kommunenummer"
+OUT <- params$output_dir
+
+dir.create(OUT, recursive = TRUE, showWarnings = FALSE)
+
+stopifnot(
+  file.exists(params$survey_file),
+  file.exists(params$municipality_file)
+)
+```
+
+# Hjelpefunksjoner
+
+```{r}
+#| label: helpers
+#| include: false
+
+read_any <- function(path, sheet = 1L) {
+  ext <- tolower(tools::file_ext(path))
+
+  if (ext == "sav") {
+    return(as.data.table(haven::read_sav(path)))
+  }
+
+  if (ext %chin% c("xlsx", "xls")) {
+    return(as.data.table(readxl::read_excel(path, sheet = sheet)))
+  }
+
+  if (ext == "csv") {
+    return(fread(path, encoding = "UTF-8"))
+  }
+
+  if (ext == "rds") {
+    return(as.data.table(readRDS(path)))
+  }
+
+  stop("Ustøttet filtype: ", ext)
+}
+
+norm_kommunenummer <- function(x) {
+  # Kommunenummer er en geografisk kode og lagres som tekst.
+  x <- trimws(as.character(haven::zap_labels(x)))
+  x <- sub("\\.0$", "", x)
+
+  fifelse(
+    grepl("^[0-9]+$", x),
+    sprintf("%04d", as.integer(x)),
+    x
+  )
+}
+
+as_num <- function(x) {
+  x <- haven::zap_labels(x)
+  if (is.numeric(x)) return(as.numeric(x))
+
+  x <- trimws(as.character(x))
+  x[x %chin% c("", "-", ".", "..", "NA", "N/A")] <- NA_character_
+  suppressWarnings(as.numeric(gsub(",", ".", x, fixed = TRUE)))
+}
+
+as_code <- function(x) {
+  # Returnerer SPSS-koden uten value labels.
+  as.character(haven::zap_labels(x))
+}
+
+as_yes <- function(x) {
+  # Håndterer både ordinære ja/nei-spørsmål (1/2) og avkrysningsfelt (1/0).
+  z <- tolower(trimws(as_code(x)))
+
+  fifelse(
+    z %chin% c("1", "ja", "yes", "true", "x"),
+    TRUE,
+    fifelse(
+      z %chin% c("0", "2", "nei", "no", "false", ""),
+      FALSE,
+      NA
+    )
+  )
+}
+
+assert_cols <- function(DT, cols, object = deparse(substitute(DT))) {
+  missing <- setdiff(cols, names(DT))
+  if (length(missing)) {
+    stop(object, " mangler variabel/variabler: ", paste(missing, collapse = ", "))
+  }
+  invisible(TRUE)
+}
+
+row_sum_na <- function(DT, vars) {
+  vars <- intersect(vars, names(DT))
+  if (!length(vars)) return(rep(NA_real_, nrow(DT)))
+
+  m <- as.matrix(DT[, ..vars])
+  ans <- rowSums(m, na.rm = TRUE)
+  ans[rowSums(!is.na(m)) == 0] <- NA_real_
+  ans
+}
+
+sum_vars <- function(DT, vars) {
+  vars <- intersect(vars, names(DT))
+
+  rbindlist(lapply(vars, function(v) {
+    data.table(
+      variabel = v,
+      antall = sum(DT[[v]], na.rm = TRUE),
+      kommuner_med = sum(DT[[v]] > 0, na.rm = TRUE),
+      kommuner_svart = sum(!is.na(DT[[v]]))
+    )
+  }))
+}
+
+count_distribution <- function(DT, var) {
+  DT[!is.na(get(var)), .N, by = .(verdi = get(var))][
+    , prosent := 100 * N / sum(N)
+  ][order(verdi)]
+}
+
+fig_column <- function(DT, x, y, title, subtitle = NULL,
+                       caption = NULL, group = NULL,
+                       ylab = "Antall", description = NULL) {
+  spec <- hd_spec(DT, x = x, y = y, group = group)
+  opts <- hd_opts(
+    title = title,
+    subtitle = subtitle,
+    caption = caption,
+    ylab = ylab,
+    description = description
+  )
+  hd_make(spec, "column", opts, mode = "dynamic")
+}
+
+fig_ranked <- function(DT, x, y, title, subtitle = NULL,
+                       caption = NULL, ylab = "Antall",
+                       description = NULL) {
+  spec <- hd_spec(DT, x = x, y = y)
+  opts <- hd_opts(
+    title = title,
+    subtitle = subtitle,
+    caption = caption,
+    ylab = ylab,
+    description = description
+  )
+  hd_make(spec, "ranked_bar", opts, mode = "dynamic")
+}
+```
+
+# Les inn og harmoniser data
+
+## Undersøkelsesdata fra SAV
+
+```{r}
+#| label: import
+
+raw <- read_any(params$survey_file)
+kom <- read_any(
+  params$municipality_file,
+  sheet = params$municipality_sheet
+)
+
+setnames(raw, trimws(names(raw)))
+setnames(kom, trimws(names(kom)))
+
+# SAV-filen bruker kommuneid. Hele analysen skal bruke kommunenummer.
+if ("kommuneid" %chin% names(raw) && !"kommunenummer" %chin% names(raw)) {
+  setnames(raw, "kommuneid", "kommunenummer")
+}
+
+# Stopp dersom begge ID-navn finnes i SAV-filen.
+if (all(c("kommuneid", "kommunenummer") %chin% names(raw))) {
+  stop(
+    "SAV-filen inneholder både kommuneid og kommunenummer. ",
+    "Avklar hvilken variabel som er riktig koblingsnøkkel."
+  )
+}
+
+# Lag svarvariabel
+
+# Sørg for samme datatype i begge datasett.
+# Kommunenummer bør vanligvis lagres som tekst.
+kom[, kommunenummer := as.character(kommunenummer)]
+raw[, kommunenummer := as.character(kommunenummer)]
+
+# Lag svarvariabel:
+  # 1 = Ja, finnes i raw
+  # 2 = Nei, finnes ikke i raw
+  kom[, svar := fifelse(
+    kommunenummer %chin% raw$kommunenummer,
+    1L,
+    2L
+  )]
+  
+  # Legger på label og gjør den til faktor:
+  kom[, svar := factor(
+    svar,
+    levels = c(1, 2),
+    labels = c("Ja", "Nei")
+  )]
+
+
+# Tillat stor forbokstav i kommuneinfo.
+rename_map <- c(
+  "Kommunenummer" = "kommunenummer",
+  "Fylke" = "fylke",
+  "Landsdel" = "landsdel",
+  "Sentralitetnavn" = "sentralitetnavn",
+  "Sentralitetsnr" = "sentralitetsnr",
+  "Liten" = "liten",
+  "Svar" = "svar",
+  "Kommunenavn" = "kommunenavn"
+)
+
+for (old in names(rename_map)) {
+  new <- rename_map[[old]]
+  if (old %chin% names(kom) && !new %chin% names(kom)) {
+    setnames(kom, old, new)
+  }
+}
+
+assert_cols(raw, "kommunenummer", "SAV-filen")
+assert_cols(
+  kom,
+  c("kommunenummer", "fylke", "landsdel", "sentralitetsnr", "sentralitetnavn", "liten", "svar"),
+  "kommuneinfo"
+)
+
+raw[, kommunenummer := norm_kommunenummer(kommunenummer)]
+kom[, kommunenummer := norm_kommunenummer(kommunenummer)]
+```
+
+## Fjern kontaktopplysninger
+
+Kontaktopplysninger skal ikke inngå i analysegrunnlaget eller eksporterte kontrollfiler.
+
+```{r}
+#| label: remove-contact-data
+
+contact_vars <- paste0("qintro_2_1_", 1:3)
+
+# Fjern bare variabler som faktisk finnes i raw
+# contact_vars <- intersect(contact_vars, names(raw))
+# 
+# if (length(contact_vars) > 0) {
+#   raw[, (contact_vars) := NULL]
+# }
+
+# Under fjerner alle kontakt-variabelene, inkludert stilling i kommunen:
+contact_vars <- grep("^qintro_2_1_", names(raw), value = TRUE)
+if (length(contact_vars)) raw[, (contact_vars) := NULL]
+```
+
+## Kontroller ID før kobling
+
+```{r}
+#| label: id-checks
+
+missing_id_raw <- raw[is.na(kommunenummer) | kommunenummer == ""]
+missing_id_kom <- kom[is.na(kommunenummer) | kommunenummer == ""]
+
+dup_raw <- raw[!is.na(kommunenummer), .N, by = kommunenummer][N > 1]
+dup_kom <- kom[!is.na(kommunenummer), .N, by = kommunenummer][N > 1]
+
+invalid_id_raw <- raw[
+  !is.na(kommunenummer) & !grepl("^[0-9]{4}$", kommunenummer),
+  .(kommunenummer)
+]
+invalid_id_kom <- kom[
+  !is.na(kommunenummer) & !grepl("^[0-9]{4}$", kommunenummer),
+  .(kommunenummer)
+]
+
+id_summary <- data.table(
+  kontroll = c(
+    "Manglende kommunenummer i SAV",
+    "Manglende kommunenummer i kommuneinfo",
+    "Dublett kommunenummer i SAV",
+    "Dublett kommunenummer i kommuneinfo",
+    "Ugyldig kommunenummer i SAV",
+    "Ugyldig kommunenummer i kommuneinfo"
+  ),
+  antall = c(
+    nrow(missing_id_raw),
+    nrow(missing_id_kom),
+    nrow(dup_raw),
+    nrow(dup_kom),
+    nrow(invalid_id_raw),
+    nrow(invalid_id_kom)
+  )
+)
+
+kable(id_summary)
+
+# Dubletter må avklares før kobling. Dokumentet stopper for å unngå mange-til-mange-kobling.
+stopifnot(
+  nrow(missing_id_raw) == 0L,
+  nrow(missing_id_kom) == 0L,
+  nrow(dup_raw) == 0L,
+  nrow(dup_kom) == 0L
+)
+```
+
+## Koblingskontroll og sammenslåing
+
+Kommuneinfo er grunnlaget i koblingen, slik at også kommuner uten svar beholdes. Dette er nødvendig for å beregne svarprosent og beskrive frafall.
+
+```{r}
+#| label: merge
+
+bare_i_sav <- raw[
+  !kom,
+  on = "kommunenummer",
+  .(kommunenummer)
+]
+
+bare_i_kommuneinfo <- kom[
+  !raw,
+  on = "kommunenummer",
+  .(kommunenummer, fylke, landsdel, sentralitetsnr, sentralitetnavn, liten, svar)
+]
+
+koblingskontroll <- data.table(
+  kontroll = c(
+    "Rader i SAV",
+    "Kommuner i kommuneinfo",
+    "Kommunenummer bare i SAV",
+    "Kommunenummer bare i kommuneinfo"
+  ),
+  antall = c(
+    nrow(raw),
+    nrow(kom),
+    nrow(bare_i_sav),
+    nrow(bare_i_kommuneinfo)
+  )
+)
+
+kable(koblingskontroll)
+
+# Surveyvariabler får prefiks ved navnekollisjon, bortsett fra kommunenummer.
+overlap <- setdiff(intersect(names(raw), names(kom)), "kommunenummer")
+if (length(overlap)) {
+  setnames(raw, overlap, paste0("survey_", overlap))
+}
+
+dt <- merge(
+  x = kom,
+  y = raw,
+  by = "kommunenummer",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+dt[, svart := as_yes(svar)]
+
+stopifnot(
+  nrow(dt) == nrow(kom),
+  uniqueN(dt$kommunenummer) == nrow(dt)
+)
+```
+
+# Variabelkontroll og konvertering
+
+## Forventede variabler
+
+```{r}
+#| label: expected-variables
+
+count_vars <- unique(c(
+  paste0("q1_1_", 1:7),
+  "q1_3b_2_other",
+  paste0("q1_4_", 1:4),
+  "q1_5",
+  paste0("q1_6a_1_", 1:16),
+  "q1_7_1",
+  "q1_8_1",
+  "q1_9_1",
+  "q1_10_1",
+  "q1_11_1",
+  "q1_13a_1",
+  "q1_13a_2",
+  paste0("q1_13b_", 1:4),
+  paste0("q2_1_", 1:3),
+  paste0("q2_2_1_", 1:12),
+  "q2_3",
+  paste0("q2_5_1_", 1:6),
+  "q2_6b_2_other",
+  "q2_7b_n_other",
+  "q2_8a_1",
+  "q2_8a_2",
+  paste0("q2_8b_", 1:5),
+  paste0("q2_9_", 1:4),
+  "q2_10",
+  paste0("q2_11a_1_", 1:23),
+  "q2_12_1",
+  "q2_13_1",
+  "q2_14_1",
+  "q2_15_1",
+  "q2_16_1",
+  paste0("q5_2a_", 1:5)
+))
+
+categorical_vars <- c(
+  "q1_3a_1", "q1_3a_2", "q1_3b", "q1_6", "q1_6c", "q1_7", "q1_8",
+  "q1_9", "q1_10", "q1_11", "q1_12a", "q1_12b",
+  "q2_2", "q2_5", "q2_6a", "q2_6b", "q2_7a", "q2_7b",
+  "q2_11", "q2_12", "q2_13", "q2_14", "q2_15", "q2_16",
+  "q2_17a", "q2_17b", "q4_3", "q5_2", "q5_3", "q2_18"
+)
+
+expected_vars <- unique(c(count_vars, categorical_vars))
+variable_check <- data.table(
+  variabel = expected_vars,
+  finnes = expected_vars %chin% names(dt) # FALSE finnes ikke i fila
+)
+
+kable(variable_check[finnes == FALSE])
+fwrite(variable_check, file.path(OUT, "sanity_forventede_variabler.csv"), bom = TRUE)
 
 ```
 
 
 
+## Navneendring på variabler som er feilkodet
+
 ```{r}
-KFA_2025_2026 <- as.data.table(
-  read_spss("O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Leveranse 2025_2026/KFA_0210.sav"))
+# Basert på funn over, må noen varibeler renames.
 
-# kodebok: 
-source("https://raw.githubusercontent.com/folkehelsestats/rusus/refs/heads/main/fun-codebook.R")
+setnames(
+  dt,
+  old = c(
+    paste0("q1_1_", 1:7, "_1"),
+    "q1_3a_1_1",
+    "q1_3a_2_2"
+  ),
+  new = c(
+    paste0("q1_1_", 1:7),
+    "q1_3a_1",
+    "q1_3a_2"
+  ),
+  skip_absent = TRUE
+)
 
-# Lager kodeboka som eksporteres manuelt:
-create_codebook(KFA_2025_2026)
+```
 
+## Konverter antallsvariabler
 
-# 5. Sjekk datastruktur
-str(KFA_2025_2026)
-# mangler kommnuenr
-# 6. Sjekk for duplikater og manglende ID
-anyDuplicated(KFA_2025_2026$kommunenummer)
-sum(is.na(KFA_2025_2026$kommunenummer))
+```{r}
+#| label: convert-counts
+
+count_vars_present <- intersect(count_vars, names(dt))
+dt[, (count_vars_present) := lapply(.SD, as_num), .SDcols = count_vars_present]
+```
+
+## SPSS-koder og etiketter
+
+Denne tabellen brukes til å kontrollere hvordan den faktiske SAV-filen koder kategoriske spørsmål og avkrysningsfelt.
+
+```{r}
+#| label: spss-label-check
+
+# Obs på de kategoriske variablene jeg har endret navn på fra raw til dt:
+label_names <- c(
+  q1_3a_1_1 = "q1_3a_1",
+  q1_3a_2_2 = "q1_3a_2"
+)
+
+vars_label_check <- unique(c(
+  intersect(categorical_vars, names(raw)),
+  intersect(names(label_names), names(raw))
+))
+
+label_check <- rbindlist(lapply(vars_label_check, function(v) {
+  
+  x <- raw[[v]]
+  labels <- attr(x, "labels")
+  
+  # Vis nytt navn dersom variabelen finnes i label_names
+  navn_i_oversikt <- if (v %chin% names(label_names)) {
+    label_names[[v]]
+  } else {
+    v
+  }
+  
+  if (is.null(labels)) {
+    return(data.table(
+      variabel = navn_i_oversikt,
+      etikett = NA_character_,
+      kode = NA_real_
+    ))
+  }
+  
+  data.table(
+    variabel = navn_i_oversikt,
+    etikett = names(labels),
+    kode = as.numeric(labels)
+  )
+  
+}), fill = TRUE)
+
+kable(label_check)
+fwrite(label_check, file.path(OUT, "kontroll_spss_value_labels.csv"), bom = TRUE)
+
 ```
 
 
-## Quarto
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
+## Lage sum-variabeler og legg det inn i som count-variabel
 
 ```{r}
-1 + 1
+#| label: create-sum-variables
+
+# Lager sumvariabler:
+sum_na <- function(x) {
+  resultat <- rowSums(x, na.rm = TRUE)
+  resultat[rowSums(!is.na(x)) == 0] <- NA_real_
+  resultat
+}
+
+dt[, salgsbev := sum_na(.SD),
+   .SDcols = paste0("q1_1_", 1:7)]
+
+dt[, overtred_salg := sum_na(.SD),
+   .SDcols = paste0("q1_6a_1_", 1:16)]
+
+dt[, skjenkebev := sum_na(.SD),
+   .SDcols = paste0("q2_1_", 1:3)]
+
+dt[, andre_skjenkebev := sum_na(.SD),
+   .SDcols = paste0("q2_2_1_", 1:12)]
+
+dt[, overtred_skjenk := sum_na(.SD),
+   .SDcols = paste0("q2_11a_1_", 1:23)]
+
+# legger til disse i antall-lista:
+count_vars_present <- unique(c(
+  count_vars,
+  "salgsbev",
+  "overtred_salg",
+  "skjenkebev",
+  "andre_skjenkebev",
+  "overtred_skjenk"
+))
+
+```
+# Sanity checks
+
+## Ikke-negative heltall og ekstremverdier
+
+```{r}
+#| label: numeric-checks
+
+numeric_check <- rbindlist(lapply(count_vars_present, function(v) {
+  x <- dt[[v]]
+
+  data.table(
+    variabel = v,
+    n_ikke_manglende = sum(!is.na(x)),
+    n_negative = sum(x < 0, na.rm = TRUE),
+    n_desimal = sum(abs(x - round(x)) > 1e-8, na.rm = TRUE),
+    min = if (all(is.na(x))) NA_real_ else min(x, na.rm = TRUE),
+    median = if (all(is.na(x))) NA_real_ else median(x, na.rm = TRUE),
+    maks = if (all(is.na(x))) NA_real_ else max(x, na.rm = TRUE)
+  )
+}))
+
+kable(numeric_check[n_negative > 0 | n_desimal > 0 | maks > 5000])
+fwrite(numeric_check, file.path(OUT, "sanity_numeriske_variabler.csv"), bom = TRUE)
 ```
 
-You can add options to executable code like this
+
+## Oversikt over numeriske verdier
 
 ```{r}
+#| label: numeric-oversight
+
+deskriptiv <- rbindlist(
+  lapply(intersect(count_vars_present, names(dt)), function(v) {
+    x <- dt[[v]]
+
+    data.table(
+      variabel = v,
+      n = sum(!is.na(x)),
+      min = min(x, na.rm = TRUE),
+      p05 = quantile(x, 0.05, na.rm = TRUE, names = FALSE),
+      p10 = quantile(x, 0.10, na.rm = TRUE, names = FALSE),
+      p25 = quantile(x, 0.25, na.rm = TRUE, names = FALSE),
+      gjennomsnitt = mean(x, na.rm = TRUE),
+      median = median(x, na.rm = TRUE),
+      p75 = quantile(x, 0.75, na.rm = TRUE, names = FALSE),
+      p90 = quantile(x, 0.90, na.rm = TRUE, names = FALSE),
+      p95 = quantile(x, 0.95, na.rm = TRUE, names = FALSE),
+      maks = max(x, na.rm = TRUE)
+    )
+  })
+)
+
+kable(deskriptiv, digits = 1)
+
+```
+
+## Summer og logiske avhengigheter
+
+Vurder om det er flere logiske avhengigheter som bør sjekkes.
+
+```{r}
+#| label: logical-checks
+
+sales_reasons <- intersect(paste0("q1_13b_", 1:4), names(dt))
+serving_reasons <- intersect(paste0("q2_8b_", 1:5), names(dt))
+
+dt[, q1_13b_calc := row_sum_na(.SD, sales_reasons), .SDcols = sales_reasons]
+dt[, q2_8b_calc := row_sum_na(.SD, serving_reasons), .SDcols = serving_reasons]
+
+# Under må tilpasses, 13b må vurderes i kombinasjon med tidligere spørsmål.
+
+
+checks <- rbindlist(list(
+  dt[
+    !is.na(q1_13b_calc) & !is.na(q1_13a_2) & q1_13b_calc > q1_13a_2,
+    .(
+      kommunenummer,
+      kontroll = "1.12b: avslagsgrunner overstiger antall avslag",
+      oppgitt = q1_13b_calc,
+      sammenligning = q1_13a_2
+    )
+  ],
+  dt[
+    !is.na(q2_8b_calc) & !is.na(q2_8a_2) & q2_8b_calc > q2_8a_2,
+    .(
+      kommunenummer,
+      kontroll = "2.7b: avslagsgrunner overstiger antall avslag",
+      oppgitt = q2_8b_calc,
+      sammenligning = q2_8a_2
+    )
+  ],
+  dt[
+    !is.na(q2_14_1) & !is.na(q2_12_1) & !is.na(q2_13_1) &
+      q2_14_1 > q2_12_1 + q2_13_1,
+    .(
+      kommunenummer,
+      kontroll = "2.13b: klager overstiger samlet antall inndragninger",
+      oppgitt = q2_14_1,
+      sammenligning = q2_12_1 + q2_13_1
+    )
+  ]
+), fill = TRUE)
+
+cat("Antall logiske avvik:", nrow(checks), "\n")
+if (nrow(checks)) kable(checks)
+
+fwrite(checks, file.path(OUT, "sanity_logiske_avvik.csv"), bom = TRUE) 
+
+# Kan det være flere grunner til avslag som gjør at grunner overstiger antall avslag?
+```
+
+# Svarprosent og frafall
+
+Svarprosenten beregnes med alle kommuner i kommuneinfo som nevner. Dette er en frafallsbeskrivelse, ikke vekting.
+
+```{r}
+#| label: response-rate
+
+response_total <- dt[, .(
+  kommuner = .N,
+  svart = sum(svart %in% TRUE),
+  ikke_svart = sum(svart %in% FALSE),
+  ukjent_svarstatus = sum(is.na(svart)),
+  svarprosent = 100 * mean(svart %in% TRUE)
+)]
+
+kable(response_total, digits = 1)
+
+response_by <- rbindlist(lapply(
+  c("fylke", "landsdel", "sentralitetnavn", "liten"),
+  function(g) {
+    dt[, .(
+      kommuner = .N,
+      svart = sum(svart %in% TRUE),
+      svarprosent = 100 * mean(svart %in% TRUE)
+    ), by = g][, inndeling := g]
+  }
+), fill = TRUE, use.names = TRUE)
+
+
+resp_fylke <- dt[, .(
+  svarprosent = round(100 * mean(svart %in% TRUE), 1),
+  kommuner = .N,
+  svart = sum(svart %in% TRUE)
+), by = fylke]
+
+
+# Funksjon for ranked figur med n i mouseover:
+fig_ranked <- function(DT, x, y, n = NULL,
+                       title, subtitle = NULL,
+                       caption = NULL, ylab = "Antall",
+                       description = NULL, ylim = NULL,
+                       decimals = NULL, ysuffix = NULL) {
+
+  spec <- hd_spec(
+    DT,
+    x = x,
+    y = y,
+    n = n
+  )
+
+  opts <- hd_opts(
+    title = title,
+    subtitle = subtitle,
+    caption = caption,
+    ylab = ylab,
+    description = description,
+    ylim = ylim,
+    decimals = decimals,
+    ysuffix = ysuffix
+  )
+
+  hd_make(
+    spec,
+    "ranked_bar",
+    opts,
+    mode = "dynamic"
+  )
+}
+
+# Figur svarprosent etter fylke:
+fig_ranked(
+  resp_fylke,
+  x = "fylke",
+  y = "svarprosent",
+  n = "svart",
+  title = paste0("Svarprosent etter fylke, ", YEAR),
+  subtitle = paste0(
+    "Totalt ",
+    response_total$svart,
+    " av ",
+    response_total$kommuner,
+    " kommuner (",
+    formatC(
+      response_total$svarprosent,
+      format = "f",
+      digits = 1,
+      decimal.mark = ","
+    ),
+    " %)"
+  ),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven og kommuneinfo.",
+  ylab = "Prosent",
+  ylim = c(0, 100),
+  decimals = 1,
+  ysuffix = " %",
+  description = "Rangert stolpediagram over andelen kommuner som svarte, etter fylke."
+)
+
+# Figur, svarprosent etter landsdel
+fig_ranked(
+  response_by[!is.na(landsdel)],
+  x = "landsdel",
+  y = "svarprosent",
+  n = "svart",
+  title = paste0("Svarprosent etter landsdel, ", YEAR),
+  subtitle = paste0(
+    "Totalt ",
+    response_total$svart,
+    " av ",
+    response_total$kommuner,
+    " kommuner (",
+    formatC(
+      response_total$svarprosent,
+      format = "f",
+      digits = 1,
+      decimal.mark = ","
+    ),
+    " %)"
+  ),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven og kommuneinfo.",
+  ylab = "Prosent",
+  ylim = c(0, 100),
+  decimals = 1,
+  ysuffix = " %",
+  description = "Rangert stolpediagram over andelen kommuner som svarte, etter landsdel."
+)
+
+
+# Figur, svarprosent etter kommunestørrelse etter innbyggertall
+fig_ranked(
+  response_by[!is.na(liten)],
+  x = "liten",
+  y = "svarprosent",
+  n = "svart",
+  title = paste0("Svarprosent etter kommunestørrelse, ", YEAR),
+  subtitle = paste0(
+    "Totalt ",
+    response_total$svart,
+    " av ",
+    response_total$kommuner,
+    " kommuner (",
+    formatC(
+      response_total$svarprosent,
+      format = "f",
+      digits = 1,
+      decimal.mark = ","
+    ),
+    " %)"
+  ),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven og kommuneinfo.",
+  ylab = "Prosent",
+  ylim = c(0, 100),
+  decimals = 1,
+  ysuffix = " %",
+  description = "Rangert stolpediagram over andelen kommuner som svarte, etter kommunestørrelse."
+)
+
+
+```
+
+## Navn på kommuner som ikke har svart
+* Har noen av disse kommunene endret kommunegrense slik at bevillinger ikke bør inkluderes fra i fjor?
+```{r}
+#| label: non-response
+#| 
+## Navn på kommuner som ikke har svart:
 #| echo: false
-2 * 2
+#| results: hide
+
+ikke_svart <- dt[
+  svart == FALSE & !is.na(Kommunenavn2026),
+  sort(unique(Kommunenavn2026))
+]
+
+kommuneliste <- function(x) {
+  if (length(x) == 0) return("Ingen kommuner")
+  if (length(x) == 1) return(x)
+  if (length(x) == 2) return(paste(x, collapse = " og "))
+  
+  paste0(
+    paste(x[-length(x)], collapse = ", "),
+    " og ",
+    x[length(x)]
+  )
+}
+
+ikke_svart_tekst <- kommuneliste(ikke_svart)
+antall_ikke_svart <- length(ikke_svart)
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+
+Totalt `r antall_ikke_svart` kommuner har ikke svart på undersøkelsen KFA: `r ikke_svart_tekst`.
+
+
+# Koble inn bevillingstall fra i fjor for manglende kommuner.
+
+Sjekker om det er noen kommuner som har svart på undersøkelsen har NA på alle bevillingstyper, separat for salg og skjenk. Trodde ikke dette kunne skje i spørreskjemaet.
+
+```{r}
+#| label: previous-values
+# les inn filen fra i fjor: 
+kfa_2024 <- readRDS("O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Analyser 2024_2025/kfa_resultater_2024_2025.rds")
+setDT(kfa_2024)
+
+# Velg 2025-variabler fra dt
+tot_bevillinger <- dt[, .(
+  kommunenummer,
+  svart,
+  q1_1_1, q1_1_2, q1_1_3, q1_1_4,
+  q1_1_5, q1_1_6, q1_1_7, salgsbev,
+  q2_1_1, q2_1_2, q2_1_3, skjenkebev
+)]
+
+# Koble på tall fra 2024
+tot_bevillinger <- merge(
+  tot_bevillinger,
+  kfa_2024[, .(
+    kommunenummer,
+    dagligvare24, bryggeri24, gaard24, nettsalg24,
+    olutsalg24, kultur24, andre24, tot_salg24,
+    gr1, gr12, gr123, tot_skjenk24
+  )],
+  by = "kommunenummer",
+  all.x = TRUE
+)
+
+# Kopier rapporterte 2025-tall
+tot_bevillinger[, `:=`(
+  dagligvare25 = q1_1_1,
+  bryggeri25   = q1_1_2,
+  gaard25      = q1_1_3,
+  nettsalg25   = q1_1_4,
+  olutsalg25   = q1_1_5,
+  kultur25     = q1_1_6,
+  annet25      = q1_1_7,
+  gr1_25       = q2_1_1,
+  gr12_25      = q2_1_2,
+  gr123_25     = q2_1_3
+)]
+
+# Bruk 2024-tall når kommunen ikke har svart og 2025-tallet mangler
+tot_bevillinger[svart == FALSE, `:=`(
+  dagligvare25 = fcoalesce(dagligvare25, dagligvare24),
+  bryggeri25   = fcoalesce(bryggeri25, bryggeri24),
+  gaard25      = fcoalesce(gaard25, gaard24),
+  nettsalg25   = fcoalesce(nettsalg25, nettsalg24),
+  olutsalg25   = fcoalesce(olutsalg25, olutsalg24),
+  kultur25     = fcoalesce(kultur25, kultur24),
+  annet25      = fcoalesce(annet25, andre24),
+  gr1_25       = fcoalesce(gr1_25, gr1),
+  gr12_25      = fcoalesce(gr12_25, gr12),
+  gr123_25     = fcoalesce(gr123_25, gr123)
+)]
+
+# Lager oversikt over salgsbevilling-variabelene for å summere:
+salg_vars25 <- c(
+  "dagligvare25",
+  "bryggeri25",
+  "gaard25",
+  "nettsalg25",
+  "olutsalg25",
+  "kultur25",
+  "annet25"
+)
+
+  # Summerer
+  tot_bevillinger[
+    ,
+    tot_salg25 := sum_na(.SD),
+    .SDcols = salg_vars25
+  ]
+
+# Lager oversikt over skjenkebevilling-variabelene for å summere:
+skjenk_vars25 <- c(
+  "gr1_25",
+  "gr12_25",
+  "gr123_25"
+)
+
+  tot_bevillinger[
+    ,
+    tot_skjenk25 := sum_na(.SD),
+    .SDcols = skjenk_vars25
+  ]
+
+
+## Legger inn sjekk på kommuner som har svart, men har NA:
+  ## Kommuner hvor NA på alle grupper salgsbevilling
+  dt[
+    svart == TRUE &
+      is.na(q1_1_1) &
+      is.na(q1_1_2) &
+      is.na(q1_1_3) &
+      is.na(q1_1_4) &
+      is.na(q1_1_5) &
+      is.na(q1_1_6) &
+      is.na(q1_1_7),
+    .(
+      kommunenummer,
+      Kommunenavn2026
+    )
+  ]
+  
+      # ingen NA.
+  
+  
+    ## Kommer hvor NA på alle grupper skjenkebevilling
+  dt[
+    svart == TRUE &
+      is.na(q2_1_1) &
+      is.na(q2_1_2) &
+      is.na(q2_1_3),
+    .(
+      kommunenummer,
+      Kommunenavn2026
+    )
+  ]
+    ## 2 kommuner med NA
+  
+  ## Skjenkebevillinger fra i fjor:
+  kable(
+  tot_bevillinger[
+    kommunenummer %chin% c("5520", "1871"),
+    .(kommunenummer, tot_skjenk24)
+  ]
+)
+  
+  ## Deretter legge inn tall for kommuner som har svart, men har NA på tot-salg og tot-skjenk:
+tot_bevillinger[
+  svart == TRUE & is.na(tot_salg25),
+  `:=`(
+    dagligvare25 = fcoalesce(dagligvare25, dagligvare24),
+    bryggeri25   = fcoalesce(bryggeri25, bryggeri24),
+    gaard25      = fcoalesce(gaard25, gaard24),
+    nettsalg25   = fcoalesce(nettsalg25, nettsalg24),
+    olutsalg25   = fcoalesce(olutsalg25, olutsalg24),
+    kultur25     = fcoalesce(kultur25, kultur24),
+    annet25      = fcoalesce(annet25, andre24)
+  )
+]
+
+tot_bevillinger[
+  svart == TRUE & is.na(tot_skjenk25),
+  `:=`(
+  gr1_25       = fcoalesce(gr1_25, gr1),
+  gr12_25       = fcoalesce(gr12_25, gr12),
+  gr123_25       = fcoalesce(gr123_25, gr123)
+  )
+]
+
+
+## totalberegniner på nytt:
+  tot_bevillinger[
+    ,
+    tot_salg25 := sum_na(.SD),
+    .SDcols = salg_vars25
+  ]
+  
+  
+  tot_bevillinger[
+    ,
+    tot_skjenk25 := sum_na(.SD),
+    .SDcols = skjenk_vars25
+  ]
+
+
+## kobler bevillingsvariablene med impurterte bevillinger fra 24 på hovedfila:
+vars_inn <- c(
+  "kommunenummer",
+  skjenk_vars25,
+  salg_vars25,
+  "tot_salg25",
+  "tot_skjenk25"
+)
+
+dt <- merge(
+  dt,
+  tot_bevillinger[, ..vars_inn],
+  by = "kommunenummer",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+
+```
+Googlemaps-søk viser at Andøy ser ut til å ha skjenkesteder, mer usikkert med Bardu.
+
+# Salgs- og skjenkebevillinger
+
+Tallene for salgsbevillinger totalt og etter utsalgssted inkluderer tidligere rapportert antall salgsbevillinger fra kommunene som ikke har besvart skjema i år. 
+
+## Salgsbevillinger etter type utsalgssted
+
+For å forstå tabeller:
+
+* kommuner_med: Kommuner med minst én bevilling
+* kommuner_svart: Kommuner med en registrert verdi, enten verdien er 0 eller høyere
+
+```{r}
+#| label: sales-types
+
+salg_names <- c(
+  dagligvare25 = "Dagligvare",
+  bryggeri25 = "Bryggeri",
+  gaard25 = "Gårdsutsalg",
+  nettsalg25 = "Nettsalg",
+  olutsalg25 = "Øl- og mineralvannutsalg",
+  kultur25 = "Kultur",
+  annet25 = "Andre"
+)
+
+sales_type <- sum_vars(dt, names(salg_names))
+sales_type[, type := salg_names[variabel]]
+sales_type[, andel := 100 * antall / sum(antall)]
+
+sales_type_tabell <- rbind(
+  sales_type[, .(
+    type,
+    antall,
+    andel,
+    kommuner_med,
+    kommuner_svart
+  )],
+  sales_type[, .(
+    type = "Totalt",
+    antall = sum(antall, na.rm = TRUE),
+    andel = sum(andel, na.rm = TRUE),
+    kommuner_med = NA_integer_,
+    kommuner_svart = NA_integer_
+  )]
+)
+
+kable(
+  sales_type_tabell,
+  digits = 1
+)
+
+
+
+fig_ranked(
+  sales_type_tabell,
+  x = "type",
+  y = "antall",
+  title = "Salgsbevillinger for øl/rusbrus etter utsalgssted",
+  subtitle = paste0("Nasjonale tall, ", YEAR),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  description = "Rangert stolpediagram over antall salgsbevillinger etter type utsalgssted."
+)
+
+## Paifigur med salgbevillinger:
+
+# Fjern totalraden
+sales_type_pai <- sales_type_tabell[
+  type != "Totalt" & !is.na(andel)
+]
+
+# Dataspesifikasjon
+spec_sales_pai <- hd_spec(
+  sales_type_pai,
+  x = "type",
+  y = "andel",
+  n = "antall"
+)
+
+# Figurinnstillinger
+opts_sales_pai <- hd_opts(
+  title = "Salgsbevillinger for øl/rusbrus etter utsalgssted",
+  subtitle = paste0("Nasjonal fordeling av antall salgsbevillinger for øl/rusbrus (alkoholholdig drikk gruppe 1) etter utsalgssted, ", YEAR),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  ylab = "Andel (%)",
+  decimals = 1,
+  ysuffix = " %"
+)
+
+# Lag kakediagrammet
+hd_make(
+  spec_sales_pai,
+  "pie",
+  opts = opts_sales_pai,
+  mode = "dynamic"
+)
+
+
+```
+
+### Kommuner uten salgsbevilling
+```{r}
+## Navn på kommuner som ikke har svart:
+#| echo: false
+#| results: hide
+
+ikke_salgsbev <- dt[
+  tot_salg25 == 0 & !is.na(Kommunenavn2026),
+  sort(unique(Kommunenavn2026))
+]
+
+ikke_salgsbev_tekst <- kommuneliste(ikke_salgsbev)
+antall_ikke_salgsbev <- length(ikke_salgsbev)
+
+```
+
+
+Totalt `r antall_ikke_salgsbev` kommuner har ikke salgsbevillinger og er: `r ikke_salgsbev_tekst`.
+
+## Antall kommuner med salgsbevillinger etter utsalgssted og spredning av antall bevillinger i en enkelt kommune
+
+```{r}
+#| label: sales-distribution
+
+
+salg_oversikt <- rbindlist(
+  lapply(names(salg_names), function(v) {
+    x <- dt[[v]]
+
+    data.table(
+      variabel = v,
+      type = salg_names[[v]],
+      antall_kommuner = sum(x > 0, na.rm = TRUE),
+      min = if (all(is.na(x))) NA_real_ else min(x, na.rm = TRUE),
+      maks = if (all(is.na(x))) NA_real_ else max(x, na.rm = TRUE)
+    )
+  })
+)
+
+kable(salg_oversikt)
+
+```
+
+## Fordeling av antall bevillinger per kommune
+
+Tallene for salgsbevillinger totalt og etter utsalgssted inkluderer tidligere rapportert antall salgsbevillinger fra kommunene som ikke har besvart skjema i år. 
+
+```{r}
+#| label: licence-distribution
+
+sales_breaks <- c(-Inf, 0, 5, 10, 20, 30, 50, Inf)
+sales_labs <- c("0", "1–5", "6–10", "11–20", "21–30", "31-50", "50+")
+
+serving_breaks <- c(-Inf, 0, 5, 10, 20, 30, 50, Inf)
+serving_labs <- c("0", "1–5", "6–10", "11–20", "21–30", "31-50", "50+")
+
+dist_lic <- rbindlist(list(
+  dt[
+    !is.na(tot_salg25),
+    .N,
+    by = .(gruppe = cut(tot_salg25, sales_breaks, sales_labs))
+  ][, type := "Salgsbevillinger"],
+  dt[
+    !is.na(tot_skjenk25),
+    .N,
+    by = .(gruppe = cut(tot_skjenk25, serving_breaks, serving_labs))
+  ][, type := "Skjenkebevillinger"]
+), use.names = TRUE, fill = TRUE)
+
+
+  # Funksjon for å spesifsere lista jeg vil ha rekkefølgend i 
+gruppe_rekkefolge <- c(
+  "0", "1–5", "6–10", "11–20",
+  "21–30", "31-50", "50+"
+)
+
+dist_lic[, gruppe := as.character(gruppe)]
+
+dist_lic[, gruppe_nr := match(
+  gruppe,
+  gruppe_rekkefolge
+)]
+
+setorder(dist_lic, gruppe_nr, type)
+
+# Figur: 
+fig_column(
+  dist_lic,
+  x = "gruppe",
+  y = "N",
+  group = "type",
+  title = "Salgs- og skjenkebevillinger i kommunene",
+  subtitle = paste0(
+    "Antall kommuner etter gruppert antall bevillinger, ",
+    YEAR
+  ),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  ylab = "Antall kommuner",
+  description = paste(
+    "Antall bevillinger etter intervaller for antall",
+    "salgs- og skjenkebevillinger."
+  )
+)
+
+
+```
+
+
+## Skjenkebevillinger etter alkoholgruppe
+
+Tallene for skjenkebevillinger totalt og etter alkoholgruppe inkluderer tidligere rapportert antall skjenkebevillinger fra kommunene som ikke har besvart skjema i år. 
+
+```{r}
+#| label: serving-groups
+
+serving_labels <- c(
+  gr1_25 = "Kun gruppe 1",
+  gr12_25 = "Gruppe 1 og 2",
+  gr123_25 = "Gruppe 1, 2 og 3"
+)
+
+serving_group <- sum_vars(dt, names(serving_labels))
+serving_group[, type := serving_labels[variabel]]
+serving_group[, andel := 100 * antall / sum(antall)]
+
+
+serving_type_tabell <- rbind(
+  serving_group[, .(
+    type,
+    antall,
+    andel,
+    kommuner_med,
+    kommuner_svart
+  )],
+  serving_group[, .(
+    type = "Totalt",
+    antall = sum(antall, na.rm = TRUE),
+    andel = round(sum(andel, na.rm = TRUE), 1),
+    kommuner_med = NA_integer_,
+    kommuner_svart = NA_integer_
+  )]
+)
+
+  # ett tall bak komma
+serving_type_tabell[, andel := round(andel, 1)]
+
+kable(
+  serving_type_tabell,
+  digits = 1
+)
+
+## Paidiagret som viser fordelingen av skjenkebevillinger etter alkoholgruppe:
+
+# Fjern totalraden
+skjenk_type_pai <- serving_type_tabell[
+  type != "Totalt" & !is.na(andel)
+]
+
+# Dataspesifikasjon
+spec_skjenk_pai <- hd_spec(
+  skjenk_type_pai,
+  x = "type",
+  y = "andel"
+)
+
+# Figurinnstillinger
+opts_skjenk_pai <- hd_opts(
+  title = "Skjenkebevillinger etter alkoholgruppe",
+  subtitle = paste0("Nasjonal fordeling av antall skjenkebevillinger etter alkoholgruppe, ", YEAR),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  ylab = "Andel (%)",
+  decimals = 1,
+  ysuffix = " %"
+)
+
+# Lag kakediagrammet
+hd_make(
+  spec_skjenk_pai,
+  "pie",
+  opts = opts_skjenk_pai,
+  mode = "dynamic"
+)
+
+
+
+```
+
+### Kommuner uten skjenkebevilling
+```{r}
+
+## Navn på kommuner som ikke har svart:
+#| echo: false
+#| results: hide
+
+ikke_skjenkebev <- dt[
+  tot_skjenk25 == 0 & !is.na(Kommunenavn2026),
+  sort(unique(Kommunenavn2026))
+]
+
+ikke_skjenkebev_tekst <- kommuneliste(ikke_skjenkebev)
+antall_ikke_skjenkebev <- length(ikke_skjenkebev)
+
+```
+
+Totalt `r antall_ikke_skjenkebev` kommuner har ikke skjenkebevillinger og er: `r ikke_skjenkebev_tekst`.
+
+
+
+## Skjenking på andre steder
+
+```{r}
+#| label: other-serving-places
+
+place_labels <- c(
+  q2_2_1_1 = "Alders- og sykehjem/eldresenter",
+  q2_2_1_2 = "Transportmidler",
+  q2_2_1_3 = "Idrettsarena",
+  q2_2_1_4 = "Kantiner",
+  q2_2_1_5 = "Turisthytter",
+  q2_2_1_6 = "Kultur",
+  q2_2_1_7 = "Frisør/spa og velvære",
+  q2_2_1_8 = "Opplevelsessenter",
+  q2_2_1_9 = "Selskapslokaler",
+  q2_2_1_10 = "Klær-/sko-/interiørbutikker",
+  q2_2_1_11 = "Festival",
+  q2_2_1_12 = "Annet"
+)
+
+places <- sum_vars(
+  dt[q2_2 == 1],
+  names(place_labels)
+)
+places[, sted := place_labels[variabel]]
+
+kable(
+  places[
+    order(-antall),
+    .(
+      sted,
+      antall,
+      kommuner_med
+    )
+  ],
+  col.names = c(
+    "Bevillingssted",
+    "Antall bevillinger",
+    "Antall kommuner med bevilling"
+  ),
+  format.args = list(
+    big.mark = " ",
+    decimal.mark = ","
+  )
+)
+
+fig_ranked(
+  places,
+  x = "sted",
+  y = "antall",
+  title = "Antall skjenkebevillinger på andre steder",
+  subtitle = paste0("Andre steder enn barer, klubber, kafeer og restauranter, ", YEAR),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  description = "Antall bevillinger på andre typer skjenkesteder."
+)
+```
+
+
+## Vilkår for skjenkebevillinger
+
+```{r}
+#| label: conditions
+
+# Har kommunen vilkår til noen av skjenkebevillingene?
+vilkaar_tabell <- dt[
+  !is.na(q2_5),
+  .N,
+  by = .(
+    svar = fifelse(
+      as_code(q2_5) == "1",
+      "Ja",
+      fifelse(as_code(q2_5) == "2", "Nei", "Annet")
+    )
+  )
+]
+
+vilkaar_tabell[, andel := round(100 * N / sum(N), 1)]
+
+kable(
+  vilkaar_tabell,
+  caption = "Har kommunen knyttet vilkår til noen av skjenkebevillingene?",
+  col.names = c("Svar", "Antall kommuner", "Andel (%)"),
+  align = c("l", "r", "r")
+)
+
+
+
+# Hvilke vilkår?
+condition_labels <- c(
+  q2_5_1_1 = "Ordensvakter",
+  q2_5_1_2 = "Kursing av ansatte",
+  q2_5_1_3 = "Nedre aldersgrense",
+  q2_5_1_4 = "Matservering",
+  q2_5_1_5 = "Begrensning i skjenketid",
+  q2_5_1_6 = "Annet"
+)
+
+
+conditions <- rbindlist(lapply(
+  intersect(names(condition_labels), names(dt)),
+  function(v) {
+    data.table(
+      variabel = v,
+      kommuner = sum(
+        as_yes(dt[q2_5 == 1][[v]]) %in% TRUE,
+        na.rm = TRUE
+      )
+    )
+  }
+))
+
+conditions[, vilkar := condition_labels[variabel]]
+
+
+
+fig_ranked(
+  conditions,
+  x = "vilkar",
+  y = "kommuner",
+  title = "Kommuner med ulike vilkår til skjenkebevillinger",
+  subtitle = paste0("Antall kommuner, ", YEAR),
+  caption = "Flere svar var mulig. Kilde: Kommunenes forvaltning av alkoholloven.",
+  description = "Antall kommuner som brukte ulike vilkår for skjenkebevillinger."
+)
+```
+
+
+
+## Ambulerende bevillinger og bevilling for enkelt anledning
+```{r}
+#| label: Ambulerende_enkelt_bevillinger_totalt
+
+# Total antall skjenkebevillinger for enkelt og/eller ambulerende:
+total_ambulerende <- sum(dt$q2_3, na.rm = TRUE)
+
+
+```
+
+Totalt antall skjenkebevillinger for en enkelt anledning og/eller ambulerende skjenkebevilling:
+`r total_ambulerende` 
+
+```{r}
+#| label: Ambulerende_enkelt_bevillinger
+
+
+# og min og maks:
+dt[, .(
+  sum = sum(q2_3, na.rm = TRUE),
+  min = min(q2_3, na.rm = TRUE),
+  maks = max(q2_3, na.rm = TRUE)
+)]
+
+
+
+ambulerende_breaks <- c(-Inf, 0, 10, 20, 30, 40, 50, Inf)
+ambulerende_labs <- c("0", "1–10", "11–20", "21–30", "31–40", "41-50", "50+")
+
+ambulerende_lic <- rbindlist(list(
+  dt[
+    !is.na(q2_3),
+    .N,
+    by = .(gruppe = cut(q2_3, ambulerende_breaks, ambulerende_labs))
+  ][, type := "Ambulerende"]
+), use.names = TRUE, fill = TRUE)
+
+
+gruppe_rekkefolge_ambu <- c(
+  "0", "1–10", "11–20", "21–30", "31–40", "41-50", "50+"
+)
+
+ambulerende_lic[, gruppe := as.character(gruppe)]
+
+ambulerende_lic[, gruppe_nr := match(
+  gruppe,
+  gruppe_rekkefolge_ambu
+)]
+
+setorder(ambulerende_lic, gruppe_nr, type)
+
+# Figur: 
+fig_column(
+  ambulerende_lic,
+  x = "gruppe",
+  y = "N",
+  group = "type",
+  title = "Ambulerende skjenkebevillinger i kommunene",
+  subtitle = paste0(
+    "Antall kommuner med ambulerende skjenkebevillinger gruppert etter antall bevillinger, ",
+    YEAR
+  ),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  ylab = "Antall kommuner",
+  description = paste(
+    "Antall bevillinger etter intervaller for antall",
+    "Ambulerende skjenkebevillinger."
+  )
+)
+
+
+```
+
+
+# Nye og/eller ambulerende bevillinger og avslag
+
+```{r}
+#| label: new-licences
+
+new_lic <- data.table(
+  type = c(
+    "Salg innvilget",
+    "Salg avslått",
+    "Skjenking innvilget",
+    "Skjenking avslått"
+  ),
+  antall = c(
+    sum(dt$q1_13a_1, na.rm = TRUE),
+    sum(dt$q1_13a_2, na.rm = TRUE),
+    sum(dt$q2_8a_1, na.rm = TRUE),
+    sum(dt$q2_8a_2, na.rm = TRUE)
+  ),
+  antall_kommuner = c(
+    sum(dt$q1_13a_1 > 0, na.rm = TRUE),
+    sum(dt$q1_13a_2 > 0, na.rm = TRUE),
+    sum(dt$q2_8a_1 > 0, na.rm = TRUE),
+    sum(dt$q2_8a_2 > 0, na.rm = TRUE)
+  )
+)
+
+fig_column(
+  new_lic,
+  x = "type",
+  y = "antall",
+  title = "Søknader om nye bevillinger",
+  subtitle = paste0("Innvilget og avslått, ", YEAR),
+  caption = "Fornyelser inngår ikke. Kilde: Kommunenes forvaltning av alkoholloven.",
+  description = "Antall innvilgede og avslåtte søknader om nye salgs- og skjenkebevillinger."
+)
+
+# Årsaker til avslag:
+avslag_grunner <- data.table(
+  grunn = c(
+    "Oppfylte ikke vandelskrav",
+    "Kommunens lokalpolitiske hensyn",
+    "Manglende dokumentasjon fra søker",
+    "Andre grunner"
+  ),
+
+  salg = c(
+    sum(dt[q1_13a_2 > 0, q1_13b_1], na.rm = TRUE),
+    sum(dt[q1_13a_2 > 0, q1_13b_2], na.rm = TRUE),
+    sum(dt[q1_13a_2 > 0, q1_13b_3], na.rm = TRUE),
+    sum(dt[q1_13a_2 > 0, q1_13b_4], na.rm = TRUE)
+  ),
+
+  n_kommuner_salg = c(
+    sum(dt[q1_13a_2 > 0, q1_13b_1] > 0, na.rm = TRUE),
+    sum(dt[q1_13a_2 > 0, q1_13b_2] > 0, na.rm = TRUE),
+    sum(dt[q1_13a_2 > 0, q1_13b_3] > 0, na.rm = TRUE),
+    sum(dt[q1_13a_2 > 0, q1_13b_4] > 0, na.rm = TRUE)
+  ),
+
+  skjenking = c(
+    sum(dt[q2_8a_2 > 0, q2_8b_1], na.rm = TRUE),
+    sum(dt[q2_8a_2 > 0, q2_8b_2], na.rm = TRUE),
+    sum(dt[q2_8a_2 > 0, q2_8b_3], na.rm = TRUE),
+    sum(dt[q2_8a_2 > 0, q2_8b_4], na.rm = TRUE)
+  ),
+
+  n_kommuner_skjenking = c(
+    sum(dt[q2_8a_2 > 0, q2_8b_1] > 0, na.rm = TRUE),
+    sum(dt[q2_8a_2 > 0, q2_8b_2] > 0, na.rm = TRUE),
+    sum(dt[q2_8a_2 > 0, q2_8b_3] > 0, na.rm = TRUE),
+    sum(dt[q2_8a_2 > 0, q2_8b_4] > 0, na.rm = TRUE)
+  )
+)
+
+kable(
+  avslag_grunner,
+  caption = "Årsaker til avslag på søknader om nye bevillinger",
+  col.names = c(
+    "Årsak til avslag",
+    "Antall avslag, salg",
+    "Antall kommuner, salg",
+    "Antall avslag, skjenking",
+    "Antall kommuner, skjenking"
+  ),
+  align = c("l", "r", "r", "r", "r")
+)
+
+```
+
+Antall avslag total samsvarer ikke med årsakene, når det gjelder avslag på nye skjenkebevillinger. 
+
+
+# Salgs- og skjenketider
+
+```{r}
+#| label: times_sales
+
+sale_weekday <- c(
+  `1` = "18:00",
+  `2` = "19:00",
+  `3` = "20:00"
+)
+
+sale_saturday <- c(
+  `1` = "15:00",
+  `2` = "16:00",
+  `3` = "17:00",
+  `4` = "18:00"
+)
+
+serving_time <- c(
+  `1` = "00:00",
+  `2` = "00:30",
+  `3` = "01:00",
+  `4` = "01:30",
+  `5` = "02:00",
+  `6` = "02:30",
+  `7` = "03:00"
+)
+
+time_vars <- c("q1_3a_1", "q1_3a_2", "q2_6a", "q2_7a")
+assert_cols(dt, time_vars) # Sjekker at variablene eksisteres
+
+dt[, `:=`(
+  salg_hverdag = sale_weekday[as_code(q1_3a_1)],
+  salg_lordag = sale_saturday[as_code(q1_3a_2)],
+  skjenk_12 = serving_time[as_code(q2_6a)],
+  skjenk_3 = serving_time[as_code(q2_7a)]
+)]
+
+# Salgstider:
+  
+  salgstid_labels <- c(
+    salg_hverdag = "Hverdager",
+    salg_lordag  = "Lørdag/dag før helligdag"
+  )
+  
+  salgstid_alternativer <- list(
+    salg_hverdag = c("18:00", "19:00", "20:00"),
+    salg_lordag  = c("15:00", "16:00", "17:00", "18:00")
+  )
+
+salgstid_tabell <- rbindlist(
+  lapply(names(salgstid_labels), function(v) {
+
+    # Alle svaralternativer
+    alle_alternativer <- data.table(
+      tidspunkt = salgstid_alternativer[[v]]
+    )
+
+    # Observerte svar
+    observert <- dt[
+      !is.na(get(v)),
+      .(antall_kommuner = .N),
+      by = .(tidspunkt = get(v))
+    ]
+
+    # Koble på observerte tall og sett manglende kombinasjoner til 0
+    tabell <- merge(
+      alle_alternativer,
+      observert,
+      by = "tidspunkt",
+      all.x = TRUE,
+      sort = FALSE
+    )
+
+    tabell[is.na(antall_kommuner), antall_kommuner := 0L]
+
+    tabell[, `:=`(
+      dagtype = salgstid_labels[[v]],
+      andel = round(
+        100 * antall_kommuner / sum(antall_kommuner),
+        1
+      )
+    )]
+
+    tabell
+  })
+)
+
+# Riktig rekkefølge
+salgstid_tabell[, dagtype := factor(
+  dagtype,
+  levels = c(
+    "Hverdager",
+    "Lørdag/dag før helligdag"
+  ),
+  ordered = TRUE
+)]
+
+salgstid_tabell[, tidspunkt := factor(
+  tidspunkt,
+  levels = c(
+    "15:00", "16:00", "17:00",
+    "18:00", "19:00", "20:00"
+  ),
+  ordered = TRUE
+)]
+
+setorder(salgstid_tabell, dagtype, tidspunkt)
+
+# Vis tabellen
+kable(
+  salgstid_tabell[, .(
+    dagtype,
+    tidspunkt,
+    antall_kommuner,
+    andel
+  )],
+  caption = "Kommuner etter maksimal salgstid",
+  col.names = c(
+    "Dagtype",
+    "Salg til kl.",
+    "Antall kommuner",
+    "Andel (%)"
+  ),
+  digits = 1,
+  align = c("l", "l", "r", "r")
+)
+
+```
+
+## Hvor mange av salgsbevillingene gjelder til makstiden?
+Tallene under er KUN basert på bevillinger blant de som har svart i år. Antall bevillinger er lavere.
+
+OBS! Det er noen kommuner som har svart at ikke alle bevillingene er til makstid, men har NA på antall som har til makstid.
+
+```{r}
+#| label: times_sales_maks
+
+# Hvor mange salgsbevillinger gjelder til makstiden?
+dt[, salg_makstid := fifelse(
+  as_code(q1_3b) == "1",
+  salgsbev,
+  fifelse(
+    as_code(q1_3b) == "2",
+    q1_3b_2_other,
+    NA_real_
+  )
+)]
+
+salg_totalt <- dt[, sum(salgsbev, na.rm = TRUE)]
+
+salg_makstid_totalt <- dt[, sum(salg_makstid, na.rm = TRUE)]
+
+andel_makstid <- 100 * salg_makstid_totalt / salg_totalt
+
+```
+
+
+Totalt ble det rapportert `r format(salg_totalt, big.mark = " ", scientific = FALSE)` salgsbevillinger. Av disse hadde `r format(salg_makstid_totalt, big.mark = " ", scientific = FALSE)` salg til alkohollovens maksimaltid, tilsvarende `r formatC(andel_makstid, format = "f", digits = 1, decimal.mark = ",")` %.
+
+
+```{r}
+#| label: times_service
+# Skjenketider;
+  
+  skjenketid_labels <- c(
+    skjenk_12 = "Øl/rusbrus og vin",
+    skjenk_3  = "Brennevin"
+  )
+  
+  skjenketid_tabell <- rbindlist(
+    lapply(names(skjenketid_labels), function(v) {
+  
+      tabell <- dt[
+        tot_skjenk25 > 0 & !is.na(get(v)),
+        .(antall_kommuner = .N),
+        by = .(tidspunkt = get(v))
+      ]
+  
+      tabell[, `:=`(
+        alkoholgruppe = skjenketid_labels[[v]],
+        andel = round(
+          100 * antall_kommuner / sum(antall_kommuner),
+          1
+        )
+      )]
+  
+      tabell
+    })
+  )
+  
+  skjenketid_rekkefolge <- c(
+    "00:00", "00:30", "01:00", "01:30",
+    "02:00", "02:30", "03:00"
+  )
+  
+  skjenketid_tabell[, tidspunkt := factor(
+    tidspunkt,
+    levels = skjenketid_rekkefolge,
+    ordered = TRUE
+  )]
+  
+  skjenketid_tabell[, alkoholgruppe := factor(
+    alkoholgruppe,
+    levels = c(
+      "Øl/rusbrus og vin",
+      "Brennevin"
+    ),
+    ordered = TRUE
+  )]
+  
+  setorder(
+    skjenketid_tabell,
+    alkoholgruppe,
+    tidspunkt
+  )
+  
+  kable(
+    skjenketid_tabell[, .(
+      alkoholgruppe,
+      tidspunkt,
+      antall_kommuner,
+      andel
+    )],
+    caption = "Kommuner etter maksimal skjenketid",
+    col.names = c(
+      "Alkoholgruppe",
+      "Skjenking til kl.",
+      "Antall kommuner",
+      "Andel (%)"
+    ),
+    digits = 1,
+    align = c("l", "l", "r", "r")
+  )
+
+# Legger inn at vi kun går videre med kommunene som HAR skjenkebevillinger siden dette ikke er filter i skjema:
+serving_times_long <- rbindlist(list(
+  dt[
+    tot_skjenk25 > 0 & !is.na(skjenk_12),
+    .N,
+    by = .(tid = skjenk_12)
+  ][, gruppe := "Øl/rusbrus og vin"],
+
+  dt[
+    tot_skjenk25 > 0 & !is.na(skjenk_3),
+    .N,
+    by = .(tid = skjenk_3)
+  ][, gruppe := "Brennevin"]
+))
+
+serving_times_long[, tid := factor(tid, levels = unname(serving_time))]
+
+# Legger til total_N og andel:
+serving_times_long[
+  ,
+  `:=`(
+    total_N = sum(N),
+    andel = round(100 * N / sum(N), 1)
+  ),
+  by = gruppe
+]
+  #rekkefølge:
+setorder(serving_times_long, gruppe, tid)
+
+# Figur:
+fig_column(
+  serving_times_long,
+  x = "tid",
+  y = "N",
+  group = "gruppe",
+  title = "Kommuner etter maksimaltid for skjenking",
+  subtitle = paste0("Helg dersom ukedag og helg er ulike, ", YEAR),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  description = "Antall kommuner etter siste skjenketid for gruppe 1 og 2 og for brennevin."
+)
+
+
+```
+
+## Hvor mange av skjenkebevillingene gjelder til makstiden?
+Tallene under er KUN basert på bevillinger blant de som har svart i år. Antall bevillinger er lavere.
+
+Andel av skjenkebevilligene (separat for øl/vin og brennevin) er jeg usikker på om vi kan benytte. Det ser ut som noen kommuner har rapportert maks skjenking for alkoholgruppe 1 og 2 når de kun har bevillinger i 3. Det resulterer i at over 100% av bevillingene har maksimaltid som ikke går. 
+
+Spørsmålene om bevilling skiller ikke på skjenkebevillingene som KUN gjelder brennevin, som er det spørsmålet er linket til. Så det er noe feil i spørsmålsformuleringen. 
+
+```{r}
+#| label: times_service_maks
+
+# Hvor mange skjenkesbevillinger gjelder til makstiden?
+  ## For øl og vin
+
+dt[, skjenkebev_gr12 := sum_na(.SD), .SDcols = c("q2_1_1", "q2_1_2")]
+
+# Må legge inn at dette kun er aktuelt dersom det er noen bevillinger i gruppe 1 og 2 (skjenkebev_gr12)
+dt[, skjenk_makstid_gr12 := fifelse(
+  is.na(skjenkebev_gr12),
+  NA_real_,
+  fifelse(
+    as_code(q2_6b) == "1",
+    skjenkebev_gr12,
+    fifelse(
+      as_code(q2_6b) == "2",
+      q2_6b_2_other,
+      NA_real_
+    )
+  )
+)]
+
+# Antall med makstid blir høyere enn antall bevillinger i gr 1 og 2.
+skjenk_totalt_gr12 <- dt[, sum(skjenkebev_gr12, na.rm = TRUE)]
+
+skjenk_makstid_totalt_gr12 <- dt[, sum(skjenk_makstid_gr12, na.rm = TRUE)]
+
+andel_makstid_gr12 <- 100 * skjenk_makstid_totalt_gr12 / skjenk_totalt_gr12
+
+  ## For Brennevin
+
+# Må legge inn at dette kun er aktuelt dersom det er noen bevillinger i gruppe 1 og 2 (skjenkebev_gr12)
+dt[, skjenk_makstid_gr3 := fifelse(
+  is.na(q2_1_3),
+  NA_real_,
+  fifelse(
+    as_code(q2_7b) == "1",
+    q2_1_3,
+    fifelse(
+      as_code(q2_7b) == "2",
+      q2_7b_n_other,
+      NA_real_
+    )
+  )
+)]
+
+# Antall med makstid blir høyere enn antall bevillinger i gr 1 og 2.
+skjenk_totalt_gr3 <- dt[, sum(q2_1_3, na.rm = TRUE)]
+
+skjenk_makstid_totalt_gr3 <- dt[, sum(skjenk_makstid_gr3, na.rm = TRUE)]
+
+andel_makstid_gr3 <- 100 * skjenk_makstid_totalt_gr3 / skjenk_totalt_gr3
+
+```
+
+
+[ Totalt ble det rapportert `r format(skjenk_totalt_gr12, big.mark = " ", scientific = FALSE)` skjenkebevillinger kun for gruppe 1 og/eller 2. Av disse hadde `r format(skjenk_makstid_totalt_gr12, big.mark = " ", scientific = FALSE)` skjenking til alkohollovens maksimaltid, tilsvarende `r formatC(andel_makstid_gr12, format = "f", digits = 1, decimal.mark = ",")` %. ]{.mark}
+
+Totalt ble det rapportert `r format(skjenk_totalt_gr3, big.mark = " ", scientific = FALSE)` skjenkebevillinger kun for gruppe 1, 2 og 3. Av disse hadde `r format(skjenk_makstid_totalt_gr3, big.mark = " ", scientific = FALSE)` skjenking til alkohollovens maksimaltid, tilsvarende `r formatC(andel_makstid_gr3, format = "f", digits = 1, decimal.mark = ",")` %.
+
+
+## Byer og makstid
+Kun fra kommuner svart i år
+
+```{r}
+#| label: times_sales_byer
+
+# Tabell med byer og makstid:
+
+name_var <- if ("Kommunenavn2026" %chin% names(dt)) "Kommunenavn2026" else "kommunenummer"
+
+city_table <- dt[
+  !is.na(salg_hverdag) | !is.na(skjenk_12),
+  .(
+    kommunenummer,
+    Kommunenavn2026 = if (name_var == "Kommunenavn2026") Kommunenavn2026 else NA_character_,
+    salg_hverdag,
+    salg_lordag,
+    skjenk_12,
+    skjenk_3
+  )
+]
+
+setorder(city_table, Kommunenavn2026)
+
+kable(city_table)
+```
+
+## Har kommunen vedtatt mulight for endring i skjenketid ifm fotball-VM i 2026?
+```{r}
+#| label: change_VM
+
+q2_18_labels <- c(
+  `1` = "Ja",
+  `2` = "Nei",
+  `3` = "Det er under behandling",
+  `4` = "Vet ikke"
+)
+
+q2_18_tabell <- data.table(
+  kode = names(q2_18_labels),
+  svar = unname(q2_18_labels)
+)
+
+q2_18_observert <- dt[
+  !is.na(q2_18),
+  .(antall_kommuner = .N),
+  by = .(kode = as_code(q2_18))
+]
+
+q2_18_tabell <- merge(
+  q2_18_tabell,
+  q2_18_observert,
+  by = "kode",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+q2_18_tabell[
+  is.na(antall_kommuner),
+  antall_kommuner := 0L
+]
+
+q2_18_tabell[, andel := round(
+  100 * antall_kommuner / sum(antall_kommuner),
+  1
+)]
+
+setorder(q2_18_tabell, kode)
+
+kable(
+  q2_18_tabell[, .(
+    svar,
+    antall_kommuner,
+    andel
+  )],
+  caption = "Har kommunen vedtatt en midlertidig forskrift som gir mulighet for utvidet skjenketid under fotball-VM i 2026",
+  col.names = c(
+    "Svar",
+    "Antall kommuner",
+    "Andel (%)"
+  ),
+  digits = 1,
+  align = c("l", "r", "r")
+)
+
+
+```
+
+
+# Brudd på alkoholloven
+
+## Overtredelser knyttet til salgsbevillinger
+
+```{r}
+#| label: sales-violations
+
+# Har kommunen hatt overtredelser knyttet til salg?
+
+salgsbrudd_tabell <- dt[
+  !is.na(q1_6),
+  .N,
+  by = .(
+    svar = fifelse(
+      as_code(q1_6) == "1",
+      "Ja",
+      fifelse(as_code(q1_6) == "2", "Nei", "Annet")
+    )
+  )
+]
+
+salgsbrudd_tabell[, andel := round(100 * N / sum(N), 1)]
+
+kable(
+  salgsbrudd_tabell,
+  caption = "Har kommunen avdekket overtredelser knyttet til salgsbevillinger?",
+  col.names = c("Svar", "Antall kommuner", "Andel (%)"),
+  align = c("l", "r", "r")
+)
+
+
+# Type brudd:
+sales_violation_labels <- c(
+  "Salg til mindreårige",
+  "Brudd på kravet om forsvarlig drift",
+  "Hindring av kontroll",
+  "Salg til åpenbart påvirket person",
+  "Brudd på tidsbestemmelsene",
+  "Brudd på reklamebestemmelsene",
+  "Brudd på alderskrav til den som selger alkohol",
+  "Mangler ved internkontrollen",
+  "Brudd på regler om styrer og stedfortreder",
+  "Brudd på plassering av alkohol på salgsstedet",
+  "Brudd på vilkår i bevillingsvedtaket",
+  "Manglende levering av omsetningsoppgave",
+  "Manglende betaling av bevillingsgebyr",
+  "Omsetning med rabatt",
+  "Ubetjent salg",
+  "Annen type overtredelse"
+)
+names(sales_violation_labels) <- paste0("q1_6a_1_", 1:16)
+
+
+
+viol_sales <- sum_vars(
+  dt[as_code(q1_6) == "1"],
+  names(sales_violation_labels)
+)
+
+viol_sales[, type := sales_violation_labels[variabel]]
+viol_sales[, totalt_overtredelser := sum(antall, na.rm = TRUE)]
+
+
+fig_ranked(
+  viol_sales,
+  x = "type",
+  y = "antall",
+  title = "Avdekkede overtredelser knyttet til salgsbevillinger",
+  subtitle = paste0("Etter type overtredelse, ", YEAR),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  description = "Antall avdekkede overtredelser ved salgssteder etter type."
+)
+```
+
+## Overtredelser knyttet til skjenkebevillinger
+
+```{r}
+#| label: serving-violations
+
+
+# Har kommunen hatt overtredelser knyttet til skjenking?
+
+skjenkebrudd_tabell <- dt[
+  !is.na(q2_11),
+  .N,
+  by = .(
+    svar = fifelse(
+      as_code(q2_11) == "1",
+      "Ja",
+      fifelse(as_code(q2_11) == "2", "Nei", "Annet")
+    )
+  )
+]
+
+skjenkebrudd_tabell[, andel := round(100 * N / sum(N), 1)]
+
+kable(
+  skjenkebrudd_tabell,
+  caption = "Har kommunen avdekket overtredelser knyttet til skjenkebevillinger?",
+  col.names = c("Svar", "Antall kommuner", "Andel (%)"),
+  align = c("l", "r", "r")
+)
+
+
+# Type skjenkebrudd
+serving_violation_labels <- c(
+  "Skjenking til mindreårige",
+  "Brudd på bistandsplikten",
+  "Brudd på kravet om forsvarlig drift",
+  "Hindring av kontroll",
+  "Skjenking til åpenbart påvirket person",
+  "Brudd på tidsbestemmelsene",
+  "Brudd på reklamebestemmelsene",
+  "Skjenking av sprit til person mellom 18 og 20 år",
+  "Brudd på alderskrav til den som skjenker alkohol",
+  "Åpenbart påvirket person i lokalet",
+  "Mangler ved internkontrollsystemet",
+  "Brudd på regler om styrer og stedfortreder",
+  "Gjentatt diskriminering",
+  "Gjentatt narkotikaomsetning",
+  "Brudd på reglene om alkoholfrie alternativer",
+  "Brudd på plassering av alkohol på skjenkestedet",
+  "Brudd på skjenkemengde for brennevin",
+  "Brudd på vilkår i bevillingsvedtaket",
+  "Konsum av medbrakt alkohol",
+  "Gjester tar med alkohol ut",
+  "Manglende levering av omsetningsoppgave",
+  "Manglende betaling av bevillingsgebyr",
+  "Annen type overtredelse"
+)
+names(serving_violation_labels) <- paste0("q2_11a_1_", 1:23)
+
+
+viol_serving <- sum_vars(
+  dt[as_code(q2_11) == "1"],
+  names(serving_violation_labels))
+
+viol_serving[, type := serving_violation_labels[variabel]]
+viol_serving[, totalt_overtredelser_serv := sum(antall, na.rm = TRUE)]
+
+
+
+fig_ranked(
+  viol_serving,
+  x = "type",
+  y = "antall",
+  title = "Avdekkede overtredelser knyttet til skjenkebevillinger",
+  subtitle = paste0("Etter type overtredelse, ", YEAR),
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  description = "Antall avdekkede overtredelser ved skjenkesteder etter type."
+)
+```
+
+## Brudd over tid
+
+```{r}
+#| label: brudd-tid
+# Importerer tall fra tidligere
+avdekkede_brudd_tid <- read_any(
+  "O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Tidsariabler/avdekkede-brudd-p-alkoho.csv"
+)
+
+
+# Tall som skal inn i tidsfil:
+totalt_brudd_salg <- sum(
+  viol_sales$antall,
+  na.rm = TRUE
+)
+
+totalt_brudd_skjenk <- sum(
+  viol_serving$antall,
+  na.rm = TRUE
+)
+
+
+#Sett inn tall fra siste år:
+avdekkede_brudd_tid <- rbind(
+  avdekkede_brudd_tid,
+  data.table(
+    Category = YEAR,
+    Salg = totalt_brudd_salg,
+    Skjenking = totalt_brudd_skjenk
+  ),
+  fill = TRUE
+)
+
+# Figur:
+
+# Gjør dataene lange
+avdekkede_brudd_long <- melt(
+  avdekkede_brudd_tid,
+  id.vars = "Category",
+  measure.vars = c("Salg", "Skjenking"),
+  variable.name = "type",
+  value.name = "antall"
+)
+
+# Sørg for riktig rekkefølge på år
+setorder(avdekkede_brudd_long, Category)
+
+# Dataspesifikasjon
+spec_brudd <- hd_spec(
+  avdekkede_brudd_long,
+  x = "Category",
+  y = "antall",
+  group = "type"
+)
+
+# Figurinnstillinger
+opts_brudd <- hd_opts(
+  title = "Avdekkede brudd på alkoholloven over tid",
+  subtitle = "Antall avdekkede brudd knyttet til salgs- og skjenkebevillinger",
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  xlab = "År",
+  ylab = "Antall brudd",
+  decimals = 0
+)
+
+# Lag linjefigur
+hd_make(
+  spec_brudd,
+  "line",
+  opts_brudd,
+  mode = "dynamic",
+  smooth = FALSE,
+  line_symbols = TRUE
+)
+
+
+# Eksorterer fil til neste år
+fwrite(
+  avdekkede_brudd_tid,
+  "O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Tidsariabler/avdekkede-brudd_2025.csv",
+  bom = TRUE
+)
+
+
+```
+
+## Kontroller og inndragninger
+
+```{r}
+#| label: controls-withdrawals
+
+key_counts <- data.table(
+  indikator = c(
+    "Salgskontroller",                         # Antall
+    "Skjenkekontroller",                       # Antall if tot_skjenk25 >0
+    "Permanente inndragninger, salg",          # Antall permanente salg, if q1_7 == 1
+    "Midlertidige inndragninger, salg",        # Antall midertidige salg, if q1_8 == 1
+    "Permanente inndragninger, skjenking",     # Antall permanente skjenk, if q2_12 == 1
+    "Midlertidige inndragninger, skjenking"    # Antall midlertidig skjenk, if q2_13 == 1
+  ),
+  variabel = c(
+    "q1_5",
+    "q2_10",
+    "q1_7_1",
+    "q1_8_1",
+    "q2_12_1",
+    "q2_13_1"
+  )
+)
+
+key_counts[, antall := vapply(
+  variabel,
+  function(v) {
+
+    if (!v %chin% names(dt)) return(NA_real_)
+    
+    if (v == "q1_7_1") {
+      return(sum(dt[as_code(q1_7) == "1", q1_7_1], na.rm = TRUE))
+    }
+
+    if (v == "q1_8_1") {
+      return(sum(dt[as_code(q1_8) == "1", q1_8_1], na.rm = TRUE))
+    }
+
+    if (v == "q2_12_1") {
+      return(sum(dt[as_code(q2_12) == "1", q2_12_1], na.rm = TRUE))
+    }
+
+    if (v == "q2_13_1") {
+      return(sum(dt[as_code(q2_13) == "1", q2_13_1], na.rm = TRUE))
+    }
+
+    sum(dt[[v]], na.rm = TRUE)
+  },
+  numeric(1)
+)]
+
+
+kable(key_counts)
+```
+ 
+### Inndragninger over tid
+
+
+```{r}
+#| label: inndragning-tid
+# Importerer tall fra tidligere
+inndragninger_tid <- read_any(
+  "O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Tidsariabler/inndragninger-av-salgs-o.csv"
+)
+
+
+# Tall som skal inn i tidsfil:
+salg_permanent <- sum(dt[as_code(q1_7) == "1", q1_7_1], na.rm = TRUE
+)
+
+salg_midlertidig <- sum(dt[as_code(q1_8) == "1", q1_8_1], na.rm = TRUE
+)
+
+skjenk_permanent <- sum(dt[as_code(q2_12) == "1", q2_12_1], na.rm = TRUE
+)
+
+skjenk_midlertidig <- sum(dt[as_code(q2_13) == "1", q2_13_1], na.rm = TRUE
+)
+
+
+#Sett inn tall fra siste år:
+inndragninger_tid <- rbind(
+  inndragninger_tid,
+  data.table(
+    Category = YEAR,
+    `Salgsbevillinger (permanent)` = salg_permanent,
+    `Skjenkebevillinger (permanent)` = skjenk_permanent,
+    `Salgsbevillinger (midlertidig)`= salg_midlertidig,
+    `Skjenkebevillinger (midlertidig)` = skjenk_midlertidig
+  ),
+  fill = TRUE
+)
+
+# Figur:
+
+# Gjør dataene lange
+inndragninger_tid_long <- melt(
+  inndragninger_tid,
+  id.vars = "Category",
+  measure.vars = c("Salgsbevillinger (permanent)", 
+                   "Skjenkebevillinger (permanent)",
+                   "Salgsbevillinger (midlertidig)",
+                   "Skjenkebevillinger (midlertidig)"),
+  variable.name = "type",
+  value.name = "antall"
+)
+
+# Sørg for riktig rekkefølge på år
+setorder(inndragninger_tid_long, Category)
+
+# Dataspesifikasjon
+spec_inndragning <- hd_spec(
+  inndragninger_tid_long,
+  x = "Category",
+  y = "antall",
+  group = "type"
+)
+
+# Figurinnstillinger
+opts_inndragning <- hd_opts(
+  title = "Inndragninger over tid",
+  subtitle = "Antall inndragninger av salgs- og skjenkebevillinger",
+  caption = "Kilde: Kommunenes forvaltning av alkoholloven.",
+  xlab = "År",
+  ylab = "Antall inndragninger",
+  decimals = 0
+)
+
+# Lag linjefigur
+hd_make(
+  spec_inndragning,
+  "line",
+  opts_inndragning,
+  mode = "dynamic",
+  smooth = FALSE,
+  line_symbols = TRUE
+)
+
+
+# Eksorterer fil til neste år
+fwrite(
+  inndragninger_tid,
+  "O:/Prosjekt/Rusdata/Kommunenes forvaltning/Alkoholloven/Tidsariabler/inndragninger_2025.csv",
+  bom = TRUE
+)
+
+
+
+```
+
+ 
+### Hvem utførte salgskontroll?
+```{r}
+#| label: salgskontroll
+
+q1_4_labels <- c(
+  q1_4_1 = "Kommunalt ansatte kontrollører",
+  q1_4_2 = "Vaktselskap/annet privat selskap",
+  q1_4_3 = "Interkommunalt samarbeid/annen kommune",
+  q1_4_4 = "Annen måte"
+)
+
+q1_4_tabell <- rbindlist(
+  lapply(names(q1_4_labels), function(v) {
+    data.table(
+      kontrollform = q1_4_labels[[v]],
+      antall_kommuner = sum(dt[[v]] > 0, na.rm = TRUE)
+    )
+  })
+)
+
+kable(
+  q1_4_tabell,
+  caption = "Hvordan kommunen gjennomfører salgskontroller",
+  col.names = c(
+    "Kontrollform",
+    "Antall kommuner"
+  ),
+  align = c("l", "r")
+)
+
+
+
+```
+
+
+
+
+### Hvem utførte skjenkekontroll?
+Kommuner som ikke har skjenkebev per 31.12 er også inkludert i svarene under.
+```{r}
+#| label: skjenkekontroll
+
+
+q2_9_labels <- c(
+  q2_9_1 = "Kommunalt ansatte kontrollører",
+  q2_9_2 = "Vaktselskap/annet privat selskap",
+  q2_9_3 = "Interkommunalt samarbeid/annen kommune",
+  q2_9_4 = "Annen måte"
+)
+
+q2_9_tabell <- rbindlist(
+  lapply(names(q2_9_labels), function(v) {
+    data.table(
+      kontrollform = q2_9_labels[[v]],
+      antall_kommuner = sum(dt[[v]] > 0, na.rm = TRUE)
+    )
+  })
+)
+
+kable(
+  q2_9_tabell,
+  caption = "Hvordan kommunen gjennomfører skjenkeskontroller",
+  col.names = c(
+    "Kontrollform",
+    "Antall kommuner"
+  ),
+  align = c("l", "r")
+)
+
+
+```
+
+
+## Prikker og skjerpende omstendigheter ifm tildeling av prikker
+### Salg
+```{r}
+#| label: prikker
+
+# Ble det formelt klaget på tildeling av prikker til salgssteder?
+q1_10_labels <- c(
+  `1` = "Ja",
+  `2` = "Nei",
+  `3` = "Ikke aktuelt"
+)
+
+q1_10_tabell <- data.table(
+  kode = names(q1_10_labels),
+  svar = unname(q1_10_labels)
+)
+
+q1_10_observert <- dt[
+  !is.na(q1_10),
+  .(antall_kommuner = .N),
+  by = .(kode = as_code(q1_10))
+]
+
+q1_10_tabell <- merge(
+  q1_10_tabell,
+  q1_10_observert,
+  by = "kode",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+q1_10_tabell[
+  is.na(antall_kommuner),
+  antall_kommuner := 0L
+]
+
+q1_10_tabell[, andel := round(
+  100 * antall_kommuner / sum(antall_kommuner),
+  1
+)]
+
+setorder(q1_10_tabell, kode)
+
+kable(
+  q1_10_tabell[, .(
+    svar,
+    antall_kommuner,
+    andel
+  )],
+  caption = "Ble det formelt klaget på tildeling av prikker?",
+  col.names = c(
+    "Svar",
+    "Antall kommuner",
+    "Andel (%)"
+  ),
+  digits = 1,
+  align = c("l", "r", "r")
+)
+
+# Har det vært skjerpende omstendig som førte til tildeling av flere prikker?
+
+q1_12a_tabell <- data.table(
+  kode = names(q1_10_labels),
+  svar = unname(q1_10_labels)
+)
+
+q1_12a_observert <- dt[
+  !is.na(q1_12a),
+  .(antall_kommuner = .N),
+  by = .(kode = as_code(q1_12a))
+]
+
+q1_12a_tabell <- merge(
+  q1_12a_tabell,
+  q1_12a_observert,
+  by = "kode",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+q1_12a_tabell[
+  is.na(antall_kommuner),
+  antall_kommuner := 0L
+]
+
+q1_12a_tabell[, andel := round(
+  100 * antall_kommuner / sum(antall_kommuner),
+  1
+)]
+
+setorder(q1_12a_tabell, kode)
+
+kable(
+  q1_12a_tabell[, .(
+    svar,
+    antall_kommuner,
+    andel
+  )],
+  caption = "Har det vært skjerpende omstendig som førte til tildeling av flere prikker?",
+  col.names = c(
+    "Svar",
+    "Antall kommuner",
+    "Andel (%)"
+  ),
+  digits = 1,
+  align = c("l", "r", "r")
+)
+
+
+# Har det vært skjerpende omstendig som førte til tildeling av færre prikker?
+
+q1_12b_tabell <- data.table(
+  kode = names(q1_10_labels),
+  svar = unname(q1_10_labels)
+)
+
+q1_12b_observert <- dt[
+  !is.na(q1_12b),
+  .(antall_kommuner = .N),
+  by = .(kode = as_code(q1_12b))
+]
+
+q1_12b_tabell <- merge(
+  q1_12b_tabell,
+  q1_12b_observert,
+  by = "kode",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+q1_12b_tabell[
+  is.na(antall_kommuner),
+  antall_kommuner := 0L
+]
+
+q1_12b_tabell[, andel := round(
+  100 * antall_kommuner / sum(antall_kommuner),
+  1
+)]
+
+setorder(q1_12b_tabell, kode)
+
+kable(
+  q1_12b_tabell[, .(
+    svar,
+    antall_kommuner,
+    andel
+  )],
+  caption = "Har det vært skjerpende omstendig som førte til tildeling av færre prikker?",
+  col.names = c(
+    "Svar",
+    "Antall kommuner",
+    "Andel (%)"
+  ),
+  digits = 1,
+  align = c("l", "r", "r")
+)
+
+```
+
+### Skjenking
+
+```{r}
+#| label: prikker_skjenk
+
+
+# Ble det formelt klaget på tildeling av prikker til skjenkesteder?
+
+q2_15_tabell <- data.table(
+  kode = names(q1_10_labels),
+  svar = unname(q1_10_labels)
+)
+
+q2_15_observert <- dt[
+  !is.na(q2_15),
+  .(antall_kommuner = .N),
+  by = .(kode = as_code(q2_15))
+]
+
+q2_15_tabell <- merge(
+  q2_15_tabell,
+  q2_15_observert,
+  by = "kode",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+q2_15_tabell[
+  is.na(antall_kommuner),
+  antall_kommuner := 0L
+]
+
+q2_15_tabell[, andel := round(
+  100 * antall_kommuner / sum(antall_kommuner),
+  1
+)]
+
+setorder(q2_15_tabell, kode)
+
+kable(
+  q2_15_tabell[, .(
+    svar,
+    antall_kommuner,
+    andel
+  )],
+  caption = "Ble det formelt klaget på tildeling av prikker?",
+  col.names = c(
+    "Svar",
+    "Antall kommuner",
+    "Andel (%)"
+  ),
+  digits = 1,
+  align = c("l", "r", "r")
+)
+
+# Har det vært skjerpende omstendig som førte til tildeling av færre prikker?
+
+q2_17a_tabell <- data.table(
+  kode = names(q1_10_labels),
+  svar = unname(q1_10_labels)
+)
+
+q2_17a_observert <- dt[
+  !is.na(q2_17a),
+  .(antall_kommuner = .N),
+  by = .(kode = as_code(q2_17a))
+]
+
+q2_17a_tabell <- merge(
+  q2_17a_tabell,
+  q2_17a_observert,
+  by = "kode",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+q2_17a_tabell[
+  is.na(antall_kommuner),
+  antall_kommuner := 0L
+]
+
+q2_17a_tabell[, andel := round(
+  100 * antall_kommuner / sum(antall_kommuner),
+  1
+)]
+
+setorder(q2_17a_tabell, kode)
+
+kable(
+  q2_17a_tabell[, .(
+    svar,
+    antall_kommuner,
+    andel
+  )],
+  caption = "Har det vært skjerpende omstendig som førte til tildeling av færre prikker?",
+  col.names = c(
+    "Svar",
+    "Antall kommuner",
+    "Andel (%)"
+  ),
+  digits = 1,
+  align = c("l", "r", "r")
+)
+
+
+# Har det vært skjerpende omstendig som førte til tildeling av flere prikker?
+
+q2_17b_tabell <- data.table(
+  kode = names(q1_10_labels),
+  svar = unname(q1_10_labels)
+)
+
+q2_17b_observert <- dt[
+  !is.na(q2_17b),
+  .(antall_kommuner = .N),
+  by = .(kode = as_code(q2_17b))
+]
+
+q2_17b_tabell <- merge(
+  q2_17b_tabell,
+  q2_17b_observert,
+  by = "kode",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+q2_17b_tabell[
+  is.na(antall_kommuner),
+  antall_kommuner := 0L
+]
+
+q2_17b_tabell[, andel := round(
+  100 * antall_kommuner / sum(antall_kommuner),
+  1
+)]
+
+setorder(q2_17b_tabell, kode)
+
+kable(
+  q2_17b_tabell[, .(
+    svar,
+    antall_kommuner,
+    andel
+  )],
+  caption = "Har det vært skjerpende omstendig som førte til tildeling av flere prikker?",
+  col.names = c(
+    "Svar",
+    "Antall kommuner",
+    "Andel (%)"
+  ),
+  digits = 1,
+  align = c("l", "r", "r")
+)
+
+
+
+```
+
+
+# Alkoholpolitikk, veiledning og registrering
+
+```{r}
+#| label: policy
+
+binary_labels <- c(
+  `1` = "Ja",
+  `2` = "Nei"
+)
+
+policy_vars <- c(
+  q4_3 = "Alkoholpolitisk handlingsplan",
+  q5_2 = "Mottatt veiledning eller opplæring",
+  q5_3 = "Registrerer bevillinger i TBR"
+)
+
+policy <- rbindlist(lapply(names(policy_vars), function(v) {
+  if (!v %chin% names(dt)) return(NULL)
+
+  z <- dt[!is.na(get(v)), .N, by = .(kode = as_code(get(v)))]
+  z[, `:=`(
+    indikator = policy_vars[[v]],
+    svar = binary_labels[kode],
+    prosent = round(100 * N / sum(N), 1)
+  )]
+  z
+}), fill = TRUE)
+
+kable(policy[, .(indikator, svar, N, prosent)], digits = 1)
+```
+
+## Hvem ga veiledning?
+
+```{r}
+#| label: guidance
+
+# Har kommunen fått veiledning
+
+
+veiledning_tabell <- dt[
+  !is.na(q5_2),
+  .N,
+  by = .(
+    svar = fifelse(
+      as_code(q5_2) == "1",
+      "Ja",
+      fifelse(as_code(q5_2) == "2", "Nei", "Annet")
+    )
+  )
+]
+
+veiledning_tabell[, andel := round(100 * N / sum(N), 1)]
+
+kable(
+  veiledning_tabell,
+  caption = "Har kommunen mottatt veiledning ifm alkoholloven?",
+  col.names = c("Svar", "Antall kommuner", "Andel (%)"),
+  align = c("l", "r", "r")
+)
+
+
+# Type veiledning
+guidance_labels <- c(
+  q5_2a_1 = "Statsforvalter",
+  q5_2a_2 = "Annen kommune",
+  q5_2a_3 = "KORUS",
+  q5_2a_4 = "Kommunalt alkoholfaglig saksbehandlerforum (KAS)",
+  q5_2a_5 = "Annet"
+)
+
+
+guidance <- rbindlist(lapply(
+  intersect(names(guidance_labels), names(dt)),
+  function(v) {
+    data.table(
+      variabel = v,
+      kommuner = sum(as_yes(dt[[v]]) %in% TRUE, na.rm = TRUE)
+    )
+  }
+))
+
+guidance[, kilde := guidance_labels[variabel]]
+
+fig_ranked(
+  guidance,
+  x = "kilde",
+  y = "kommuner",
+  title = "Veiledning i forbindelse med alkoholloven",
+  subtitle = paste0("Antall kommuner, ", YEAR),
+  caption = "Flere svar var mulig. Kilde: Kommunenes forvaltning av alkoholloven.",
+  description = "Antall kommuner etter hvem som ga veiledning."
+)
+
+```
+
+
+
+# Kontrolltabeller etter geografi og kommunetype
+
+Tabellene under brukes først og fremst til å oppdage systematisk frafall og uventede mønstre. Små grupper bør tolkes med forsiktighet.
+
+```{r}
+#| label: stratified
+
+stratified <- rbindlist(lapply(
+  c("fylke", "landsdel", "sentralitetnavn", "liten"),
+  function(g) {
+    dt[svart %in% TRUE, .(
+      kommuner = .N,
+      salgsbevillinger = sum(tot_salg25, na.rm = TRUE),
+      skjenkebevillinger = sum(tot_skjenk25, na.rm = TRUE),
+      salg_median = median(tot_salg25, na.rm = TRUE),
+      skjenking_median = median(tot_skjenk25, na.rm = TRUE)
+    ), by = g][, inndeling := g]
+  }
+), fill = TRUE, use.names = TRUE)
+
+kable(stratified, digits = 1)
+fwrite(stratified, file.path(OUT, "kontrolltabell_inndelinger.csv"), bom = TRUE)
+```
+
+# Eksport
+
+```{r}
+#| label: export
+
+# Kontaktvariablene qintro_2_1_* er fjernet før kobling.
+#  fwrite(
+#   dt,
+#   file.path(OUT, paste0("kfa_", YEAR, "_analysegrunnlag.csv")),
+#   bom = TRUE
+# )
+# 
+# fwrite(koblingskontroll, file.path(OUT, "sanity_kobling.csv"), bom = TRUE)
+# fwrite(bare_i_sav, file.path(OUT, "sanity_bare_i_sav.csv"), bom = TRUE)
+# fwrite(bare_i_kommuneinfo, file.path(OUT, "sanity_bare_i_kommuneinfo.csv"), bom = TRUE)
+# fwrite(response_by, file.path(OUT, "svarprosent_inndelinger.csv"), bom = TRUE)
+# fwrite(sales_type, file.path(OUT, "salgsbevillinger_type.csv"), bom = TRUE)
+# fwrite(serving_group, file.path(OUT, "skjenkebevillinger_alkoholgruppe.csv"), bom = TRUE)
+# fwrite(places, file.path(OUT, "skjenking_andre_steder.csv"), bom = TRUE)
+# fwrite(viol_sales, file.path(OUT, "overtredelser_salg.csv"), bom = TRUE)
+# fwrite(viol_serving, file.path(OUT, "overtredelser_skjenking.csv"), bom = TRUE)
+# 
+# cat("Resultatfiler er skrevet til:", normalizePath(OUT), "\n")
+```
+
+# Publiseringssjekkliste
+
+- Kontroller at `kommuneid` i SAV-filen faktisk er kommunenummer, og ikke en intern respondent-ID.
+- Kontroller at `kommunenummer` i begge filer representerer samme kommuneinndeling og samme år.
+- Gjennomgå `kontroll_spss_value_labels.csv` før ja/nei- og flervalgsspørsmål publiseres.
+- Avklar om `svar` betyr mottatt skjema, fullført skjema eller godkjent besvarelse.
+- Kontroller at ordinære ja/nei-spørsmål bruker 1 = ja og 2 = nei.
+- Kontroller om avkrysningsfelt bruker 1/0, 1/tom eller en annen koding.
+- Gjennomgå alle logiske avvik med dataleverandør eller kommune.
+- Vurder ekstremverdier mot fritekst og tidligere år.
+- Oppgi antall gyldige svar som nevner for prosenter.
+- Skill tydelig mellom observerte og tidligere rapporterte tall dersom tidligere verdier brukes for ikke-svar.
+- Dokumenter kommune- og fylkesendringer dersom tall sammenlignes over tid.
+- Ikke publiser kontaktopplysninger eller fritekst som kan identifisere respondenter.
+- Kontroller figurtekst, datatabell og alternativ tekst før publisering.
+
+# Sesjonsinformasjon
+
+```{r}
+#| label: session-info
+
+sessionInfo()
+```
